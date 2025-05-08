@@ -24,7 +24,7 @@ def main():
         except KeyboardInterrupt:
             logger.info("Server shutting down due to KeyboardInterrupt...")
         except Exception as e:
-            logger.exception("Error in server execution")
+            logger.exception(f"Error in server execution: {e}")
         finally:
             server.server_close()
 
