@@ -2,3 +2,7 @@ bot_token: ""
 chat_id: ""
 preprompt: |
   Just summerize what you see after colon ":" - do not say anything extra
+enable_ai: true
+show_original: true
+server_host: ""
+server_port: 9090
