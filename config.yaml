@@ -1,0 +1,4 @@
+bot_token: ""
+chat_id: ""
+preprompt: |
+  Just summerize what you see after colon ":" - do not say anything extra
