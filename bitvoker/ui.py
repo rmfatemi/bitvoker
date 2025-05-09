@@ -73,8 +73,7 @@ def index():
         config.config_data["show_original"] = True if data.get("show_original") == "on" else False
         with open(config.filename, "w", encoding="utf-8") as f:
             yaml.safe_dump(config.config_data, f)
-        # Using Flask's _anchor parameter so that we stay on settings
-        return redirect(url_for("index", _anchor="settings"))
+        return redirect(url_for("index", active="settings") + "#settings")
     return render_template("index.html", config=config.config_data, notifications=notifications, logs=mem_handler.get_logs())
 
 @app.route("/get_notifications")
