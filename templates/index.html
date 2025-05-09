@@ -2,66 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title><strong>Bitvoker UI</strong></title>
+  <title>bitvoker</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body {
-      background-color: #141421;
-      color: #ffffff;
-      font-weight: 500;
-    }
-    .card {
-      background-color: #1f1f38;
-      border: 1px solid #1abc9c;
-      border-radius: 5px;
-      margin-bottom: 1rem;
-    }
-    .card-header, .card-body, .nav-tabs .nav-link, .tab-pane, label, input, select, button, textarea {
-      color: #ffffff !important;
-      font-weight: 500;
-    }
-    .nav-tabs .nav-link {
-      font-weight: 700;
-    }
-    .nav-tabs .nav-link.active {
-      background-color: #1f1f38;
-    }
-    .form-control, .form-check-input, select, textarea {
-      background-color: #1f1f38;
-      color: #ffffff !important;
-      border: 1px solid #7f8c8d;
-      font-weight: 500;
-    }
-    .form-control:focus, textarea:focus {
-      background-color: #1f1f38;
-      color: #ffffff !important;
-      border-color: #1abc9c !important;
-      box-shadow: 0 0 0 0.2rem rgba(26,188,156,0.25);
-    }
+    body { background-color: #141421; color: #ffffff; font-weight: 500; }
+    .card { background-color: #1f1f38; border: 1px solid #1abc9c; border-radius: 5px; margin-bottom: 1rem; }
+    .card-header, .card-body, .nav-tabs .nav-link, .tab-pane, label, input, select, button, textarea { color: #ffffff !important; font-weight: 500; }
+    .nav-tabs .nav-link { font-weight: 700; }
+    .nav-tabs .nav-link.active { background-color: #1f1f38; }
+    .form-control, .form-check-input, select, textarea { background-color: #1f1f38; color: #ffffff !important; border: 1px solid #7f8c8d; font-weight: 500; }
+    .form-control:focus, textarea:focus { background-color: #1f1f38; color: #ffffff !important; border-color: #1abc9c !important; box-shadow: 0 0 0 0.2rem rgba(26,188,156,0.25); }
     a { color: #ffffff !important; }
-    .form-text {
-      color: #bdc3c7 !important;
-    }
-    .input-inline label {
-      margin-right: 0.5rem;
-      margin-bottom: 0;
-    }
-    .input-inline input, .input-inline select {
-      display: inline-block;
-      width: auto;
-      vertical-align: middle;
-      margin-right: 0.5rem;
-    }
-    .input-inline button {
-      vertical-align: middle;
-    }
-    #logs-content {
-      border: 1px solid #1abc9c;
-      padding: 10px;
-      border-radius: 5px;
-      max-height: 50em;
-      overflow-y: auto;
-    }
+    .form-text { color: #bdc3c7 !important; }
+    .input-inline label { margin-right: 0.5rem; margin-bottom: 0; }
+    .input-inline input, .input-inline select { display: inline-block; width: auto; vertical-align: middle; margin-right: 0.5rem; }
+    .input-inline button { vertical-align: middle; }
+    #logs-content { border: 1px solid #1abc9c; padding: 10px; border-radius: 5px; max-height: 50em; overflow-y: auto; }
   </style>
 </head>
 <body>
@@ -92,7 +48,6 @@
     <!-- Settings Tab -->
     <div class="tab-pane fade" id="settings" role="tabpanel">
       <form method="post" action="{{ url_for('index') }}">
-        <!-- Row 1: Telegram Credentials -->
         <div class="row mb-3">
           <div class="col-md-6">
             <label for="bot_token" class="form-label fw-bold">Telegram Bot Token</label>
@@ -121,7 +76,6 @@
             <div class="form-text">Use the @getidsbot within the chat you started after creating your bot</div>
           </div>
         </div>
-        <!-- Row 2: Server Options and Toggles -->
         <div class="row mb-3 align-items-center">
           <div class="col-md-3">
             <label for="server_host" class="form-label fw-bold">Server Host</label>
@@ -148,7 +102,6 @@
             <div class="form-text">Include the original message along with the AI summary</div>
           </div>
         </div>
-        <!-- Row 3: Preprompt -->
         <div class="mb-3">
           <label for="preprompt" class="form-label fw-bold">Preprompt (max 2048 characters)</label>
           <textarea class="form-control" id="preprompt" name="preprompt" maxlength="2048" rows="5">{{ config.preprompt }}</textarea>
@@ -176,7 +129,6 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  // Global variable for whether to display the original message with AI summary
   var showOriginal = {{ config.show_original|tojson }};
   function toggleSecret(fieldId, show) {
     var input = document.getElementById(fieldId);

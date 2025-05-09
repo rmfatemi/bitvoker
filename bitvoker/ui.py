@@ -9,7 +9,7 @@ from bitvoker.handler import Handler
 from bitvoker.logger import setup_logger
 from bitvoker.ai import AI
 from bitvoker.telegram import Telegram
-from bitvoker.store import notifications
+from bitvoker.database import get_notifications
 
 logger = setup_logger("ui")
 tcp_server_instance = None
@@ -33,11 +33,9 @@ class MemoryLogHandler(logging.Handler):
         super().__init__()
         self.log_entries = []
     def emit(self, record):
-        self.log_entries.append({
-            "timestamp": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(record.created)),
-            "level": record.levelname,
-            "message": record.getMessage()
-        })
+        self.log_entries.append({"timestamp": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(record.created)),
+                                 "level": record.levelname,
+                                 "message": record.getMessage()})
     def get_logs(self):
         return self.log_entries
 
@@ -74,21 +72,17 @@ def index():
         with open(config.filename, "w", encoding="utf-8") as f:
             yaml.safe_dump(config.config_data, f)
         return redirect(url_for("index", active="settings") + "#settings")
-    return render_template("index.html", config=config.config_data, notifications=notifications, logs=mem_handler.get_logs())
+    return render_template("index.html", config=config.config_data, notifications=[], logs=mem_handler.get_logs())
 
 @app.route("/get_notifications")
-def get_notifications():
+def get_notifications_endpoint():
     limit = request.args.get("limit", default=20, type=int)
     date_filter = request.args.get("date", default="", type=str)
-    if date_filter:
-        filtered = [n for n in notifications if n['timestamp'].startswith(date_filter)]
-    else:
-        filtered = notifications[:]
-    filtered = list(reversed(filtered))
-    return jsonify(notifications=filtered[:limit])
+    notifs = get_notifications(limit, date_filter)
+    return jsonify(notifications=notifs)
 
 @app.route("/get_logs")
-def get_logs():
+def get_logs_endpoint():
     return jsonify(logs=mem_handler.get_logs())
 
 if __name__ == "__main__":
