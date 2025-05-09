@@ -6,13 +6,15 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background-color: #0d0d1a;
+      background-color: #141421;
       color: #ffffff;
       font-weight: 500;
     }
     .card {
       background-color: #1f1f38;
-      border: none;
+      border: 1px solid #1abc9c;
+      border-radius: 5px;
+      margin-bottom: 1rem;
     }
     .card-header, .card-body, .nav-tabs .nav-link, .tab-pane, label, input, select, button, textarea {
       color: #ffffff !important;
@@ -33,8 +35,13 @@
     .form-control:focus, textarea:focus {
       background-color: #1f1f38;
       color: #ffffff !important;
+      border-color: #1abc9c !important;
+      box-shadow: 0 0 0 0.2rem rgba(26,188,156,0.25);
     }
     a { color: #ffffff !important; }
+    .form-text {
+      color: #bdc3c7 !important;
+    }
     .input-inline label {
       margin-right: 0.5rem;
       margin-bottom: 0;
@@ -49,6 +56,9 @@
       vertical-align: middle;
     }
     #logs-content {
+      border: 1px solid #1abc9c;
+      padding: 10px;
+      border-radius: 5px;
       max-height: 24em;
       overflow-y: auto;
     }
@@ -82,33 +92,71 @@
     <!-- Settings Tab -->
     <div class="tab-pane fade" id="settings" role="tabpanel">
       <form method="post" action="{{ url_for('index') }}">
+        <!-- Row 1: Telegram Credentials -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="bot_token" class="form-label">Telegram Bot Token</label>
+            <div class="input-group">
+              <input type="password" class="form-control" id="bot_token" name="bot_token" value="{{ config.bot_token }}">
+              <button class="btn btn-outline-secondary" type="button"
+                      onmousedown="toggleSecret('bot_token', true)"
+                      onmouseup="toggleSecret('bot_token', false)"
+                      onmouseleave="toggleSecret('bot_token', false)">
+                👁
+              </button>
+            </div>
+            <div class="form-text">
+              Obtain your token from <a href="https://telegram.me/BotFather" target="_blank" class="text-white">BotFather</a>.
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label for="chat_id" class="form-label">Telegram Chat ID</label>
+            <div class="input-group">
+              <input type="password" class="form-control" id="chat_id" name="chat_id" value="{{ config.chat_id }}">
+              <button class="btn btn-outline-secondary" type="button"
+                      onmousedown="toggleSecret('chat_id', true)"
+                      onmouseup="toggleSecret('chat_id', false)"
+                      onmouseleave="toggleSecret('chat_id', false)">
+                👁
+              </button>
+            </div>
+            <div class="form-text">
+              Use the @getidsbot within the chat you started after creating your bot.
+            </div>
+          </div>
+        </div>
+        <!-- Row 2: Server Options and Toggles -->
+        <div class="row mb-3 align-items-center">
+          <div class="col-md-3">
+            <label for="server_host" class="form-label">Server Host</label>
+            <input type="text" class="form-control" id="server_host" name="server_host" value="{{ config.server_host }}">
+            <div class="form-text">Hostname or IP.</div>
+          </div>
+          <div class="col-md-3">
+            <label for="server_port" class="form-label">Server Port</label>
+            <input type="number" class="form-control" id="server_port" name="server_port" value="{{ config.server_port }}">
+            <div class="form-text">TCP port for the server.</div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="enable_ai" name="enable_ai" {% if config.enable_ai %}checked{% endif %}>
+              <label class="form-check-label" for="enable_ai">Enable AI</label>
+            </div>
+            <div class="form-text">Toggle message processing via AI.</div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="show_original" name="show_original" {% if config.show_original %}checked{% endif %}>
+              <label class="form-check-label" for="show_original">Show Original Message</label>
+            </div>
+            <div class="form-text">Display raw messages alongside AI summary.</div>
+          </div>
+        </div>
+        <!-- Row 3: Preprompt -->
         <div class="mb-3">
-          <label for="bot_token" class="form-label">Bot Token</label>
-          <input type="password" class="form-control" id="bot_token" name="bot_token" value="{{ config.bot_token }}">
-        </div>
-        <div class="mb-3">
-          <label for="chat_id" class="form-label">Chat ID</label>
-          <input type="password" class="form-control" id="chat_id" name="chat_id" value="{{ config.chat_id }}">
-        </div>
-        <div class="mb-3">
-          <label for="preprompt" class="form-label">Preprompt (max 1000 characters)</label>
-          <textarea class="form-control" id="preprompt" name="preprompt" maxlength="1000" rows="5">{{ config.preprompt }}</textarea>
-        </div>
-        <div class="mb-3">
-          <label for="server_host" class="form-label">Server Host</label>
-          <input type="text" class="form-control" id="server_host" name="server_host" value="{{ config.server_host }}">
-        </div>
-        <div class="mb-3">
-          <label for="server_port" class="form-label">Server Port</label>
-          <input type="number" class="form-control" id="server_port" name="server_port" value="{{ config.server_port }}">
-        </div>
-        <div class="form-check mb-3">
-          <input type="checkbox" class="form-check-input" id="enable_ai" name="enable_ai" {% if config.enable_ai %}checked{% endif %}>
-          <label class="form-check-label" for="enable_ai">Enable AI</label>
-        </div>
-        <div class="form-check mb-3">
-          <input type="checkbox" class="form-check-input" id="show_original" name="show_original" {% if config.show_original %}checked{% endif %}>
-          <label class="form-check-label" for="show_original">Show Original Message</label>
+          <label for="preprompt" class="form-label">Preprompt (max 2048 characters)</label>
+          <textarea class="form-control" id="preprompt" name="preprompt" maxlength="2048" rows="5">{{ config.preprompt }}</textarea>
+          <div class="form-text">Default prompt prepended to messages. If left empty, AI will be disabled.</div>
         </div>
         <button type="submit" class="btn btn-primary">Save Settings</button>
       </form>
@@ -132,6 +180,10 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+  function toggleSecret(fieldId, show) {
+    var input = document.getElementById(fieldId);
+    input.type = show ? 'text' : 'password';
+  }
   function fetchNotifications() {
     const limit = document.getElementById('limit').value || 20;
     const date_filter = document.getElementById('date_filter').value || "";
@@ -139,19 +191,23 @@
       .then(response => response.json())
       .then(data => {
         let content = '';
-        data.notifications.forEach(nt => {
-          content += `<div class="card mb-3">
-            <div class="card-header">${nt.timestamp} | From: ${nt.client}</div>
-            <div class="card-body">
-              <h5 class="card-title">Original Message</h5>
-              <p class="card-text">${nt.original}</p>`;
-          if(nt.ai) {
-            content += `<hr>
-                        <h6 class="card-subtitle mb-2">AI Summary</h6>
-                        <p class="card-text">${nt.ai}</p>`;
-          }
-          content += `</div></div>`;
-        });
+        if(data.notifications.length === 0) {
+          content = `<div class="alert alert-info">No notifications yet. Get started by sending a message to the TCP server using a tool like telnet or your own client at the specified host and port in your settings.</div>`;
+        } else {
+          data.notifications.forEach(nt => {
+            content += `<div class="card">
+              <div class="card-header">${nt.timestamp} | From: ${nt.client}</div>
+              <div class="card-body">
+                <h5 class="card-title">Original Message</h5>
+                <p class="card-text">${nt.original}</p>`;
+            if(nt.ai) {
+              content += `<hr>
+                          <h6 class="card-subtitle mb-2">AI Summary</h6>
+                          <p class="card-text">${nt.ai}</p>`;
+            }
+            content += `</div></div>`;
+          });
+        }
         document.getElementById('notifications-content').innerHTML = content;
       });
   }
@@ -162,7 +218,7 @@
       .then(response => response.json())
       .then(data => {
         let content = '';
-        data.logs.slice(-20).forEach(log => {
+        data.logs.forEach(log => {
           if(selectedLevel === "ALL" || levelMapping[log.level] >= levelMapping[selectedLevel]) {
             content += `<div>${log.timestamp} - ${log.level} - ${log.message}</div>`;
           }

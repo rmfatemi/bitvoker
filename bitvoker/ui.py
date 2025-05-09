@@ -61,10 +61,9 @@ def index():
         config.config_data["bot_token"] = data.get("bot_token", config.config_data.get("bot_token"))
         config.config_data["chat_id"] = data.get("chat_id", config.config_data.get("chat_id"))
         preprompt_val = data.get("preprompt", config.config_data.get("preprompt"))
-        if len(preprompt_val) > 1000:
-            preprompt_val = preprompt_val[:1000]
+        if len(preprompt_val) > 2048:
+            preprompt_val = preprompt_val[:2048]
         config.config_data["preprompt"] = preprompt_val
-        # Automatically disable AI if preprompt is empty
         if preprompt_val.strip() == "":
             config.config_data["enable_ai"] = False
         else:
@@ -74,7 +73,8 @@ def index():
         config.config_data["show_original"] = True if data.get("show_original") == "on" else False
         with open(config.filename, "w", encoding="utf-8") as f:
             yaml.safe_dump(config.config_data, f)
-        return redirect(url_for("index"))
+        # Using Flask's _anchor parameter so that we stay on settings
+        return redirect(url_for("index", _anchor="settings"))
     return render_template("index.html", config=config.config_data, notifications=notifications, logs=mem_handler.get_logs())
 
 @app.route("/get_notifications")
