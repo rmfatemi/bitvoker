@@ -1,6 +1,7 @@
 import socketserver
 
 from time import strftime, localtime
+
 from bitvoker.ai import AI
 from bitvoker.config import Config
 from bitvoker.notifier import Notifier
@@ -20,11 +21,9 @@ def truncate(text, max_length=80):
 
 class Handler(socketserver.BaseRequestHandler):
     def handle(self):
-        # Reload config on each request to pick up changes
         current_config_manager = Config()
         self.server.config_manager = current_config_manager
 
-        # Re-initialize AI and Notifier based on potentially updated config
         if current_config_manager.enable_ai:
             self.server.ai = AI(current_config_manager.preprompt)
         else:
