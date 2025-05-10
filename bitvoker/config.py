@@ -1,118 +1,76 @@
 import os
 import yaml
+from bitvoker.logger import setup_logger
+from bitvoker.constants import TCP_SERVER_PORT, SERVER_HOST
+
+logger = setup_logger("config")
+
 
 class Config:
-    def __init__(self, filename="config.yaml"):
-        self.filename = filename
-        self.config_data = self._load_config()
+    def __init__(self, filename=None):
+        self.filename = filename or os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.yaml")
+        self.config_data = {}
+        self.load_config()
 
-    def _load_config(self):
-        pkg_dir = os.path.dirname(os.path.abspath(__file__))
-        root_dir = os.path.abspath(os.path.join(pkg_dir, os.pardir))
-        config_path = os.path.join(root_dir, self.filename)
+    def load_config(self):
+        try:
+            if os.path.exists(self.filename):
+                with open(self.filename, "r", encoding="utf-8") as f:
+                    self.config_data = yaml.safe_load(f) or {}
+            else:
+                self.create_default_config()
+        except Exception as e:
+            logger.error(f"Failed to load configuration: {str(e)}")
+            self.create_default_config()
 
-        default_config = {
-            "preprompt": "Just summarize what you see after colon \":\" - do not say anything extra",
-            "enable_ai": True,
+    def create_default_config(self):
+        self.config_data = {
+            "preprompt": "You are an assistant that summarizes technical logs and alerts. Be concise but informative.",
+            "enable_ai": False,
             "show_original": True,
-            "server_host": "",
-            "server_port": 9090,
             "gui_theme": "dark",
-            "ntfy": {
-                "enabled": True,
-                "server_url": "https://ntfy.sh",
-                "topic": "bitvoker_notifications"
-            },
-            "telegram": {
-                "enabled": False,
-                "bot_token": "",
-                "chat_id": ""
-            },
-            "slack": {
-                "enabled": False,
-                "webhook_url": "",
-                "token": ""
-            },
-            "discord": {
-                "enabled": False,
-                "webhook_url": "",
-                "token": ""
-            },
-            "gotify": {
-                "enabled": False,
-                "server_url": "",
-                "app_token": ""
-            }
+            "telegram": {"enabled": False, "bot_token": "", "chat_id": ""},
+            "discord": {"enabled": False, "webhook_url": "", "token": ""},
+            "slack": {"enabled": False, "webhook_url": "", "token": ""},
+            "gotify": {"enabled": False, "server_url": "", "app_token": ""}
         }
 
-        if not os.path.exists(config_path):
-            with open(config_path, "w", encoding="utf-8") as config_file:
-                yaml.safe_dump(default_config, config_file, sort_keys=False)
-            return default_config
-
-        with open(config_path, "r", encoding="utf-8") as config_file:
-            try:
-                data = yaml.safe_load(config_file) or {}
-            except yaml.YAMLError as e:
-                raise ValueError(f"Error parsing config file: {e}") from e
-
-        for key, value in default_config.items():
-            if key not in data:
-                data[key] = value
-            elif isinstance(value, dict):
-                for subkey, subvalue in value.items():
-                    if subkey not in data[key]:
-                        data[key][subkey] = subvalue
-
-        return data
+        try:
+            with open(self.filename, "w", encoding="utf-8") as f:
+                yaml.safe_dump(self.config_data, f, sort_keys=False)
+            logger.info(f"Created default configuration at {self.filename}")
+        except Exception as e:
+            logger.error(f"Failed to create default configuration: {str(e)}")
 
     @property
     def preprompt(self):
-        return self.config_data.get("preprompt", "Summarize: ")
+        return self.config_data.get("preprompt", "")
 
     @property
     def enable_ai(self):
-        return self.config_data.get("enable_ai", True)
+        return self.config_data.get("enable_ai", False)
 
     @property
     def show_original(self):
         return self.config_data.get("show_original", True)
 
     @property
-    def server_host(self):
-        return self.config_data.get("server_host", "")
-
-    @property
-    def server_port(self):
-        return self.config_data.get("server_port", 9090)
-
-    @property
     def gui_theme(self):
         return self.config_data.get("gui_theme", "dark")
 
+    # Server host/port properties now use constants
     @property
-    def ntfy(self):
-        return self.config_data.get("ntfy", {})
+    def server_host(self):
+        return SERVER_HOST
 
     @property
-    def telegram(self):
-        return self.config_data.get("telegram", {})
-
-    @property
-    def slack(self):
-        return self.config_data.get("slack", {})
-
-    @property
-    def discord(self):
-        return self.config_data.get("discord", {})
-
-    @property
-    def gotify(self):
-        return self.config_data.get("gotify", {})
+    def server_port(self):
+        return TCP_SERVER_PORT
 
     @property
     def notification_channels(self):
-        channels = []
-        for channel in ["ntfy", "telegram", "slack", "discord", "gotify"]:
-            channels.append(self.config_data.get(channel, {}))
+        channels = {}
+        for channel in ["telegram", "discord", "slack", "gotify"]:
+            if channel in self.config_data and self.config_data[channel].get("enabled", False):
+                channels[channel] = self.config_data[channel].copy()
         return channels

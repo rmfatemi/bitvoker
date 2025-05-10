@@ -1,218 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<<<<<<< Updated upstream
-  <meta charset="utf-8">
-  <title>Bitvoker UI</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      background-color: #0d0d1a;
-      color: #ffffff;
-      font-weight: 500;
-    }
-    .card {
-      background-color: #1f1f38;
-      border: none;
-    }
-    .card-header, .card-body, .nav-tabs .nav-link, .tab-pane, label, input, select, button, textarea {
-      color: #ffffff !important;
-      font-weight: 500;
-    }
-    .nav-tabs .nav-link {
-      color: #ffffff !important;
-    }
-    .nav-tabs .nav-link.active {
-      background-color: #1f1f38;
-    }
-    .form-control, .form-check-input, select, textarea {
-      background-color: #1f1f38;
-      color: #ffffff !important;
-      border: 1px solid #7f8c8d;
-      font-weight: 500;
-    }
-    .form-control:focus, textarea:focus {
-      background-color: #1f1f38;
-      color: #ffffff !important;
-    }
-    a { color: #ffffff !important; }
-    .input-inline label {
-      margin-right: 0.5rem;
-      margin-bottom: 0;
-    }
-    .input-inline input, .input-inline select {
-      display: inline-block;
-      width: auto;
-      vertical-align: middle;
-      margin-right: 0.5rem;
-    }
-    .input-inline button {
-      vertical-align: middle;
-    }
-    #logs-content {
-      max-height: 24em;
-      overflow-y: auto;
-    }
-  </style>
-</head>
-<body>
-<div class="container mt-4">
-  <ul class="nav nav-tabs" id="myTab" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications" type="button" role="tab">Notifications</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab">Settings</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logs" type="button" role="tab">Logs</button>
-    </li>
-  </ul>
-  <div class="tab-content mt-3" id="myTabContent">
-    <!-- Notifications Tab -->
-    <div class="tab-pane fade show active" id="notifications" role="tabpanel">
-      <div class="input-inline mb-3">
-        <label for="limit">Limit:</label>
-        <input type="number" id="limit" class="form-control me-3" style="width:80px;" value="20" onchange="fetchNotifications()">
-        <label for="date_filter">Date:</label>
-        <input type="date" id="date_filter" class="form-control me-3" style="width:180px;" onchange="fetchNotifications()">
-        <button class="btn btn-secondary" onclick="fetchNotifications()">Filter</button>
-      </div>
-      <div id="notifications-content"></div>
-    </div>
-    <!-- Settings Tab -->
-    <div class="tab-pane fade" id="settings" role="tabpanel">
-      <form method="post" action="{{ url_for('index') }}">
-        <div class="mb-3">
-          <label for="bot_token" class="form-label">Bot Token</label>
-          <input type="password" class="form-control" id="bot_token" name="bot_token" value="{{ config.bot_token }}">
-        </div>
-        <div class="mb-3">
-          <label for="chat_id" class="form-label">Chat ID</label>
-          <input type="password" class="form-control" id="chat_id" name="chat_id" value="{{ config.chat_id }}">
-        </div>
-        <div class="mb-3">
-          <label for="preprompt" class="form-label">Preprompt (max 1000 characters)</label>
-          <textarea class="form-control" id="preprompt" name="preprompt" maxlength="1000" rows="5">{{ config.preprompt }}</textarea>
-        </div>
-        <div class="mb-3">
-          <label for="server_host" class="form-label">Server Host</label>
-          <input type="text" class="form-control" id="server_host" name="server_host" value="{{ config.server_host }}">
-        </div>
-        <div class="mb-3">
-          <label for="server_port" class="form-label">Server Port</label>
-          <input type="number" class="form-control" id="server_port" name="server_port" value="{{ config.server_port }}">
-        </div>
-        <div class="form-check mb-3">
-          <input type="checkbox" class="form-check-input" id="enable_ai" name="enable_ai" {% if config.enable_ai %}checked{% endif %}>
-          <label class="form-check-label" for="enable_ai">Enable AI</label>
-        </div>
-        <div class="form-check mb-3">
-          <input type="checkbox" class="form-check-input" id="show_original" name="show_original" {% if config.show_original %}checked{% endif %}>
-          <label class="form-check-label" for="show_original">Show Original Message</label>
-=======
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bitvoker Control Panel</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%23333'/><text x='50%' y='52%' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='60' font-weight='bold' fill='%23fff'>BV</text></svg>">
+  <title>bitvoker</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='15' fill='%23333'/><text x='50%' y='52%' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='60' font-weight='bold' fill='%23fff'>bv</text></svg>">
+  <link rel="stylesheet" href="static/css/style.css">
   <style>
-    :root {
-      --bg-color: #1e1e1e; --text-color: #d4d4d4; --primary-color: #007acc;
-      --primary-hover-color: #005fa3; --border-color: #333; --input-bg: #2a2a2a;
-      --input-border: #444; --header-bg: #252526; --tab-bg: #2d2d2d;
-      --tab-active-bg: var(--bg-color); --tab-hover-bg: #3e3e3e;
-      --button-bg: var(--primary-color); --button-text-color: #fff;
-      --logo-bg: #333; --logo-text: #fff; --danger-color: #dc3545;
-      --danger-hover-color: #c82333; --card-bg: #252526; --disabled-bg: #3a3a3a; --disabled-text: #888;
+    :root[data-theme="dark"] {
+      --bg-color: #1a1a1a;
+      --card-bg: #2a2a2a;
+      --border-color: #3a3a3a;
     }
-    body.light-mode {
-      --bg-color: #f0f0f0; --text-color: #333; --primary-color: #007bff;
-      --primary-hover-color: #0056b3; --border-color: #ccc; --input-bg: #fff;
-      --input-border: #bbb; --header-bg: #e9ecef; --tab-bg: #f8f9fa;
-      --tab-active-bg: var(--bg-color); --tab-hover-bg: #e2e6ea;
-      --button-bg: var(--primary-color); --button-text-color: #fff;
-      --logo-bg: #e0e0e0; --logo-text: #000; --danger-color: #dc3545;
-      --danger-hover-color: #c82333; --card-bg: #f8f9fa; --disabled-bg: #e9ecef; --disabled-text: #6c757d;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-color);
-      line-height: 1.6; transition: background-color 0.3s, color 0.3s;
-    }
-    .container { width: 95%; max-width: 1400px; margin: 20px auto; padding: 0 20px 20px 20px; }
-    header {
-      background-color: var(--header-bg); padding: 10px 20px;
-      border-bottom: 1px solid var(--border-color); display: flex;
-      justify-content: space-between; align-items: center;
-    }
-    .logo-container { display: flex; align-items: center; }
-    .logo-container svg { margin-right: 10px; }
-    .logo-container h1 { margin: 0; font-size: 1.8em; }
-    .theme-toggle-button {
-      background: var(--input-bg); color: var(--text-color); border: 1px solid var(--input-border);
-      padding: 8px 12px; border-radius: 5px; cursor: pointer;
-    }
-    .tabs { display: flex; margin-bottom: 1px; border-bottom: 1px solid var(--border-color); }
-    .tab-button {
-      padding: 10px 15px; cursor: pointer; background-color: var(--tab-bg);
-      border: none; border-bottom: 3px solid transparent; color: var(--text-color); margin-right: 5px;
-    }
-    .tab-button.active { border-bottom: 3px solid var(--primary-color); background-color: var(--tab-active-bg); }
-    .tab-button:hover { background-color: var(--tab-hover-bg); }
-    .tab-content { display: none; padding: 20px; border: 1px solid var(--border-color); border-top: none; background-color: var(--card-bg); }
-    .tab-content.active { display: block; }
-    label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9em; }
-    input[type="text"], input[type="number"], input[type="password"], input[type="date"], textarea, select {
-      width: calc(100% - 22px); padding: 10px; margin-bottom: 15px;
-      border: 1px solid var(--input-border); border-radius: 4px;
-      background-color: var(--input-bg); color: var(--text-color); box-sizing: border-box;
-    }
-    textarea { min-height: 80px; resize: vertical; }
-    input[type="checkbox"] { margin-right: 5px; vertical-align: middle; }
-    .form-group { margin-bottom: 20px; }
-    .form-group small { font-size: 10px; color: var(--text-color); opacity: 0.7; display: block; margin-top: -10px; margin-bottom: 10px; }
-    .button, .danger-button, .action-button {
-      color: var(--button-text-color); padding: 10px 15px; border: none;
-      border-radius: 4px; cursor: pointer; font-size: 1em; text-decoration: none;
-    }
-    .button { background-color: var(--button-bg); }
-    .button:hover { background-color: var(--primary-hover-color); }
-    .danger-button { background-color: var(--danger-color); margin-left: 10px; }
-    .danger-button:hover { background-color: var(--danger-hover-color); }
-    .action-button { font-size: 0.8em; padding: 4px 8px; margin-left: 5px; background-color: var(--tab-hover-bg); color: var(--text-color); border: 1px solid var(--input-border); }
-    .action-button:hover { background-color: var(--primary-color); color: var(--button-text-color); }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid var(--border-color); padding: 10px; text-align: left; }
-    th { background-color: var(--header-bg); }
-    .log-level-DEBUG { color: #888; } .log-level-INFO { color: #4CAF50; }
-    .log-level-WARNING { color: #FFC107; } .log-level-ERROR { color: #F44336; }
-    .log-level-CRITICAL { color: #F44336; font-weight: bold; }
-    pre { white-space: pre-wrap; word-wrap: break-word; background: var(--input-bg); padding: 10px; border-radius: 4px; font-size: 0.9em; max-height: 200px; overflow-y: auto; }
-    .date-filter-group { display: flex; gap: 10px; align-items: center; margin-bottom: 15px; }
-    .date-filter-group label { margin-bottom: 0; font-weight: normal; }
-    .date-filter-group input[type="date"] { width: auto; min-width: 150px; padding: 8px; margin-bottom: 0; }
-    .channel-config-card {
-      background-color: var(--bg-color); border: 1px solid var(--input-border); border-radius: 5px;
-      padding: 15px; margin-bottom: 20px;
-      box-sizing: border-box;
-    }
-    .channel-row {
-      display: flex; gap: 20px;
-    }
-    .channel-row .channel-config-card { flex: 1; }
-    .channel-config-card h4 { margin-top: 0; border-bottom: 1px solid var(--input-border); padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-    .channel-header-actions { display: flex; align-items: center; }
-    .channel-header-actions label { font-weight: normal; margin-left: 10px; display: inline-flex; align-items: center; font-size: 0.9em; }
-    .channel-config-card input[type="text"], .channel-config-card input[type="password"] { margin-bottom: 10px; }
-    .input-group-with-toggle { display: flex; align-items: center; gap: 5px; }
-    .input-group-with-toggle input { flex-grow: 1; margin-bottom: 10px !important; }
-    hr { border: 0; border-top: 1px solid var(--border-color); margin: 25px 0; }
-    .general-settings-row { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
-    .general-settings-row .form-group { flex: 1; min-width: 200px; margin-bottom: 0; }
-    .general-settings-row .form-group label[for="enable_ai"], .general-settings-row .form-group label[for="show_original"] { font-weight: normal; display: inline-flex; align-items: center; }
-    .general-settings-row .form-group input[type="checkbox"] { transform: scale(1.1); margin-top: -2px; }
-    input:disabled, select:disabled, textarea:disabled { background-color: var(--disabled-bg); color: var(--disabled-text); cursor: not-allowed; }
-    label.disabled { color: var(--disabled-text); }
   </style>
 </head>
 <body>
@@ -220,335 +19,144 @@
     <div class="logo-container">
       <svg id="app-logo" width="32" height="32" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
         <rect width="100" height="100" rx="15" fill="var(--logo-bg)"/>
-        <text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="60" font-weight="bold" fill="var(--logo-text)">BV</text>
+        <text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="60" font-weight="bold" fill="var(--logo-text)">bv</text>
       </svg>
-      <h1>Bitvoker</h1>
+      <h1>bitvoker</h1>
     </div>
-    <button id="themeToggle" class="theme-toggle-button">Toggle Theme</button>
+    <button id="themeToggle" class="theme-toggle-button" type="button" aria-label="Toggle theme">Toggle Theme</button>
   </header>
   <div class="container">
     <div class="tabs">
-      <button class="tab-button active" onclick="openTab(event, 'dashboard')">Dashboard</button>
-      <button class="tab-button" onclick="openTab(event, 'settings')">Settings</button>
-      <button class="tab-button" onclick="openTab(event, 'logs')">Logs</button>
+      <button class="tab-button" onclick="openTab(event, 'dashboard')" type="button">Dashboard</button>
+      <button class="tab-button" onclick="openTab(event, 'settings')" type="button">Settings</button>
+      <button class="tab-button" onclick="openTab(event, 'logs')" type="button">Logs</button>
     </div>
-    <div id="dashboard" class="tab-content active">
+    <div id="dashboard" class="tab-content">
       <h2>Recent Notifications</h2>
       <div class="date-filter-group">
         <label for="startDateFilter">From:</label>
         <input type="date" id="startDateFilter">
         <label for="endDateFilter">To:</label>
         <input type="date" id="endDateFilter">
-        <button onclick="fetchNotifications()" class="button">Filter</button>
+        <button onclick="fetchNotifications()" class="button" type="button">Filter</button>
       </div>
-      <table id="notificationsTable">
-        <thead>
-          <tr><th>Timestamp</th><th>Client IP</th><th>Original Message</th><th>AI Summary</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+      <div class="table-responsive">
+        <table id="notificationsTable">
+          <thead>
+            <tr><th>Timestamp</th><th>Client IP</th><th>Original Message</th><th>AI Summary</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
     <div id="settings" class="tab-content">
-      <form method="POST" action="{{ url_for('index') }}" id="settingsForm">
+      <form method="POST" action="{{ url_for('index') }}" id="settingsForm" autocomplete="off">
         <input type="hidden" name="gui_theme" id="gui_theme_input" value="{{ config.gui_theme or 'dark' }}">
         <h3 id="settings-general">General Settings</h3>
         <div class="general-settings-row">
           <div class="form-group">
             <input type="checkbox" id="enable_ai" name="enable_ai" {% if config.enable_ai %}checked{% endif %}>
-            <label for="enable_ai" style="font-size:6px;">Enable AI Processing</label>
-            <small id="show_original_helper_ai" style="font-size:6px;"><span>Generated AI summary of received messages processed via <a href="https://www.meta.ai" target="_blank" class="text-white">meta.ai</a></span></small>
+            <label for="enable_ai" class="bold-label">Enable AI Processing</label>
+            <small id="show_original_helper_ai" style="display: block; margin-top: 3px; margin-left: 25px;">Generated AI summary of received messages processed via <a href="https://www.meta.ai" target="_blank" class="text-white">meta.ai</a></small>
           </div>
           <div class="form-group">
-            <input type="checkbox" id="show_original" name="show_original" {% if config.show_original %}checked{% endif %}>
-            <label for="show_original" id="show_original_label">Show Original Message</label>
-            <small id="show_original_helper_orig" style="font-size:6px;">If AI is enabled, appends the original to the AI summary. If AI is disabled, this is forced on and the original message is sent.</small>
-          </div>
-          <div class="form-group">
-            <label for="server_host">TCP Server Host:</label>
-            <input type="text" id="server_host" name="server_host" value="{{ config.server_host }}" placeholder="Blank for all interfaces">
-          </div>
-          <div class="form-group">
-            <label for="server_port">TCP Server Port:</label>
-            <input type="number" id="server_port" name="server_port" value="{{ config.server_port }}">
+            <input type="checkbox" id="show_original" name="show_original" {% if config.show_original %}checked{% endif %} {% if not config.enable_ai %}disabled{% endif %}>
+            <label for="show_original" id="show_original_label" class="bold-label" {% if not config.enable_ai %}class="disabled bold-label"{% endif %}>Show Original Message</label>
+            <small id="show_original_helper_orig" style="display: block; margin-top: 3px; margin-left: 25px;">If AI is enabled, appends the original to the AI summary. If AI is disabled, this is forced on and the original message is sent.</small>
           </div>
         </div>
-        <hr>
+        <div class="general-settings-row" style="margin-top: 15px;">
+          <div class="form-group" style="flex-basis: 100%; min-width: 100%;">
+            <label for="preprompt" id="preprompt_label" {% if not config.enable_ai %}class="disabled"{% endif %}>AI Preprompt</label>
+            <textarea id="preprompt" name="preprompt" rows="6" placeholder="Instructions for the AI model" maxlength="2048" style="width: 100%;" {% if not config.enable_ai %}disabled{% endif %}>{{ config.preprompt }}</textarea>
+            <small>Instructions that guide how the AI processes messages (max 2048 chars)</small>
+          </div>
+        </div>
         <h3 id="settings-notifications">Notification Channels</h3>
-        <div class="channel-config-card" id="ntfy-channel">
-          <input type="hidden" name="channel_ntfy_type" value="ntfy">
-          <h4>
-            Ntfy
-            <label><input type="checkbox" name="channel_ntfy_enabled" {% if config.ntfy.enabled %}checked{% endif %}> Enabled</label>
-          </h4>
-          <label>Server URL: <input type="text" name="channel_ntfy_config_server_url" value="{{ config.ntfy.server_url }}" placeholder="https://ntfy.sh"></label>
-          <label>Topic: <input type="text" name="channel_ntfy_config_topic" value="{{ config.ntfy.topic }}" placeholder="your_topic"></label>
-        </div>
         <div class="channel-row">
           <div class="channel-config-card" id="telegram-channel">
             <input type="hidden" name="channel_telegram_type" value="telegram">
-            <h4>
-              Telegram
+            <h4 style="text-align: left; display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#0088cc" viewBox="0 0 24 24" style="margin-right: 8px;">
+                  <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.96 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                </svg>
+                <span>Telegram</span>
+              </div>
               <label><input type="checkbox" name="channel_telegram_enabled" {% if config.telegram.enabled %}checked{% endif %}> Enabled</label>
             </h4>
-            <label>Bot Token:</label>
-            <div class="input-group-with-toggle">
-              <input type="password" id="telegram_bot_token" name="channel_telegram_config_bot_token" value="{{ config.telegram.bot_token }}" placeholder="Telegram Bot Token">
-              <button type="button" class="action-button reveal-secret" data-input-id="telegram_bot_token">👀</button>
-            </div>
-            <label>Chat ID: <input type="text" name="channel_telegram_config_chat_id" value="{{ config.telegram.chat_id }}" placeholder="Telegram Chat ID"></label>
+            <label for="telegram_bot_token">Bot Token:</label>
+            <input type="password" id="telegram_bot_token" name="channel_telegram_config_bot_token" value="{{ config.telegram.bot_token }}" placeholder="Telegram Bot Token" autocomplete="off">
+            <label for="telegram_chat_id">Chat ID:</label>
+            <input type="text" id="telegram_chat_id" name="channel_telegram_config_chat_id" value="{{ config.telegram.chat_id }}" placeholder="Telegram Chat ID">
           </div>
           <div class="channel-config-card" id="discord-channel">
             <input type="hidden" name="channel_discord_type" value="discord">
-            <h4>
-              Discord
+            <h4 style="text-align: left; display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#5865F2" viewBox="0 0 24 24" style="margin-right: 8px;">
+                  <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
+                </svg>
+                <span>Discord</span>
+              </div>
               <label><input type="checkbox" name="channel_discord_enabled" {% if config.discord.enabled %}checked{% endif %}> Enabled</label>
             </h4>
-            <label>Webhook ID:</label>
-            <div class="input-group-with-toggle">
-              <input type="password" id="discord_webhook_id" name="channel_discord_config_webhook_id" value="{{ config.discord.webhook_id }}" placeholder="Discord Webhook ID">
-              <button type="button" class="action-button reveal-secret" data-input-id="discord_webhook_id">👀</button>
-            </div>
-            <label>Token:</label>
-            <div class="input-group-with-toggle">
-              <input type="password" id="discord_token" name="channel_discord_config_token" value="{{ config.discord.token }}" placeholder="Discord Token">
-              <button type="button" class="action-button reveal-secret" data-input-id="discord_token">👀</button>
-            </div>
+            <label for="discord_webhook_id">Webhook ID:</label>
+            <input type="password" id="discord_webhook_id" name="channel_discord_config_webhook_id" value="{{ config.discord.webhook_id }}" placeholder="Discord Webhook ID" autocomplete="off">
+            <label for="discord_token">Token:</label>
+            <input type="password" id="discord_token" name="channel_discord_config_token" value="{{ config.discord.token }}" placeholder="Discord Token" autocomplete="off">
           </div>
         </div>
         <div class="channel-row">
           <div class="channel-config-card" id="slack-channel">
             <input type="hidden" name="channel_slack_type" value="slack">
-            <h4>
-              Slack
+            <h4 style="text-align: left; display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center;">
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#611F61" viewBox="0 0 24 24" style="margin-right: 8px;">
+                  <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/>
+                </svg>
+                <span>Slack</span>
+              </div>
               <label><input type="checkbox" name="channel_slack_enabled" {% if config.slack.enabled %}checked{% endif %}> Enabled</label>
             </h4>
-            <label>Webhook ID:</label>
-            <div class="input-group-with-toggle">
-              <input type="password" id="slack_webhook_id" name="channel_slack_config_webhook_id" value="{{ config.slack.webhook_id }}" placeholder="Slack Webhook ID">
-              <button type="button" class="action-button reveal-secret" data-input-id="slack_webhook_id">👀</button>
-            </div>
-            <label>Token:</label>
-            <div class="input-group-with-toggle">
-              <input type="password" id="slack_token" name="channel_slack_config_token" value="{{ config.slack.token }}" placeholder="Slack Token">
-              <button type="button" class="action-button reveal-secret" data-input-id="slack_token">👀</button>
-            </div>
+            <label for="slack_webhook_id">Webhook ID:</label>
+            <input type="password" id="slack_webhook_id" name="channel_slack_config_webhook_id" value="{{ config.slack.webhook_id }}" placeholder="Slack Webhook ID" autocomplete="off">
+            <label for="slack_token">Token:</label>
+            <input type="password" id="slack_token" name="channel_slack_config_token" value="{{ config.slack.token }}" placeholder="Slack Token" autocomplete="off">
           </div>
           <div class="channel-config-card" id="gotify-channel">
             <input type="hidden" name="channel_gotify_type" value="gotify">
-            <h4>
-              Gotify
+            <h4 style="text-align: left; display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#51B166" viewBox="0 0 24 24" style="margin-right: 8px;">
+                  <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                </svg>
+                <span>Gotify</span>
+              </div>
               <label><input type="checkbox" name="channel_gotify_enabled" {% if config.gotify.enabled %}checked{% endif %}> Enabled</label>
             </h4>
-            <label>Server URL: <input type="text" name="channel_gotify_config_server_url" value="{{ config.gotify.server_url }}" placeholder="https://your.gotify.server"></label>
-            <label>App Token:</label>
-            <div class="input-group-with-toggle">
-              <input type="password" id="gotify_app_token" name="channel_gotify_config_app_token" value="{{ config.gotify.app_token }}" placeholder="Gotify App Token">
-              <button type="button" class="action-button reveal-secret" data-input-id="gotify_app_token">👀</button>
-            </div>
+            <label for="gotify_server_url">Server URL:</label>
+            <input type="text" id="gotify_server_url" name="channel_gotify_config_server_url" value="{{ config.gotify.server_url }}" placeholder="https://your.gotify.server">
+            <label for="gotify_app_token">App Token:</label>
+            <input type="password" id="gotify_app_token" name="channel_gotify_config_app_token" value="{{ config.gotify.app_token }}" placeholder="Gotify App Token" autocomplete="off">
           </div>
->>>>>>> Stashed changes
         </div>
-        <hr>
         <button type="submit" class="button" style="margin-top:20px;">Save All Settings</button>
       </form>
     </div>
-<<<<<<< Updated upstream
-    <!-- Logs Tab -->
-    <div class="tab-pane fade" id="logs" role="tabpanel">
-      <div class="input-inline mb-3">
-        <label for="log_level_filter">Log Level:</label>
-        <select id="log_level_filter" class="form-control me-3" style="width:120px;" onchange="fetchLogs()">
-          <option value="ALL">ALL</option>
-          <option value="DEBUG">DEBUG</option>
-          <option value="INFO" selected>INFO</option>
-          <option value="WARNING">WARNING</option>
-          <option value="ERROR">ERROR</option>
-        </select>
-        <button class="btn btn-secondary" onclick="fetchLogs()">Filter</button>
-      </div>
-      <div id="logs-content"></div>
-    </div>
-  </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-  function fetchNotifications() {
-    const limit = document.getElementById('limit').value || 20;
-    const date_filter = document.getElementById('date_filter').value || "";
-    fetch(`/get_notifications?limit=${limit}&date=${date_filter}`)
-      .then(response => response.json())
-      .then(data => {
-        let content = '';
-        data.notifications.forEach(nt => {
-          content += `<div class="card mb-3">
-            <div class="card-header">${nt.timestamp} | From: ${nt.client}</div>
-            <div class="card-body">
-              <h5 class="card-title">Original Message</h5>
-              <p class="card-text">${nt.original}</p>`;
-          if(nt.ai) {
-            content += `<hr>
-                        <h6 class="card-subtitle mb-2">AI Summary</h6>
-                        <p class="card-text">${nt.ai}</p>`;
-          }
-          content += `</div></div>`;
-        });
-        document.getElementById('notifications-content').innerHTML = content;
-      });
-  }
-  function fetchLogs() {
-    const selectedLevel = document.getElementById('log_level_filter').value;
-    const levelMapping = { "DEBUG": 10, "INFO": 20, "WARNING": 30, "ERROR": 40, "CRITICAL": 50 };
-    fetch('/get_logs')
-      .then(response => response.json())
-      .then(data => {
-        let content = '';
-        data.logs.slice(-20).forEach(log => {
-          if(selectedLevel === "ALL" || levelMapping[log.level] >= levelMapping[selectedLevel]) {
-            content += `<div>${log.timestamp} - ${log.level} - ${log.message}</div>`;
-          }
-        });
-        document.getElementById('logs-content').innerHTML = content;
-      });
-  }
-  setInterval(fetchNotifications, 2000);
-  setInterval(fetchLogs, 2000);
-  fetchNotifications();
-  fetchLogs();
-</script>
-=======
     <div id="logs" class="tab-content">
       <h2>Application Logs</h2>
-      <table id="logsTable">
-        <thead>
-          <tr><th>Timestamp</th><th>Level</th><th>Message</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+      <div class="table-responsive">
+        <table id="logsTable">
+          <thead>
+            <tr><th>Timestamp</th><th>Level</th><th>Message</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
   </div>
-  <script>
-    function attachRevealSecret(button, inputId) {
-      button.addEventListener('mousedown', function() {
-        document.getElementById(inputId).type = 'text';
-      });
-      button.addEventListener('mouseup', function() {
-        document.getElementById(inputId).type = 'password';
-      });
-      button.addEventListener('mouseleave', function() {
-        document.getElementById(inputId).type = 'password';
-      });
-    }
-    function openTab(evt, tabName) {
-      var i, tabcontent, tablinks;
-      tabcontent = document.getElementsByClassName("tab-content");
-      for (i = 0; i < tabcontent.length; i++) { tabcontent[i].style.display = "none"; }
-      tablinks = document.getElementsByClassName("tab-button");
-      for (i = 0; i < tablinks.length; i++) { tablinks[i].className = tablinks[i].className.replace(" active", ""); }
-      document.getElementById(tabName).style.display = "block";
-      evt.currentTarget.className += " active";
-      localStorage.setItem('activeTab', tabName);
-      if (tabName === 'dashboard') fetchNotifications();
-      if (tabName === 'logs') fetchLogs();
-    }
-    function fetchNotifications() {
-      const startDate = document.getElementById('startDateFilter').value;
-      const endDate = document.getElementById('endDateFilter').value;
-      fetch(`/get_notifications?limit=20&startDate=${startDate}&endDate=${endDate}`)
-        .then(response => response.json())
-        .then(data => {
-          const tbody = document.getElementById('notificationsTable').getElementsByTagName('tbody')[0];
-          tbody.innerHTML = '';
-          data.notifications.forEach(notif => {
-            let row = tbody.insertRow();
-            row.insertCell().textContent = notif.timestamp;
-            row.insertCell().textContent = notif.client;
-            row.insertCell().innerHTML = `<pre>${escapeHtml(notif.original)}</pre>`;
-            row.insertCell().innerHTML = `<pre>${escapeHtml(notif.ai)}</pre>`;
-          });
-        });
-    }
-    function fetchLogs() {
-      fetch('/get_logs')
-        .then(response => response.json())
-        .then(data => {
-          const tbody = document.getElementById('logsTable').getElementsByTagName('tbody')[0];
-          tbody.innerHTML = '';
-          (data.logs || []).slice().reverse().forEach(log => {
-            let row = tbody.insertRow();
-            row.insertCell().textContent = log.timestamp;
-            let levelCell = row.insertCell();
-            levelCell.textContent = log.level;
-            levelCell.className = 'log-level-' + log.level;
-            row.insertCell().innerHTML = `<pre>${escapeHtml(log.message)}</pre>`;
-          });
-        });
-    }
-    function escapeHtml(unsafe) {
-      if (unsafe === null || unsafe === undefined) return '';
-      return unsafe.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-    }
-    document.addEventListener('DOMContentLoaded', function() {
-      const themeToggleButton = document.getElementById('themeToggle');
-      const currentTheme = localStorage.getItem('theme') || document.getElementById('gui_theme_input').value || 'dark';
-      document.body.className = currentTheme === 'light' ? 'light-mode' : '';
-      document.getElementById('gui_theme_input').value = currentTheme;
-      themeToggleButton.addEventListener('click', () => {
-        document.body.classList.toggle('light-mode');
-        let theme = document.body.classList.contains('light-mode') ? 'light' : 'dark';
-        localStorage.setItem('theme', theme);
-        document.getElementById('gui_theme_input').value = theme;
-      });
-      document.getElementById('enable_ai').addEventListener('change', function() {
-        const enableAiCheckbox = document.getElementById('enable_ai');
-        const showOriginalCheckbox = document.getElementById('show_original');
-        const showOriginalLabel = document.getElementById('show_original_label');
-        if (enableAiCheckbox.checked) {
-          showOriginalCheckbox.disabled = false;
-          showOriginalLabel.classList.remove('disabled');
-        } else {
-          showOriginalCheckbox.checked = true;
-          showOriginalCheckbox.disabled = true;
-          showOriginalLabel.classList.add('disabled');
-        }
-      });
-      const revealButtons = document.querySelectorAll('.reveal-secret');
-      revealButtons.forEach(function(button) {
-        let inputId = button.getAttribute('data-input-id');
-        attachRevealSecret(button, inputId);
-      });
-      const params = new URLSearchParams(window.location.search);
-      const activeTabFromUrl = params.get('active');
-      const savedTab = localStorage.getItem('activeTab');
-      let initialTab = 'dashboard';
-      if (window.location.hash) {
-        const hashTab = window.location.hash.substring(1);
-        if (document.getElementById(hashTab) || document.querySelector(`.tab-button[onclick*="('${hashTab}')"]`)) {
-          initialTab = hashTab;
-        } else if (document.getElementById('settings-' + hashTab)) {
-          initialTab = 'settings';
-        }
-      } else if (activeTabFromUrl && document.getElementById(activeTabFromUrl)) {
-        initialTab = activeTabFromUrl;
-      } else if (savedTab && document.getElementById(savedTab)) {
-        initialTab = savedTab;
-      }
-      const tabButtonToClick = document.querySelector(`.tab-button[onclick*="('${initialTab}')"]`);
-      if (tabButtonToClick) {
-        tabButtonToClick.click();
-      } else if (document.querySelector('.tab-button')) {
-        document.querySelector('.tab-button').click();
-      }
-      if (initialTab === 'dashboard') fetchNotifications();
-      if (initialTab === 'logs') fetchLogs();
-      setInterval(function() {
-        if (document.getElementById('logs').style.display === 'block') { fetchLogs(); }
-      }, 5000);
-      if (initialTab === 'settings' && window.location.hash) {
-        const element = document.getElementById(window.location.hash.substring(1));
-        if (element) element.scrollIntoView({behavior: 'smooth'});
-      }
-    });
-  </script>
->>>>>>> Stashed changes
+  <script src="static/js/script.js"></script>
 </body>
 </html>
