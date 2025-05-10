@@ -1,8 +1,60 @@
-bot_token: ""
-chat_id: ""
-preprompt: |
-  Just summerize what you see after colon ":" - do not say anything extra
-enable_ai: true
-show_original: true
-server_host: ""
+gui_theme: dark
+preprompt: "Just summarize what you see after colon \":\" - do not say anything extra\r\
+  \n"
+enable_ai: false
+show_original: false
+server_host: ''
 server_port: 9090
+notification_channels:
+- type: telegram
+  name: My Telegram Bot
+  enabled: false
+  config:
+    bot_token: YOUR_TELEGRAM_BOT_TOKEN
+    chat_id: YOUR_TELEGRAM_CHAT_ID
+- type: slack
+  name: Slack Webhook
+  enabled: false
+  config:
+    webhook_url: YOUR_SLACK_WEBHOOK_URL
+- type: discord
+  name: Discord Webhook
+  enabled: false
+  config:
+    webhook_url: YOUR_DISCORD_WEBHOOK_URL
+- type: gotify
+  name: Gotify Instance
+  enabled: false
+  config:
+    server_url: https://your.gotify.server
+    app_token: YOUR_GOTIFY_APP_TOKEN
+ntfy:
+  type: ntfy
+  enabled: true
+  config:
+    server_url: https://ntfy.sh
+    topic: bitvoker_notifications
+telegram:
+  type: telegram
+  enabled: true
+  config:
+    bot_token: ''
+    chat_id: ''
+slack:
+  type: slack
+  enabled: false
+  config:
+    webhook_id: ''
+    token: ''
+discord:
+  type: discord
+  enabled: false
+  config:
+    webhook_id: ''
+    token: ''
+gotify:
+  type: gotify
+  enabled: false
+  config:
+    server_url: ''
+    app_token: ''
