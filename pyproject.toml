@@ -16,6 +16,7 @@ slack-sdk = "^3.0.0"
 discord-webhook = "^1.0.0"
 sqlalchemy = "^2.0.0"
 openai = "^1.0.0"
+meta-ai-api = "^1.2.5"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.0.0"

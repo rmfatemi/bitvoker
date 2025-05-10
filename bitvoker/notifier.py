@@ -9,17 +9,6 @@ class Notifier:
     def __init__(self, channels_config):
         self.channels_config = channels_config if channels_config else []
 
-    def _send_ntfy(self, config, message, title):
-        target_url = f"{config['server_url'].rstrip('/')}/{config['topic']}"
-        try:
-            headers = {'Title': title.encode('utf-8')}
-            response = requests.post(target_url, data=message.encode('utf-8'), headers=headers, timeout=10)
-            response.raise_for_status()
-            logger.info("Successfully sent ntfy notification to topic %s via %s", config['topic'],
-                        config.get('name', 'Ntfy'))
-        except requests.exceptions.RequestException as e:
-            logger.error("Failed to send ntfy notification for %s: %s", config.get('name', 'Ntfy'), e)
-
     def _send_telegram(self, config, message, title):
         full_message = f"{title}\n\n{message}"
         if len(full_message) > 4096:  # Telegram message limit
@@ -84,7 +73,6 @@ class Notifier:
             channel_type = channel_conf_wrapper.get('type')
             specific_config = channel_conf_wrapper.get('config', {})
 
-            # Add name to specific_config for logging within sender methods
             specific_config['name'] = channel_conf_wrapper.get('name', f"Unnamed {channel_type}")
 
             if not specific_config:
@@ -92,12 +80,7 @@ class Notifier:
                 continue
 
             try:
-                if channel_type == "ntfy":
-                    if 'server_url' in specific_config and 'topic' in specific_config:
-                        self._send_ntfy(specific_config, message_body, title)
-                    else:
-                        logger.error("Ntfy channel %s missing server_url or topic.", specific_config['name'])
-                elif channel_type == "telegram":
+                if channel_type == "telegram":
                     if 'bot_token' in specific_config and 'chat_id' in specific_config:
                         self._send_telegram(specific_config, message_body, title)
                     else:
