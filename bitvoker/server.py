@@ -1,23 +1,24 @@
 import socketserver
 
-from ai import AI
-from config import Config
-from handler import Handler
-from telegram import Telegram
+from bitvoker.ai import AI
+from bitvoker.config import Config
+from bitvoker.handler import Handler
+from bitvoker.notifier import Notifier
 from bitvoker.logger import setup_logger
 
 logger = setup_logger("server")
 
 def main():
     config = Config()
-    telegram = Telegram(config.bot_token, config.chat_id)
+    # Pass the list of channel configurations to the Notifier
+    notifier = Notifier(config.notification_channels)
     ai = AI(config.preprompt)
     HOST, PORT = config.server_host, config.server_port
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.ThreadingTCPServer((HOST, PORT), Handler) as server:
         server.ai = ai
-        server.config = config
-        server.telegram = telegram
+        server.config_manager = config # Store the manager to access full config easily
+        server.notifier = notifier
         logger.info("Server listening on %s:%s ...", HOST if HOST else "all interfaces", PORT)
         try:
             server.serve_forever()

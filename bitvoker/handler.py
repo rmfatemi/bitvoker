@@ -1,12 +1,15 @@
 import socketserver
+
 from time import strftime, localtime
-from bitvoker.logger import setup_logger
-from bitvoker.config import Config
+
 from bitvoker.ai import AI
-from bitvoker.telegram import Telegram
+from bitvoker.config import Config
+from bitvoker.notifier import Notifier
+from bitvoker.logger import setup_logger
 from bitvoker.database import insert_notification
 
 logger = setup_logger("handler")
+
 
 def truncate(text, max_length=80):
     single_line = text.replace("\n", " ").strip()
@@ -15,47 +18,62 @@ def truncate(text, max_length=80):
     else:
         return single_line[:max_length] + "..."
 
+
 class Handler(socketserver.BaseRequestHandler):
     def handle(self):
-        updated_config = Config()
-        self.server.config = updated_config
-        if updated_config.enable_ai:
-            self.server.ai = AI(updated_config.preprompt)
+        current_config_manager = Config()
+        self.server.config_manager = current_config_manager
+
+        if current_config_manager.enable_ai:
+            self.server.ai = AI(current_config_manager.preprompt)
         else:
             self.server.ai = None
-        self.server.telegram = Telegram(updated_config.bot_token, updated_config.chat_id)
+
+        self.server.notifier = Notifier(current_config_manager.notification_channels)
+
         data = self.request.recv(1024).strip()
         original_message = data.decode("utf-8")
-        displayed_message = truncate(original_message, 80)
+        displayed_message = original_message[:120] + "..." if len(original_message) > 120 else original_message
         logger.info("Received: %s", displayed_message)
+
         ai_result = ""
-        if self.server.config.enable_ai and self.server.ai is not None:
+        title = "Bitvoker Alert"
+        message_body = ""
+
+        config = self.server.config_manager
+
+        if config.enable_ai and self.server.ai is not None:
             try:
                 ai_result = self.server.ai.process_message(original_message)
-                display_ai = truncate(ai_result, 80)
+                display_ai = ai_result[:120] + "..." if len(ai_result) > 120 else ai_result
                 logger.debug("AI processed message result: %s", display_ai)
+
+                if config.show_original:
+                    title = "AI Summary & Original"
+                    message_body = f"AI Summary:\n{ai_result}\n\n---\nOriginal Message:\n{original_message}"
+                else:
+                    title = "AI Summary"
+                    message_body = ai_result
             except Exception as e:
                 logger.exception("Error processing message through AI")
-        if self.server.config.enable_ai:
-            truncated_ai = truncate(ai_result, 80)
-            if self.server.config.show_original:
-                final_message = f"AI Summary: {truncated_ai}\nOriginal Message: {truncate(original_message, 80)}"
-            else:
-                final_message = f"AI Summary: {truncated_ai}"
+                title = "Notification (AI Processing Error)"
+                if config.show_original:
+                    message_body = original_message
+                else:
+                    message_body = "Error processing with AI. Original message not shown as per config."
         else:
-            if self.server.config.show_original:
-                final_message = truncate(original_message, 80)
+            if config.show_original:
+                title = "Notification"
+                message_body = original_message
             else:
-                final_message = ""
-        if len(final_message) > 4096:
-            final_message = final_message[:4096]
-            logger.warning("Final message truncated to meet Telegram's 4096 character limit.")
-        if final_message:
+                message_body = ""
+
+        if message_body:
             try:
-                self.server.telegram.send_message(final_message)
-                logger.info("Successfully sent message to Telegram.")
+                self.server.notifier.send_message(message_body, title=title)
             except Exception as e:
-                logger.exception("Error sending Telegram message")
+                logger.exception("Overall error during notification dispatch: %s", e)
+
         ts = strftime('%Y-%m-%d %H:%M:%S', localtime())
         client_ip = self.client_address[0]
-        insert_notification(ts, original_message, ai_result, client_ip)
+        insert_notification(ts, original_message, ai_result if config.enable_ai else "", client_ip)

@@ -1,8 +1,21 @@
-bot_token: ""
-chat_id: ""
-preprompt: |
-  Just summerize what you see after colon ":" - do not say anything extra
+preprompt: You are an assistant that summarizes technical logs and alerts. Be concise
+  but informative.
 enable_ai: true
 show_original: true
-server_host: ""
-server_port: 9090
+gui_theme: dark
+telegram:
+  enabled: false
+  bot_token: ''
+  chat_id: ''
+discord:
+  enabled: false
+  webhook_url: ''
+  token: ''
+slack:
+  enabled: false
+  webhook_url: ''
+  token: ''
+gotify:
+  enabled: false
+  server_url: ''
+  app_token: ''
