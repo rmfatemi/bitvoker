@@ -69,8 +69,14 @@ class Config:
 
     @property
     def notification_channels(self):
-        channels = {}
-        for channel in ["telegram", "discord", "slack", "gotify"]:
-            if channel in self.config_data and self.config_data[channel].get("enabled", False):
-                channels[channel] = self.config_data[channel].copy()
+        channels = []
+        for channel_type in ["telegram", "discord", "slack", "gotify"]:
+            if channel_type in self.config_data and self.config_data[channel_type].get("enabled", False):
+                channel_config = self.config_data[channel_type].copy()
+                channels.append({
+                    'type': channel_type,
+                    'enabled': True,
+                    'name': f"{channel_type.capitalize()} Notification",
+                    'config': {k: v for k, v in channel_config.items() if k != 'enabled'}
+                })
         return channels
