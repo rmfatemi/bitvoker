@@ -9,6 +9,10 @@ description = "bitvoker notification system"
 authors = ["Rasool Fatemi <rmfatemi@gmail.com>"]
 readme = "README.md"
 
+packages = [
+    { include = "bitvoker" }
+]
+
 [tool.poetry.dependencies]
 python = ">=3.11,<4.0"
 flask = ">=2.0.0"

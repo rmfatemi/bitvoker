@@ -1,14 +1,16 @@
 import os
 import yaml
+
 from bitvoker.logger import setup_logger
 from bitvoker.constants import TCP_SERVER_PORT, SERVER_HOST
+
 
 logger = setup_logger("config")
 
 
 class Config:
-    def __init__(self, filename=None):
-        self.filename = filename or os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.yaml")
+    def __init__(self):
+        self.filename = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "config.yaml")
         self.config_data = {}
         self.load_config()
 
@@ -58,7 +60,6 @@ class Config:
     def gui_theme(self):
         return self.config_data.get("gui_theme", "dark")
 
-    # Server host/port properties now use constants
     @property
     def server_host(self):
         return SERVER_HOST
