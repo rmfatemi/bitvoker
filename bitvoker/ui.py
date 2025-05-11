@@ -216,7 +216,7 @@ def get_logs():
     return jsonify(logs=logs)
 
 
-if __name__ == "__main__":
+def main():
     ui = BitvokerUI()
     try:
         ui.start()
@@ -225,3 +225,7 @@ if __name__ == "__main__":
         logger.info("Application shutdown complete.")
     except Exception as e:
         logger.error(f"Application error: {str(e)}")
+
+
+if __name__ == "__main__":
+    main()
