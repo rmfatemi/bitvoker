@@ -1,5 +1,6 @@
 from meta_ai_api import MetaAI
 
+
 class AI:
     def __init__(self, preprompt):
         self.preprompt = preprompt

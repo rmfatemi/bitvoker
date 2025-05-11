@@ -54,8 +54,8 @@ class Handler(socketserver.BaseRequestHandler):
                 else:
                     title = "AI Summary"
                     message_body = ai_result
-            except Exception as e:
-                logger.exception("Error processing message through AI")
+            except Exception:
+                logger.exception("Error processing message through AI: {e}")
                 title = "Notification (AI Processing Error)"
                 if config.show_original:
                     message_body = original_message
@@ -74,6 +74,6 @@ class Handler(socketserver.BaseRequestHandler):
             except Exception as e:
                 logger.exception("Overall error during notification dispatch: %s", e)
 
-        ts = strftime('%Y-%m-%d %H:%M:%S', localtime())
+        ts = strftime("%Y-%m-%d %H:%M:%S", localtime())
         client_ip = self.client_address[0]
         insert_notification(ts, original_message, ai_result if config.enable_ai else "", client_ip)

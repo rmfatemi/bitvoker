@@ -7,7 +7,7 @@ DB_FILENAME = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "no
 def init_db():
     conn = sqlite3.connect(DB_FILENAME)
     c = conn.cursor()
-    c.execute('''
+    c.execute("""
               CREATE TABLE IF NOT EXISTS notifications
               (
                   id        INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -16,7 +16,7 @@ def init_db():
                   ai        TEXT,
                   client    TEXT
               )
-              ''')
+              """)
     conn.commit()
     conn.close()
 
@@ -24,10 +24,13 @@ def init_db():
 def insert_notification(timestamp, original, ai, client):
     conn = sqlite3.connect(DB_FILENAME)
     c = conn.cursor()
-    c.execute('''
+    c.execute(
+        """
               INSERT INTO notifications (timestamp, original, ai, client)
               VALUES (?, ?, ?, ?)
-              ''', (timestamp, original, ai, client))
+              """,
+        (timestamp, original, ai, client),
+    )
     conn.commit()
     conn.close()
 

@@ -32,7 +32,7 @@ class Config:
             "telegram": {"enabled": False, "bot_token": "", "chat_id": ""},
             "discord": {"enabled": False, "webhook_url": "", "token": ""},
             "slack": {"enabled": False, "webhook_url": "", "token": ""},
-            "gotify": {"enabled": False, "server_url": "", "app_token": ""}
+            "gotify": {"enabled": False, "server_url": "", "app_token": ""},
         }
 
         try:
@@ -73,10 +73,12 @@ class Config:
         for channel_type in ["telegram", "discord", "slack", "gotify"]:
             if channel_type in self.config_data and self.config_data[channel_type].get("enabled", False):
                 channel_config = self.config_data[channel_type].copy()
-                channels.append({
-                    'type': channel_type,
-                    'enabled': True,
-                    'name': f"{channel_type.capitalize()} Notification",
-                    'config': {k: v for k, v in channel_config.items() if k != 'enabled'}
-                })
+                channels.append(
+                    {
+                        "type": channel_type,
+                        "enabled": True,
+                        "name": f"{channel_type.capitalize()} Notification",
+                        "config": {k: v for k, v in channel_config.items() if k != "enabled"},
+                    }
+                )
         return channels
