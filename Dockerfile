@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN pip install poetry
 
 COPY pyproject.toml README.md poetry.lock* ./
-
+COPY data/ /app/initial_data/
 COPY bitvoker/ bitvoker/
 
 RUN poetry config virtualenvs.create false \
@@ -20,4 +20,4 @@ COPY . .
 
 EXPOSE 8084 8085
 
-CMD ["poetry", "run", "bitvoker"]
+CMD ["bash", "-c", "if [ -z \"$(ls -A /app/data)\" ]; then cp -R /app/initial_data/* /app/data/; fi; exec poetry run bitvoker"]
