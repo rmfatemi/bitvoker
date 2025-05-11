@@ -1,14 +1,16 @@
-import threading
+import os
 import time
 import yaml
 import logging
+import threading
 import socketserver
-import os
+
 from flask import Flask, render_template, request, redirect, url_for, jsonify
+
+from bitvoker.ai import AI
 from bitvoker.config import Config
 from bitvoker.handler import Handler
 from bitvoker.logger import setup_logger
-from bitvoker.ai import AI
 from bitvoker.notifier import Notifier
 from bitvoker.database import get_notifications
 from bitvoker.constants import TCP_SERVER_PORT, UI_SERVER_PORT, SERVER_HOST
