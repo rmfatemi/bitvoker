@@ -32,7 +32,7 @@ Each integration is configurable through the web interface or directly in the YA
 
 ### Prerequisites
 
-- Python 3.8.1 or higher
+- Python 3.11 or higher
 - [Poetry](https://python-poetry.org/docs/#installation) package manager
 
 ### Setup
@@ -65,7 +65,7 @@ echo "Your notification message" | nc localhost 8084
 
 ### Web Interface
 
-Access the web interface at `http://localhost:5000` to:
+Access the web interface at `http://localhost:8084` to:
 - View notification history
 - Configure notification channels
 - View system logs
