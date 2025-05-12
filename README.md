@@ -19,9 +19,7 @@
 - ⚡ **Dynamic Configuration**: Update settings without restarting the server
 
 ## Setup
-This repository supports two ways of running bitvoker. For a consistent and isolated environment, **using Docker is recommended**.
-
----
+This repository supports two ways of running **bitvoker**. For a consistent and isolated environment, **using Docker is recommended**.
 
 ### Using Docker (Recommended)
 
@@ -77,7 +75,7 @@ services:
 
 ## 📖 Usage
 
-Send messages to the bitvoker TCP server to trigger notifications. Here are some examples:
+Send messages to **bitvoker**'s TCP server to trigger notifications. Below are some examples:
 
 1. Automated Rsync Backup Notification (Cron Job):
 ```bash
@@ -127,6 +125,20 @@ Access the web interface at `http://<server-ip>:8085` to:
 - Configure notification channels
 - View system logs
 - Adjust AI settings
+
+## Main dashboard
+  ![image](https://github.com/user-attachments/assets/7b8884b5-f4d9-47b5-8988-c04b49708c78)
+
+
+## Settings and configurations
+  ![image](https://github.com/user-attachments/assets/04306a72-8f83-4d42-b280-994aed72d69f)
+
+
+## Light mode
+  ![image](https://github.com/user-attachments/assets/edce9c46-1c44-4347-9602-fbf7e46a0180)
+
+## Telegram notifcation
+  <img src="https://github.com/user-attachments/assets/ba10c5a5-3bd4-4340-a973-7f2986b26c61" width="300">
 
 ## 📄 License
 
