@@ -27,14 +27,13 @@ This repository supports two ways of running **bitvoker**. For a consistent and 
 
 You can run the Docker container directly. If the image is not present locally, Docker will automatically pull it from the registry.
 
-1. **Run the Docker container:**
-
    ```bash
    mkdir -p docker-tmp-data
    docker run --rm -p 8084:8084 -p 8085:8085 -v $(pwd)/docker-tmp-data:/app/data --name bitvoker [tba]/bitvoker
-The application will be accessible on ports 8084 and 8085.
+   ```
+The application will be accessible on ports 8084 for server and 8085 for web GUI.
 
-### Docker Compose
+#### Docker Compose
 
 Create a docker-compose.yaml file copy the following inside it:
 
