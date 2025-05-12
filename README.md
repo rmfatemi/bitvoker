@@ -1,22 +1,22 @@
-# bitvoker
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/2b2ed949-fa68-4de4-83c7-546067cfd8ba" width="500">
+</p>
 
-bitvoker is an open-source, versatile notification system that receives messages via a TCP server, processes them optionally with AI, and dispatches notifications across multiple channels.
+**bitvoker** is an open-source, versatile AI notification system that receives messages via a TCP server, processes them optionally with AI-generated summaries, and dispatches notifications across multiple channels.
 
-## ✨ Features
+## Features
 
 - 🌐 **Multi-Channel Support**: Send notifications to:
   - Telegram
   - Discord
   - Slack
   - Gotify
-- 🤖 **AI Processing**: Optional message enhancement via OpenAI to summarize and improve notifications
-- 🖥️ **Web Dashboard**: User-friendly Flask interface for configuration and notification management
+- 🤖 **AI Processing**: Optional message enhancement powered by [Meta.AI](https://www.meta.ai/) that refines and summarizes notifications with customizable pre-prompts.
 - 📜 **Notification History**: Store and browse past notifications with timestamps and source information
+- 🖥️ **Web Dashboard**: User-friendly Flask interface for configuration and notification management
+- 🔄 **Real-time Updates**: Instantly receive notifications across all configured channels
 - 📊 **Detailed Logging**: Logging system accessible via web interface
 - ⚡ **Dynamic Configuration**: Update settings without restarting the server
-- 🔄 **Real-time Updates**: Instantly receive notifications across all configured channels
-
-## 🚀 Installation
 
 ## Setup
 This repository supports two ways of running bitvoker. For a consistent and isolated environment, **using Docker is recommended**.
@@ -77,17 +77,52 @@ services:
 
 ## 📖 Usage
 
-### TCP Server
+Send messages to the bitvoker TCP server to trigger notifications. Here are some examples:
 
-Send messages to the bitvoker TCP server to trigger notifications:
-
+1. Automated Rsync Backup Notification (Cron Job):
 ```bash
-echo "Your notification message" | nc localhost 8084
+# Run daily at 2:00 AM:
+0 2 * * * rsync -avh /path/to/source /path/to/backup && echo "Backup complete at $(date)" | nc <server-ip> 8084
+```
+2. Uptime Monitoring (Cron Job):
+```bash
+# Every 30 minutes:
+*/30 * * * * uptime | nc <server-ip> 8084
+```
+3. Weather Update Notification (Cron Job):
+```bash
+# Every hour:
+0 * * * * curl -s "http://wttr.in/?format=3" | nc <server-ip> 8084
+```
+4. Disk Space Notification (Cron Job):
+```bash
+# Every 15 minutes:
+*/15 * * * * df -h | nc <server-ip> 8084
+```
+5. Memory Usage Notification (Cron Job):
+```bash
+# Every 10 minutes:
+*/10 * * * * free -h | nc <server-ip> 8084
+```
+6. System Load Notification (Cron Job):
+```bash
+# Every 10 minutes:
+*/10 * * * * top -bn1 | grep "load average:" | nc <server-ip> 8084
+```
+7. File Modification Trigger (Event-Based):
+```bash
+# Trigger a notification when a specific file changes:
+inotifywait -e modify /path/to/monitored/file && echo "File modified at $(date)" | nc <server-ip> 8084
+```
+8. Service Status Alert (Triggered):
+```bash
+# Trigger a notification when a specific file changes:
+inotifywait -e modify /path/to/monitored/file && echo "File modified at $(date)" | nc <server-ip> 8084
 ```
 
 ### Web Interface
 
-Access the web interface at `http://<server-ip>:8084` to:
+Access the web interface at `http://<server-ip>:8085` to:
 - View notification history
 - Configure notification channels
 - View system logs
@@ -95,4 +130,4 @@ Access the web interface at `http://<server-ip>:8084` to:
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/rmfatemi/bitvoker/blob/master/LICENSE) file for details.
