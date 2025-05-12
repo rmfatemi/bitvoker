@@ -41,7 +41,7 @@ Create a docker-compose.yaml file copy the following inside it:
 ```
 services:
   bitvoker:
-    image: yourusername/bitvoker
+    image: [tba]/bitvoker
     container_name: bitvoker
     ports:
       - "8084:8084"
