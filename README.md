@@ -125,18 +125,18 @@ Access the web interface at `http://<server-ip>:8085` to:
 - View system logs
 - Adjust AI settings
 
-## Main dashboard
+#### Main dashboard
   ![image](https://github.com/user-attachments/assets/7b8884b5-f4d9-47b5-8988-c04b49708c78)
 
 
-## Settings and configurations
+#### Settings and configurations
   ![image](https://github.com/user-attachments/assets/04306a72-8f83-4d42-b280-994aed72d69f)
 
 
-## Light mode
+#### Light mode
   ![image](https://github.com/user-attachments/assets/edce9c46-1c44-4347-9602-fbf7e46a0180)
 
-## Telegram notifcation
+#### Telegram notifcation
   <img src="https://github.com/user-attachments/assets/ba10c5a5-3bd4-4340-a973-7f2986b26c61" width="300">
 
 ## 📄 License
