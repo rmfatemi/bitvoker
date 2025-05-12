@@ -20,4 +20,12 @@ COPY . .
 
 EXPOSE 8084 8085
 
-CMD ["bash", "-c", "if [ -z \"$(ls -A /app/data)\" ]; then cp -R /app/initial_data/* /app/data/; fi; exec poetry run bitvoker"]
+# verify that a socket listening on port 8084 (0x1F94) exists without sending data
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD grep -q ':1F94' /proc/net/tcp || exit 1
+
+COPY docker/entrypoint.sh /app/entrypoint.sh
+
+RUN chmod +x /app/entrypoint.sh
+
+CMD ["bash", "/app/entrypoint.sh"]
