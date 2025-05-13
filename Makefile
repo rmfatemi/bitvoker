@@ -21,7 +21,7 @@ check: ## Run checks: lock file consistency, linting, and obsolete dependency ch
 
 .PHONY: docker-build
 docker-build: ## Build the bitvoker Docker image.
-	docker build -t bitvoker -f docker/Dockerfile .
+	docker build -t bitvoker -f Dockerfile .
 
 .PHONY: docker-run
 docker-run: ## Run the container named bitvoker-container using the bitvoker image.
