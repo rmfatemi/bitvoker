@@ -24,7 +24,7 @@ EXPOSE 8084 8085
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD grep -q ':1F94' /proc/net/tcp || exit 1
 
-COPY ../docker/entrypoint.sh /app/entrypoint.sh
+COPY docker/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 CMD ["bash", "/app/entrypoint.sh"]
