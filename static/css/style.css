@@ -439,3 +439,8 @@ pre {
   font-style: italic;
   color: var(--disabled-text);
 }
+
+#logsTable th,
+#logsTable td {
+  padding: 0px 10px;
+}

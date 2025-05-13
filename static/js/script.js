@@ -179,7 +179,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('logs').style.display === 'block') {
       fetchLogs();
     }
-  }, 5000);
+    if (document.getElementById('dashboard').style.display === 'block') {
+      fetchNotifications();
+    }
+}, 5000);
 
   if (initialTab === 'settings' && window.location.hash) {
     const element = document.getElementById(window.location.hash.substring(1));
