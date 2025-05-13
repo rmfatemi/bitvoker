@@ -13,9 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read       # To checkout the repository
-      packages: write     # To push packages (Docker images) to GitHub Packages
-      attestations: write # To write artifact attestations
-      id-token: write     # To support OIDC token for attestations
+      packages: write      # To push packages (Docker images) to GitHub Packages
+      attestations: write  # To write artifact attestations
+      id-token: write      # To support OIDC token for attestations
 
     steps:
       - name: Checkout repository
@@ -33,6 +33,8 @@ jobs:
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
 
       - name: Build and push Docker image
         id: push
@@ -46,6 +48,6 @@ jobs:
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v2
         with:
-          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
