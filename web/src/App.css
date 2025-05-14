@@ -63,7 +63,13 @@ body {
   width: 95%;
   max-width: 1400px;
   margin: 20px auto;
-  padding: 0 20px 20px 20px;
+  padding: 0;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--border-color);
+  margin: 25px 0;
 }
 
 /* ----------------- HEADER & NAVIGATION ----------------- */
@@ -103,7 +109,6 @@ header {
 .tabs {
   display: flex;
   margin-bottom: 1px;
-  border-bottom: 1px solid var(--border-color);
 }
 
 .tab-button {
@@ -125,17 +130,85 @@ header {
   background-color: var(--tab-hover-bg);
 }
 
-.tab-content {
-  display: none;
-  padding: 20px;
-  border: 1px solid var(--border-color);
-  border-top: none;
-  background-color: var(--card-bg);
+/* ----------------- TABLES ----------------- */
+.table-responsive {
+  overflow-x: visible;
 }
 
-.tab-content.active {
-  display: block;
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
 }
+
+th, td {
+  border: 1px solid var(--border-color);
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  background-color: var(--header-bg);
+}
+
+/* Table typography */
+#logsTable th,
+#logsTable td,
+#notificationsTable th,
+#notificationsTable td {
+  font-size: 0.9em;
+}
+
+/* Custom padding for logs table */
+#logsTable th,
+#logsTable td {
+  padding: 2px 10px;
+}
+
+/* Make timestamp and level columns in logs table only as wide as needed */
+#logsTable th:nth-child(1),
+#logsTable th:nth-child(2),
+#logsTable td:nth-child(1),
+#logsTable td:nth-child(2),
+#notificationsTable th:nth-child(1),
+#notificationsTable th:nth-child(2),
+#notificationsTable td:nth-child(1),
+#notificationsTable td:nth-child(2) {
+  width: 1%;
+  white-space: nowrap;
+}
+
+/* Make original message and AI summary columns share the remaining space equally */
+#notificationsTable th:nth-child(3),
+#notificationsTable th:nth-child(4) {
+  width: 50%;
+}
+#notificationsTable td:nth-child(3),
+#notificationsTable td:nth-child(4) {
+  width: 50%;
+}
+
+/* Pre elements inside tables */
+#notificationsTable td pre,
+#logsTable td pre {
+  display: block;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 5px;
+  background: transparent;
+  border-radius: 0px;
+  font-size: 1em;
+}
+
+/* ----------------- LOG LEVELS ----------------- */
+.log-level-DEBUG { color: #888; }
+.log-level-INFO { color: #4CAF50; }
+.log-level-WARNING { color: #FFC107; }
+.log-level-ERROR { color: #F44336; }
+.log-level-CRITICAL { color: #F44336; font-weight: bold; }
 
 /* ----------------- FORMS & INPUTS ----------------- */
 label {
@@ -207,20 +280,6 @@ label.disabled {
   color: var(--disabled-text);
 }
 
-/* Preprompt styles */
-.preprompt-row {
-  margin: 20px 0;
-}
-
-.preprompt-row textarea {
-  min-height: 120px;
-  width: 100%;
-}
-
-.full-width {
-  width: 100%;
-}
-
 /* ----------------- BUTTONS ----------------- */
 .button,
 .danger-button,
@@ -265,53 +324,6 @@ label.disabled {
   color: var(--button-text-color);
 }
 
-/* ----------------- TABLES ----------------- */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-th, td {
-  border: 1px solid var(--border-color);
-  padding: 10px;
-  text-align: left;
-}
-
-th {
-  background-color: var(--header-bg);
-}
-
-/* Make timestamp and client IP columns only as wide as needed */
-#notificationsTable th:nth-child(1),
-#notificationsTable th:nth-child(2),
-#notificationsTable td:nth-child(1),
-#notificationsTable td:nth-child(2) {
-  width: 1%;
-  white-space: nowrap;
-}
-
-/* Make original message and AI summary columns share the remaining space equally */
-#notificationsTable th:nth-child(3),
-#notificationsTable th:nth-child(4) {
-  width: 50%;
-}
-#notificationsTable td:nth-child(3),
-#notificationsTable td:nth-child(4) {
-  width: 50%;
-}
-
-.table-responsive {
-  overflow-x: auto;
-}
-
-/* ----------------- LOG LEVELS ----------------- */
-.log-level-DEBUG { color: #888; }
-.log-level-INFO { color: #4CAF50; }
-.log-level-WARNING { color: #FFC107; }
-.log-level-ERROR { color: #F44336; }
-.log-level-CRITICAL { color: #F44336; font-weight: bold; }
-
 /* ----------------- FILTERS & GROUPS ----------------- */
 .date-filter-group {
   display: flex;
@@ -346,12 +358,6 @@ th {
 }
 
 /* ----------------- LAYOUT COMPONENTS ----------------- */
-hr {
-  border: 0;
-  border-top: 1px solid var(--border-color);
-  margin: 25px 0;
-}
-
 .general-settings-row {
   display: flex;
   flex-wrap: wrap;
@@ -423,6 +429,20 @@ hr {
   vertical-align: middle;
 }
 
+/* ----------------- PREPROMPT STYLES ----------------- */
+.preprompt-row {
+  margin: 20px 0;
+}
+
+.preprompt-row textarea {
+  min-height: 120px;
+  width: 100%;
+}
+
+.full-width {
+  width: 100%;
+}
+
 /* ----------------- MISC ----------------- */
 pre {
   white-space: pre-wrap;
@@ -440,7 +460,17 @@ pre {
   color: var(--disabled-text);
 }
 
-#logsTable th,
-#logsTable td {
-  padding: 0px 10px;
+/* ----------------- RESPONSIVE STYLES ----------------- */
+@media (max-width: 768px) {
+  .channel-row {
+    flex-direction: column;
+  }
+
+  .general-settings-row {
+    flex-direction: column;
+  }
+
+  .date-filter-group {
+    flex-wrap: wrap;
+  }
 }

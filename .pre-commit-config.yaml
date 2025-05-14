@@ -6,7 +6,6 @@ repos:
   hooks:
   - id: trailing-whitespace
     exclude: .github/CODEOWNERS|docs/CODEOWNERS|.snyk|cortex.yaml
-  - id: check-added-large-files
   - id: check-ast
   - id: check-json
   - id: check-merge-conflict

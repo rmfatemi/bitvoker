@@ -1,3 +1,16 @@
+FROM node:18 AS frontend-build
+
+WORKDIR /app/web
+
+COPY web/package*.json ./
+
+RUN npm install
+
+COPY web/public ./public
+COPY web/src ./src
+
+RUN npm run build
+
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -16,6 +29,7 @@ RUN poetry config virtualenvs.create false && \
     poetry install --no-interaction --no-ansi
 
 COPY data/ /app/initial_data/
+COPY --from=frontend-build /app/web/build /app/web/build
 COPY . .
 
 EXPOSE 8084 8085

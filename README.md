@@ -13,7 +13,7 @@
   - Gotify
 - 🤖 **AI Processing**: Optional message enhancement that refines and summarizes notifications with customizable pre-prompts.
 - 📜 **Notification History**: Store and browse past notifications with timestamps and source information
-- 🖥️ **Web Dashboard**: User-friendly Flask interface for configuration and notification management
+- 🖥️ **Web Dashboard**: User-friendly interface for configuration and notification management
 - 🔄 **Real-time Updates**: Instantly receive notifications across all configured channels
 - ⚡ **Dynamic Configuration**: Update settings without restarting the server
 - 📊 **Detailed Logging**: Logging system accessible via web interface
@@ -67,15 +67,17 @@ docker-compose up -d
 
 - Python 3.11 or higher
 - [Poetry](https://python-poetry.org/docs/#installation) package manager
+- [GNU Make](https://www.gnu.org/software/make/) utility
+  -    `sudo apt-get install make` (Debian-based Linux), or `brew install make` (macOS)
 1. Clone the repository:
     ```bash
     git clone https://github.com/rmfatemi/bitvoker.git
     cd bitvoker
     ```
 
-2. Install dependencies using Poetry:
+2. Install dependencies:
     ```bash
-    poetry install
+    make install
     ```
 
 3. Run the application:
@@ -86,7 +88,7 @@ docker-compose up -d
 
 ## 📖 Usage
 
-Send messages to **bitvoker**’s notification endpoint supports `nc` (netcat) or `curl` to send raw TCP messages. 
+Send messages to **bitvoker**’s notification endpoint supports `nc` (netcat) or `curl` to send raw TCP messages.
 
 **Using nc (recommended):** `echo "Your notification message" | nc <server-ip> 8084`
 
@@ -141,7 +143,7 @@ Send messages to **bitvoker**’s notification endpoint supports `nc` (netcat) o
     LAST_IP_FILE="/tmp/last_ip.txt"
     CURRENT_IP=$(curl -s https://api.ipify.org)
     LAST_IP=$(cat "$LAST_IP_FILE" 2>/dev/null)
-    
+
     if [ "$CURRENT_IP" != "$LAST_IP" ]; then
         echo "External IP updated to: $CURRENT_IP at $(date)" | curl -T - telnet://<server-ip>:8084
         echo "$CURRENT_IP" > "$LAST_IP_FILE"
