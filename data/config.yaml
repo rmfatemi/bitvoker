@@ -1,7 +1,7 @@
 preprompt: You are an assistant that summarizes technical logs and alerts. Be concise
-  but informative. Max 20 words
-enable_ai: true
-show_original: false
+  but informative.
+enable_ai: false
+show_original: true
 gui_theme: dark
 telegram:
   enabled: false
@@ -15,7 +15,6 @@ slack:
   enabled: false
   webhook_url: ''
   token: ''
-  webhook_id: ''
 gotify:
   enabled: false
   server_url: ''
