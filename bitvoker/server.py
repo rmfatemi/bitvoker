@@ -1,34 +1,53 @@
+import uvicorn
+import threading
 import socketserver
 
 from bitvoker.ai import AI
+from bitvoker.api import app
 from bitvoker.config import Config
 from bitvoker.handler import Handler
 from bitvoker.notifier import Notifier
 from bitvoker.logger import setup_logger
+from bitvoker.constants import TCP_SERVER_PORT, UI_SERVER_PORT, SERVER_HOST
 
 logger = setup_logger("server")
 
 
-def main():
+def run_tcp_server():
     config = Config()
-    # Pass the list of channel configurations to the Notifier
     notifier = Notifier(config.notification_channels)
-    ai = AI(config.preprompt)
-    HOST, PORT = config.server_host, config.server_port
+    ai = AI(config.preprompt) if config.config_data.get("enable_ai", False) else None
     socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.ThreadingTCPServer((HOST, PORT), Handler) as server:
+    with socketserver.ThreadingTCPServer((SERVER_HOST, TCP_SERVER_PORT), Handler) as server:
+        # Store the TCP server instance in app.state for dynamic updates.
+        app.state.tcp_server = server
         server.ai = ai
-        server.config_manager = config  # Store the manager to access full config easily
+        server.config_manager = config
         server.notifier = notifier
-        logger.info("Server listening on %s:%s ...", HOST if HOST else "all interfaces", PORT)
+        logger.info("TCP Server listening on %s:%s ...", SERVER_HOST, TCP_SERVER_PORT)
         try:
             server.serve_forever()
         except KeyboardInterrupt:
-            logger.info("Server shutting down due to KeyboardInterrupt...")
+            logger.info("TCP Server shutting down due to KeyboardInterrupt.")
         except Exception as e:
-            logger.exception(f"Error in server execution: {e}")
+            logger.exception("Error in TCP Server: %s", e)
         finally:
             server.server_close()
+
+
+def start_web_server():
+    logger.info(f"Starting web server at http://{SERVER_HOST}:{UI_SERVER_PORT} ...")
+    uvicorn.run(app, host=SERVER_HOST, port=UI_SERVER_PORT)
+
+
+def main():
+    logger.info("Starting TCP server in a background thread ...")
+    tcp_thread = threading.Thread(target=run_tcp_server, daemon=True)
+    tcp_thread.start()
+    logger.info("TCP server thread started.")
+
+    logger.info("Starting the FastAPI web server now.")
+    start_web_server()
 
 
 if __name__ == "__main__":

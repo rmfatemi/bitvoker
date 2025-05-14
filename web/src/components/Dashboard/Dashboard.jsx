@@ -10,10 +10,21 @@ function Dashboard({ notifications = [], config = {} }) {
   }, [notifications]);
 
   const handleFilter = () => {
-    // In a real app, you would fetch filtered data from your API
-    console.log('Filter with dates:', startDate, endDate);
-    // For now, just use the passed notifications
-    setFilteredNotifications([...notifications]);
+    if (!startDate || !endDate) {
+      setFilteredNotifications(notifications);
+      return;
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+
+    const filtered = notifications.filter((notif) => {
+      const notifDate = new Date(notif.timestamp);
+      return notifDate >= start && notifDate <= end;
+    });
+
+    setFilteredNotifications(filtered);
   };
 
   const escapeHtml = (unsafe) => {
@@ -44,7 +55,9 @@ function Dashboard({ notifications = [], config = {} }) {
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
         />
-        <button onClick={handleFilter} className="button" type="button">Filter</button>
+        <button onClick={handleFilter} className="button" type="button">
+          Filter
+        </button>
       </div>
       <div className="table-responsive">
         <table id="notificationsTable">
@@ -62,10 +75,18 @@ function Dashboard({ notifications = [], config = {} }) {
                 <td>{notif.timestamp}</td>
                 <td>{notif.client || 'N/A'}</td>
                 <td>
-                  <pre dangerouslySetInnerHTML={{ __html: escapeHtml(notif.original || notif.message) }} />
+                  <pre
+                    dangerouslySetInnerHTML={{
+                      __html: escapeHtml(notif.original || notif.message),
+                    }}
+                  />
                 </td>
                 <td>
-                  <pre dangerouslySetInnerHTML={{ __html: escapeHtml(notif.ai || '') }} />
+                  <pre
+                    dangerouslySetInnerHTML={{
+                      __html: escapeHtml(notif.ai || ''),
+                    }}
+                  />
                 </td>
               </tr>
             ))}
