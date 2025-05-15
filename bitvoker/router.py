@@ -29,7 +29,9 @@ async def update_config(request: Request):
 
         new_config_data["preprompt"] = form_data.get("preprompt", new_config_data.get("preprompt", ""))[:2048]
         new_config_data["enable_ai"] = form_data.get("enable_ai", False)
-        new_config_data["show_original"] = form_data.get("show_original", True)
+        new_config_data["show_original"] = (
+            True if not new_config_data["enable_ai"] else form_data.get("show_original", True)
+        )
         new_config_data["gui_theme"] = form_data.get("gui_theme", new_config_data.get("gui_theme", "dark"))
 
         channel_configs = {
