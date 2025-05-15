@@ -12,7 +12,7 @@ function Settings({ config = {}, onSave }) {
         const data = await response.json();
         setSettings({
           enable_ai: data.enable_ai || false,
-          show_original: data.show_original || true,
+          show_original: data.show_original !== undefined ? data.show_original : true,
           preprompt: data.preprompt || '',
           gui_theme: data.gui_theme || 'dark',
           telegram: data.telegram || { enabled: false, chat_id: '', token: '' },
@@ -30,19 +30,6 @@ function Settings({ config = {}, onSave }) {
     fetchConfig();
   }, []);
 
-  const toggleAI = (e) => {
-    const enabled = e.target.checked;
-    setSettings((prevSettings) => ({
-      ...prevSettings,
-      enable_ai: enabled,
-      show_original: enabled ? prevSettings.show_original : true
-    }));
-  };
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   const updateConfig = (channel, key, value) => {
     setSettings({
       ...settings,
@@ -53,26 +40,25 @@ function Settings({ config = {}, onSave }) {
     });
   };
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  const toggleAI = (e) => {
+    const enabled = e.target.checked;
+    setSettings((prevSettings) => ({
+      ...prevSettings,
+      enable_ai: enabled,
+    }));
+  };
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    if (name.includes('_config_')) {
-      // Handle nested config properties (for channels)
-      const [_, channel, property] = name.split('_config_');
-      setSettings({
-        ...settings,
-        [channel]: {
-          ...settings[channel],
-          [property]: value
-        }
-      });
-    } else {
-      // Handle top-level properties
-      setSettings({
-        ...settings,
-        [name]: type === 'checkbox' ? checked : value
-      });
-    }
+    setSettings((prevSettings) => ({
+      ...prevSettings,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   const handleSubmit = (e) => {
