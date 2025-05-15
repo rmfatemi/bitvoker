@@ -1,27 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ChannelCard from './ChannelCard';
 
 function Settings({ config = {}, onSave }) {
-  const [settings, setSettings] = useState({
-    enable_ai: config.enable_ai || false,
-    show_original: config.show_original || true,
-    preprompt: config.preprompt || '',
-    gui_theme: config.gui_theme || 'dark',
-    telegram: config.telegram || { enabled: false, chat_id: '', token: '' },
-    discord: config.discord || { enabled: false, webhook_id: '', token: '' },
-    slack: config.slack || { enabled: false, webhook_id: '', token: '' },
-    gotify: config.gotify || { enabled: false, server_url: '', token: '' }
-  });
+  const [settings, setSettings] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchConfig() {
+      try {
+        const response = await fetch('/api/config');
+        const data = await response.json();
+        setSettings({
+          enable_ai: data.enable_ai || false,
+          show_original: data.show_original || true,
+          preprompt: data.preprompt || '',
+          gui_theme: data.gui_theme || 'dark',
+          telegram: data.telegram || { enabled: false, chat_id: '', token: '' },
+          discord: data.discord || { enabled: false, webhook_id: '', token: '' },
+          slack: data.slack || { enabled: false, webhook_id: '', token: '' },
+          gotify: data.gotify || { enabled: false, server_url: '', token: '' }
+        });
+      } catch (error) {
+        console.error('Failed to fetch config:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchConfig();
+  }, []);
 
   const toggleAI = (e) => {
     const enabled = e.target.checked;
-    setSettings({
-      ...settings,
+    setSettings((prevSettings) => ({
+      ...prevSettings,
       enable_ai: enabled,
-      // If AI is disabled, force show_original to be true
-      show_original: enabled ? settings.show_original : true
-    });
+      show_original: enabled ? prevSettings.show_original : true
+    }));
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   const updateConfig = (channel, key, value) => {
     setSettings({

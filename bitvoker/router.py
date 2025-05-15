@@ -27,8 +27,7 @@ async def update_config(request: Request):
     try:
         new_config_data = config_obj.config_data.copy()
 
-        preprompt_val = form_data.get("preprompt", new_config_data.get("preprompt", ""))
-        new_config_data["preprompt"] = preprompt_val[:2048] if len(preprompt_val) > 2048 else preprompt_val
+        new_config_data["preprompt"] = form_data.get("preprompt", new_config_data.get("preprompt", ""))[:2048]
         new_config_data["enable_ai"] = form_data.get("enable_ai", False)
         new_config_data["show_original"] = form_data.get("show_original", True)
         new_config_data["gui_theme"] = form_data.get("gui_theme", new_config_data.get("gui_theme", "dark"))
@@ -42,18 +41,14 @@ async def update_config(request: Request):
 
         for channel, fields in channel_configs.items():
             channel_data = form_data.get(channel, {})
-            if channel not in new_config_data:
-                new_config_data[channel] = {}
-            new_config_data[channel]["enabled"] = channel_data.get("enabled", False)
+            new_config_data.setdefault(channel, {})["enabled"] = channel_data.get("enabled", False)
             for field in fields:
-                new_config_data[channel][field] = channel_data.get(
-                    field, new_config_data.get(channel, {}).get(field, "")
-                )
+                new_config_data[channel][field] = channel_data.get(field, new_config_data[channel].get(field, ""))
 
         with open(config_obj.filename, "w", encoding="utf-8") as f:
             yaml.safe_dump(new_config_data, f, sort_keys=False)
 
-        # access the running TCP server from app.state and update its configuration.
+        # dynamic TCP server configuration update
         tcp_server = request.app.state.tcp_server
         if tcp_server and hasattr(tcp_server, "config_manager"):
             fresh_config_manager = Config()
@@ -72,6 +67,16 @@ async def update_config(request: Request):
     except Exception as e:
         logger.error("Failed to update configuration: %s", e)
         return JSONResponse(content={"error": f"Failed to update config: {str(e)}"}, status_code=500)
+
+
+@api_router.get("/api/config")
+async def get_config():
+    try:
+        config_obj = Config()
+        return config_obj.config_data
+    except Exception as e:
+        logger.error("Failed to retrieve configuration: %s", e)
+        return JSONResponse(content={"error": f"Failed to retrieve config: {str(e)}"}, status_code=500)
 
 
 # ----------------------
