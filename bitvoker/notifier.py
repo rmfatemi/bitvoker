@@ -19,7 +19,7 @@ class Notifier:
         full_message = f"{title}\n\n{message}"
         full_message = self._truncate(full_message, 4096)
         payload = {"chat_id": config["chat_id"], "text": full_message}
-        api_url = f"https://api.telegram.org/bot{config['bot_token']}/sendMessage"
+        api_url = f"https://api.telegram.org/bot{config['token']}/sendMessage"
         try:
             response = requests.post(api_url, data=payload, timeout=10)
             response.raise_for_status()
@@ -39,7 +39,7 @@ class Notifier:
         full_message = self._truncate(full_message, 4000)
         payload = {"text": full_message}
         try:
-            response = requests.post(config["webhook_url"], json=payload, timeout=10)
+            response = requests.post(config["webhook_id"], json=payload, timeout=10)
             response.raise_for_status()
             logger.info("Successfully sent Slack message for %s", config.get("name", "Slack"))
         except requests.exceptions.RequestException as e:
@@ -54,7 +54,7 @@ class Notifier:
         full_message = self._truncate(full_message, 2000)
         payload = {"content": full_message}
         try:
-            response = requests.post(config["webhook_url"], json=payload, timeout=10)
+            response = requests.post(config["webhook_id"], json=payload, timeout=10)
             response.raise_for_status()
             logger.info("Successfully sent Discord message for %s", config.get("name", "Discord"))
         except requests.exceptions.RequestException as e:
@@ -67,7 +67,7 @@ class Notifier:
     def _send_gotify(self, config, message, title):
         if len(message) > 32768:
             message = message[: 32768 - len("\n[TRUNCATED]")] + "\n[TRUNCATED]"
-        target_url = f"{config['server_url'].rstrip('/')}/message?token={config['app_token']}"
+        target_url = f"{config['server_url'].rstrip('/')}/message?token={config['token']}"
         payload = {"title": title, "message": message, "priority": config.get("priority", 5)}
         try:
             response = requests.post(target_url, json=payload, timeout=10)
@@ -92,25 +92,25 @@ class Notifier:
                 continue
             try:
                 if channel_type == "telegram":
-                    if "bot_token" in specific_config and "chat_id" in specific_config:
+                    if "token" in specific_config and "chat_id" in specific_config:
                         self._send_telegram(specific_config, message_body, title)
                     else:
-                        logger.error("Telegram channel %s missing bot_token or chat_id.", specific_config["name"])
+                        logger.error("Telegram channel %s missing token or chat_id.", specific_config["name"])
                 elif channel_type == "slack":
-                    if "webhook_url" in specific_config:
+                    if "webhook_id" in specific_config:
                         self._send_slack(specific_config, message_body, title)
                     else:
-                        logger.error("Slack channel %s missing webhook_url.", specific_config["name"])
+                        logger.error("Slack channel %s missing webhook_id.", specific_config["name"])
                 elif channel_type == "discord":
-                    if "webhook_url" in specific_config:
+                    if "webhook_id" in specific_config:
                         self._send_discord(specific_config, message_body, title)
                     else:
-                        logger.error("Discord channel %s missing webhook_url.", specific_config["name"])
+                        logger.error("Discord channel %s missing webhook_id.", specific_config["name"])
                 elif channel_type == "gotify":
-                    if "server_url" in specific_config and "app_token" in specific_config:
+                    if "server_url" in specific_config and "token" in specific_config:
                         self._send_gotify(specific_config, message_body, title)
                     else:
-                        logger.error("Gotify channel %s missing server_url or app_token.", specific_config["name"])
+                        logger.error("Gotify channel %s missing server_url or token.", specific_config["name"])
                 else:
                     logger.warning(
                         "Unsupported notification channel type: %s for %s", channel_type, specific_config["name"]

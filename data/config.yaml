@@ -1,21 +1,20 @@
-preprompt: You are an assistant that summarizes technical logs and alerts. Be concise
-  but informative.
+preprompt: You are an assistant that summarizes technical logs and alerts. Be concise but informative. Use up to 20 Words.
 enable_ai: false
 show_original: true
 gui_theme: dark
 telegram:
   enabled: false
-  bot_token: ''
   chat_id: ''
+  token: ''
 discord:
   enabled: false
-  webhook_url: ''
+  webhook_id: ''
   token: ''
 slack:
   enabled: false
-  webhook_url: ''
+  webhook_id: ''
   token: ''
 gotify:
   enabled: false
   server_url: ''
-  app_token: ''
+  token: ''

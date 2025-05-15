@@ -18,10 +18,10 @@ function App() {
     gui_theme: 'dark',
     enable_ai: true,
     preprompt: "",
-    telegram: { enabled: false, bot_token: '', chat_id: '' },
+    telegram: { enabled: false, chat_id: '', token: '' },
     discord: { enabled: false, webhook_id: '', token: '' },
     slack: { enabled: false, webhook_id: '', token: '' },
-    gotify: { enabled: false, server_url: '', app_token: '' }
+    gotify: { enabled: false, server_url: '', token: '' }
   });
 
   // API base URL

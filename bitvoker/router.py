@@ -34,11 +34,12 @@ async def update_config(request: Request):
         new_config_data["gui_theme"] = form_data.get("gui_theme", new_config_data.get("gui_theme", "dark"))
 
         channel_configs = {
-            "telegram": ["bot_token", "chat_id"],
+            "telegram": ["chat_id", "token"],
+            "discord": ["webhook_id", "token"],
             "slack": ["webhook_id", "token"],
-            "discord": ["webhook_url", "token"],
-            "gotify": ["server_url", "app_token"],
+            "gotify": ["server_url", "token"],
         }
+
         for channel, fields in channel_configs.items():
             channel_data = form_data.get(channel, {})
             if channel not in new_config_data:

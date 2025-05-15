@@ -7,10 +7,10 @@ function Settings({ config = {}, onSave }) {
     show_original: config.show_original || true,
     preprompt: config.preprompt || '',
     gui_theme: config.gui_theme || 'dark',
-    telegram: config.telegram || { enabled: false, bot_token: '', chat_id: '' },
+    telegram: config.telegram || { enabled: false, chat_id: '', token: '' },
     discord: config.discord || { enabled: false, webhook_id: '', token: '' },
     slack: config.slack || { enabled: false, webhook_id: '', token: '' },
-    gotify: config.gotify || { enabled: false, server_url: '', app_token: '' }
+    gotify: config.gotify || { enabled: false, server_url: '', token: '' }
   });
 
   const toggleAI = (e) => {
@@ -60,7 +60,6 @@ function Settings({ config = {}, onSave }) {
     onSave(settings);
   };
 
-  // Channel configurations for the ChannelCard component
   const channelConfigs = {
     telegram: {
       icon: <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#0088cc" viewBox="0 0 24 24" style={{ marginRight: "8px" }}>
@@ -68,8 +67,8 @@ function Settings({ config = {}, onSave }) {
             </svg>,
       title: "Telegram",
       fields: [
-        { id: "telegram_bot_token", label: "Bot Token:", key: "bot_token", type: "password", placeholder: "Telegram Bot Token", autoComplete: "off" },
-        { id: "telegram_chat_id", label: "Chat ID:", key: "chat_id", type: "text", placeholder: "Telegram Chat ID" }
+        { id: "telegram_chat_id", label: "Chat ID:", key: "chat_id", type: "text", placeholder: "Telegram Chat ID" },
+        { id: "telegram_token", label: "Bot Token:", key: "token", type: "password", placeholder: "Telegram Bot Token", autoComplete: "off" }
       ]
     },
     discord: {
@@ -99,7 +98,7 @@ function Settings({ config = {}, onSave }) {
       title: "Gotify",
       fields: [
         { id: "gotify_server_url", label: "Server URL:", key: "server_url", type: "text", placeholder: "https://your.gotify.server" },
-        { id: "gotify_app_token", label: "App Token:", key: "app_token", type: "password", placeholder: "Gotify App Token", autoComplete: "off" }
+        { id: "gotify_token", label: "App Token:", key: "token", type: "password", placeholder: "Gotify App Token", autoComplete: "off" }
       ]
     }
   };

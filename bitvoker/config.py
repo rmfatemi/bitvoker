@@ -31,10 +31,10 @@ class Config:
             "enable_ai": False,
             "show_original": True,
             "gui_theme": "dark",
-            "telegram": {"enabled": False, "bot_token": "", "chat_id": ""},
-            "discord": {"enabled": False, "webhook_url": "", "token": ""},
-            "slack": {"enabled": False, "webhook_url": "", "token": ""},
-            "gotify": {"enabled": False, "server_url": "", "app_token": ""},
+            "telegram": {"enabled": False, "chat_id": "", "token": ""},
+            "discord": {"enabled": False, "webhook_id": "", "token": ""},
+            "slack": {"enabled": False, "webhook_id": "", "token": ""},
+            "gotify": {"enabled": False, "server_url": "", "token": ""},
         }
 
         try:
