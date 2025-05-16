@@ -26,15 +26,17 @@ docker-build: ## Build the bitvoker Docker image.
 	docker build -t bitvoker -f Dockerfile .
 
 .PHONY: docker-run
-docker-run: ## Run the container named bitvoker-container using the bitvoker image.
-	mkdir -p docker-tmp-data
-	docker run --rm -p 8084:8084 -p 8085:8085 -v $(PWD)/docker-tmp-data:/app/data -e TZ=America/New_York --name bitvoker-container bitvoker
+docker-run: ## Run the container named bitvoker using the bitvoker image.
+	docker volume create bitvoker_data && docker run -p 8084:8084 -p 8085:8085 -v bitvoker_data:/app/data -v /etc/localtime:/etc/localtime:ro --name bitvoker ghcr.io/rmfatemi/bitvoker:latest
+
+.PHONY: docker
+docker: docker-build docker-run
 
 .PHONY: clean
-clean: ## Clean Docker files, Python cache, build artifacts, and temporary files.
+clean: ## Clean Docker containers, volumes, Python cache, build artifacts and temporary files.
 	@echo "Cleaning Docker resources..."
-	-docker rm -f bitvoker-container 2>/dev/null || true
-	rm -rf docker-tmp-data || true
+	-docker rm -f bitvoker 2>/dev/null || true
+	-docker volume rm bitvoker_data 2>/dev/null || true
 	@echo "Cleaning Python cache files..."
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
