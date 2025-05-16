@@ -25,7 +25,7 @@ function App() {
   });
 
   // API base URL
-  const API_BASE = 'http://localhost:8085/api';
+  const API_BASE = '/api';
 
   useEffect(() => {
     // Load saved tab from localStorage if available

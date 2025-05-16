@@ -35,8 +35,7 @@ This repository supports two ways of running **bitvoker**. For a consistent and 
 You can run the Docker container directly. If the image is not present locally, Docker will automatically pull it from the registry.
 
    ```bash
-    mkdir -p "$(pwd)/data"
-    docker run --rm -p 8084:8084 -p 8085:8085 -v $(pwd)/data:/app/data --env TZ=America/New_York --name bitvoker ghcr.io/rmfatemi/bitvoker:latest
+    docker volume create bitvoker_data && docker run --rm -p 8084:8084 -p 8085:8085 -v bitvoker_data:/app/data --env TZ=America/New_York --name bitvoker ghcr.io/rmfatemi/bitvoker:latest
    ```
 The application will be accessible on ports `8084` for server and `8085` for web GUI.
 
@@ -55,8 +54,11 @@ services:
       - "8084:8084"            # TCP port for messages
       - "8085:8085"            # Web GUI port
     volumes:
-      - ./data:/app/data
+      - bitvoker_data:/app/data
     restart: unless-stopped
+
+volumes:
+  bitvoker_data:
 ```
 Then start the service with:
 ```
