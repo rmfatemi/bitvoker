@@ -26,7 +26,7 @@ class Config:
 
     def create_default_config(self):
         self.config_data = {
-            "preprompt": "You are an assistant that summarizes technical logs and alerts. Be concise but informative.",
+            "preprompt": "You are an assistant that summarizes technical logs and alerts. Be concise but informative",
             "enable_ai": False,
             "show_original": True,
             "gui_theme": "dark",

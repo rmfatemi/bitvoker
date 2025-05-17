@@ -43,7 +43,7 @@ class Handler(socketserver.BaseRequestHandler):
             elif config.show_original:
                 message_body = original_message
             else:
-                message_body = "error processing with ai. original message not shown as per config."
+                message_body = "error processing with ai. original message not shown as per config"
         else:
             if config.show_original:
                 message_body = original_message

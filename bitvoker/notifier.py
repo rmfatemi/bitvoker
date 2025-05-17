@@ -71,7 +71,7 @@ class Notifier:
 
     def send_message(self, message_body, title="bitvoker notification"):
         if not self.channels_config:
-            logger.warning("no notification channels configured.")
+            logger.warning("no notification channels configured")
             return
         for channel_conf_wrapper in self.channels_config:
             if not channel_conf_wrapper.get("enabled", False):
@@ -81,29 +81,29 @@ class Notifier:
             specific_config = channel_conf_wrapper.get("config", {})
             specific_config["name"] = channel_conf_wrapper.get("name", f"unnamed {channel_type}")
             if not specific_config:
-                logger.warning(f"channel {channel_conf_wrapper.get('name')} is enabled but has no specific config.")
+                logger.warning(f"channel {channel_conf_wrapper.get('name')} is enabled but has no specific config")
                 continue
             try:
                 if channel_type == "telegram":
                     if "token" in specific_config and "chat_id" in specific_config:
                         self._send_telegram(specific_config, message_body, title)
                     else:
-                        logger.error(f"telegram channel {specific_config['name']} missing token or chat_id.")
+                        logger.error(f"telegram channel {specific_config['name']} missing token or chat_id")
                 elif channel_type == "slack":
                     if "webhook_id" in specific_config:
                         self._send_slack(specific_config, message_body, title)
                     else:
-                        logger.error(f"slack channel {specific_config['name']} missing webhook_id.")
+                        logger.error(f"slack channel {specific_config['name']} missing webhook_id")
                 elif channel_type == "discord":
                     if "webhook_id" in specific_config:
                         self._send_discord(specific_config, message_body, title)
                     else:
-                        logger.error(f"discord channel {specific_config['name']} missing webhook_id.")
+                        logger.error(f"discord channel {specific_config['name']} missing webhook_id")
                 elif channel_type == "gotify":
                     if "server_url" in specific_config and "token" in specific_config:
                         self._send_gotify(specific_config, message_body, title)
                     else:
-                        logger.error(f"gotify channel {specific_config['name']} missing server_url or token.")
+                        logger.error(f"gotify channel {specific_config['name']} missing server_url or token")
                 else:
                     logger.warning(
                         f"unsupported notification channel type: {channel_type} for {specific_config['name']}"

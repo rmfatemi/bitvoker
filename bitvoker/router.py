@@ -56,15 +56,15 @@ async def update_config(request: Request):
         try:
             if hasattr(request.app.state, "secure_tcp_server"):
                 refresh_server_components(request.app.state.secure_tcp_server, force_new_config=True)
-                logger.info("secure tcp server configuration dynamically updated.")
+                logger.info("secure tcp server configuration dynamically updated")
             else:
-                logger.warning("secure tcp server not found in application state.")
+                logger.warning("secure tcp server not found in application state")
 
             if hasattr(request.app.state, "plain_tcp_server"):
                 refresh_server_components(request.app.state.plain_tcp_server, force_new_config=True)
-                logger.info("plain tcp server configuration dynamically updated.")
+                logger.info("plain tcp server configuration dynamically updated")
             else:
-                logger.warning("plain tcp server not found in application state.")
+                logger.warning("plain tcp server not found in application state")
 
             request.app.state.tcp_servers = {
                 "secure": (
