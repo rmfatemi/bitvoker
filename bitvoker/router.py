@@ -11,6 +11,7 @@ from fastapi import APIRouter, HTTPException, Query, Request
 from bitvoker.config import Config
 from bitvoker.logger import setup_logger
 from bitvoker.database import get_notifications
+from bitvoker.components import refresh_server_components
 
 
 logger = setup_logger("router")
@@ -52,19 +53,30 @@ async def update_config(request: Request):
             yaml.safe_dump(new_config_data, f, sort_keys=False)
 
         # dynamic tcp server configuration update
-        tcp_server = request.app.state.tcp_server
-        if tcp_server and hasattr(tcp_server, "config_manager"):
-            fresh_config_manager = Config()
-            tcp_server.config_manager = fresh_config_manager
-            from bitvoker.ai import AI
+        try:
+            if hasattr(request.app.state, "secure_tcp_server"):
+                refresh_server_components(request.app.state.secure_tcp_server, force_new_config=True)
+                logger.info("secure tcp server configuration dynamically updated.")
+            else:
+                logger.warning("secure tcp server not found in application state.")
 
-            tcp_server.ai = AI(fresh_config_manager.preprompt) if fresh_config_manager.enable_ai else None
-            from bitvoker.notifier import Notifier
+            if hasattr(request.app.state, "plain_tcp_server"):
+                refresh_server_components(request.app.state.plain_tcp_server, force_new_config=True)
+                logger.info("plain tcp server configuration dynamically updated.")
+            else:
+                logger.warning("plain tcp server not found in application state.")
 
-            tcp_server.notifier = Notifier(fresh_config_manager.notification_channels)
-            logger.info("tcp server configuration dynamically updated.")
-        else:
-            logger.warning("could not dynamically update tcp server config instance.")
+            request.app.state.tcp_servers = {
+                "secure": (
+                    request.app.state.secure_tcp_server if hasattr(request.app.state, "secure_tcp_server") else None
+                ),
+                "plain": request.app.state.plain_tcp_server if hasattr(request.app.state, "plain_tcp_server") else None,
+            }
+
+            return {"success": True}
+        except Exception as e:
+            logger.error(f"Failed to update server configuration: {e}")
+            return JSONResponse(content={"error": f"Failed to update config: {str(e)}"}, status_code=500)
 
         return {"success": True}
     except Exception as e:
