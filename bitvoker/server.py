@@ -78,7 +78,7 @@ def main():
     netcat_thread = threading.Thread(target=run_plain_tcp_server, daemon=True)
     netcat_thread.start()
     logger.info(f"plain tcp server thread started on port {constants.PLAIN_TCP_SERVER_PORT}")
-    logger.info("starting the fastapi https web server now.")
+    logger.info("starting the fastapi https web server now")
     start_web_server()
 
 
