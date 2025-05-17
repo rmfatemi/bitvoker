@@ -82,11 +82,13 @@ docker-compose up -d
 
 Send messages to **bitvoker**’s notification endpoint using nc (netcat) or openssl for secure connections.
 
-Plain text connection (Port 8083):
-**Using nc:** `echo "Your notification message" | nc <server-ip> 8083`
+#### Plain text connection (Port 8083):
 
-Secure connection with TLS (Port 8084):
-**Using openssl:** `echo "Your notification message" | openssl s_client -connect <server-ip>:8084`
+Using `nc`: `echo "Your notification message" | nc <server-ip> 8083`
+
+#### Secure connection with TLS (Port 8084):
+
+Using `openssl`: `echo "Your notification message" | openssl s_client -connect <server-ip>:8084`
 
 **bitvoker** is designed for both automated recurring notifications and one-time alerts. Below are some creative usage scenarios:
 
@@ -111,7 +113,7 @@ Secure connection with TLS (Port 8084):
     */5 * * * * (echo "System Health at $(date):" && \
     echo "CPU: $(top -bn1 | grep 'Cpu(s)' | awk '{print $2 + $4 \"%\"}')" && \
     echo "Memory Usage:" && free -h && \
-    echo "Disk Usage:" && df -h) | nc <server-ip> 8083
+    echo "Disk Usage:" && df -h) | openssl s_client -connect <server-ip>:8084
     ```
 
 5. **Log Monitoring Alert (Event-Driven):**
@@ -126,7 +128,7 @@ Secure connection with TLS (Port 8084):
     Pipe Docker events directly to **bitvoker**:
     ```bash
     docker events --filter 'event=start' --filter 'event=stop' | while read event; do
-      echo "Docker Event: $event" | nc <server-ip> 8083
+      echo "Docker Event: $event" | openssl s_client -connect <server-ip>:8084
     done
     ```
 
@@ -139,7 +141,7 @@ Secure connection with TLS (Port 8084):
     LAST_IP=$(cat "$LAST_IP_FILE" 2>/dev/null)
 
     if [ "$CURRENT_IP" != "$LAST_IP" ]; then
-        echo "External IP updated to: $CURRENT_IP at $(date)" | curl -T - telnet://<server-ip>:8083
+        echo "External IP updated to: $CURRENT_IP at $(date)" | nc <server-ip>:8083
         echo "$CURRENT_IP" > "$LAST_IP_FILE"
     fi
     ```
@@ -177,11 +179,10 @@ Access the web interface at `http://<server-ip>:8085` to:
 
 
 #### Settings and configurations
-  <img src="https://github.com/user-attachments/assets/04306a72-8f83-4d42-b280-994aed72d69f" width="1200">
-
+  <img src="https://github.com/user-attachments/assets/eb8ef1be-e44c-4943-9214-209e1915e403" width="1200">
 
 #### Light mode
-  <img src="https://github.com/user-attachments/assets/755c663d-7788-48b3-98e2-3ccd106abd27" width="1200">
+  <img src="https://github.com/user-attachments/assets/06b1fce3-a88b-4c10-a44f-e71d731e4bae" width="1200">
 
 #### Telegram notifcation
   <img src="https://github.com/user-attachments/assets/ba10c5a5-3bd4-4340-a973-7f2986b26c61" width="300">
