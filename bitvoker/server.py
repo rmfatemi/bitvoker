@@ -26,7 +26,10 @@ def run_secure_tcp_server():
         # store the secure tcp server instance in app.state for dynamic updates
         app.state.secure_tcp_server = server
         server.socket = ssl_context.wrap_socket(server.socket, server_side=True)
-        logger.info(f"Secure TCP Server (TLS) listening on <HOST IP>:{constants.SECURE_TCP_SERVER_PORT} ...")
+        logger.info(
+            f"Secure TCP Server listening on <HOST IP>:{constants.SECURE_TCP_SERVER_PORT} ... Usage (e.g., echo"
+            f' "message" | openssl s_client -connect <HOST IP>:{constants.SECURE_TCP_SERVER_PORT})'
+        )
         try:
             server.serve_forever()
         except Exception as e:
@@ -42,7 +45,10 @@ def run_plain_tcp_server():
         server = refresh_server_components(server, force_new_config=True)
         # store the plain tcp server instance in app.state for dynamic updates
         app.state.plain_tcp_server = server
-        logger.info(f"Plain TCP Server listening on <HOST IP>:{constants.PLAIN_TCP_SERVER_PORT} ...")
+        logger.info(
+            f'Plain TCP Server listening on <HOST IP>:{constants.PLAIN_TCP_SERVER_PORT} ... Usage (e.g., echo "message"'
+            f" | nc <HOST IP>:{constants.PLAIN_TCP_SERVER_PORT})"
+        )
         try:
             server.serve_forever()
         except Exception as e:
@@ -68,16 +74,10 @@ def main():
     logger.info("Starting TCP servers in background threads ...")
     tcp_thread = threading.Thread(target=run_secure_tcp_server, daemon=True)
     tcp_thread.start()
-    logger.info(
-        f"Secure TCP server thread started on port {constants.SECURE_TCP_SERVER_PORT} - Usage (e.g., echo "
-        f'"message" | openssl s_client -connect <HOST IP>:{constants.SECURE_TCP_SERVER_PORT})'
-    )
+    logger.info(f"Secure TCP server thread started on port {constants.SECURE_TCP_SERVER_PORT}")
     netcat_thread = threading.Thread(target=run_plain_tcp_server, daemon=True)
     netcat_thread.start()
-    logger.info(
-        f"Plain TCP server thread started on port {constants.PLAIN_TCP_SERVER_PORT} - Usage (e.g., echo "
-        f'"message" | nc <HOST IP>:{constants.PLAIN_TCP_SERVER_PORT})'
-    )
+    logger.info(f"Plain TCP server thread started on port {constants.PLAIN_TCP_SERVER_PORT}")
     logger.info("Starting the FastAPI HTTPS web server now.")
     start_web_server()
 
