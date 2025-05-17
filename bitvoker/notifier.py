@@ -1,6 +1,6 @@
 import requests
 
-from bitvoker.logger import setup_logger
+from bitvoker.utils import setup_logger, truncate
 
 logger = setup_logger("notifier")
 
@@ -9,15 +9,9 @@ class Notifier:
     def __init__(self, channels_config):
         self.channels_config = channels_config if channels_config else []
 
-    def _truncate(self, text, limit):
-        suffix = "\n[TRUNCATED]"
-        if len(text) > limit:
-            return text[: limit - len(suffix)] + suffix
-        return text
-
     def _send_telegram(self, config, message, title):
         full_message = f"{title}\n\n{message}"
-        full_message = self._truncate(full_message, 4096)
+        full_message = truncate(full_message, 4096, preserve_newlines=True, suffix="\n[TRUNCATED]")
         payload = {"chat_id": config["chat_id"], "text": full_message}
         api_url = f"https://api.telegram.org/bot{config['token']}/sendMessage"
         try:
@@ -36,7 +30,7 @@ class Notifier:
 
     def _send_slack(self, config, message, title):
         full_message = f"*{title}*\n\n{message}"
-        full_message = self._truncate(full_message, 4000)
+        full_message = truncate(full_message, 4000, preserve_newlines=True, suffix="\n[TRUNCATED]")
         payload = {"text": full_message}
         try:
             response = requests.post(config["webhook_id"], json=payload, timeout=10)
@@ -51,7 +45,7 @@ class Notifier:
 
     def _send_discord(self, config, message, title):
         full_message = f"**{title}**\n\n{message}"
-        full_message = self._truncate(full_message, 2000)
+        full_message = truncate(full_message, 2000, preserve_newlines=True, suffix="\n[TRUNCATED]")
         payload = {"content": full_message}
         try:
             response = requests.post(config["webhook_id"], json=payload, timeout=10)
@@ -65,8 +59,7 @@ class Notifier:
             )
 
     def _send_gotify(self, config, message, title):
-        if len(message) > 32768:
-            message = message[: 32768 - len("\n[TRUNCATED]")] + "\n[TRUNCATED]"
+        message = truncate(message, 32768, preserve_newlines=True, suffix="\n[TRUNCATED]")
         target_url = f"{config['server_url'].rstrip('/')}/message?token={config['token']}"
         payload = {"title": title, "message": message, "priority": config.get("priority", 5)}
         try:

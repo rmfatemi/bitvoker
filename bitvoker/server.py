@@ -7,7 +7,7 @@ from bitvoker.api import app
 from bitvoker.config import Config
 from bitvoker.handler import Handler
 from bitvoker.notifier import Notifier
-from bitvoker.logger import setup_logger
+from bitvoker.utils import setup_logger
 from bitvoker.constants import TCP_SERVER_PORT, UI_SERVER_PORT, SERVER_HOST
 
 logger = setup_logger("server")

@@ -1,4 +1,7 @@
 from meta_ai_api import MetaAI
+from bitvoker.utils import setup_logger
+
+logger = setup_logger("ai")
 
 
 class AI:
@@ -6,7 +9,26 @@ class AI:
         self.preprompt = preprompt
         self.bot = MetaAI()
 
-    def process_message(self, message):
+    def process_message(self, message, max_retries=3):
         prompt = f"{self.preprompt}: {message}"
-        response = self.bot.prompt(prompt)
-        return response["message"]
+
+        retry_count = 0
+        while retry_count <= max_retries:
+            try:
+                response = self.bot.prompt(prompt)
+                result = response["message"]
+                display_result = result[:120] + "..." if len(result) > 120 else result
+                logger.debug("AI processed message result: %s", display_result)
+                return result
+            except Exception as e:
+                retry_count += 1
+                logger.warning(f"AI processing attempt {retry_count} failed: {e}")
+
+                if retry_count > max_retries:
+                    logger.error("All AI processing attempts failed")
+                    raise RuntimeError(f"Failed to process message after {max_retries} retries") from e
+
+                try:
+                    self.bot = MetaAI()
+                except Exception as init_error:
+                    logger.error(f"Failed to recreate AI connection: {init_error}")
