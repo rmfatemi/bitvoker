@@ -18,10 +18,10 @@ def truncate(text, max_length=80, preserve_newlines=False, suffix="..."):
 
 def generate_ssl_cert():
     if os.path.exists(constants.CERT_PATH) and os.path.exists(constants.KEY_PATH):
-        logger.info("Using existing certificates")
+        logger.info("using existing certificates")
         return
 
-    logger.info("Generating self-signed certificate...")
+    logger.info("generating self-signed certificate ...")
     os.makedirs(constants.DATA_DIR, exist_ok=True)
     cmd = (
         f"openssl req -x509 -newkey rsa:4096 -keyout {constants.KEY_PATH} -out {constants.CERT_PATH} "
@@ -29,6 +29,6 @@ def generate_ssl_cert():
     )
     result = os.system(cmd)
     if result != 0:
-        logger.error("Failed to generate self-signed certificate")
-        raise RuntimeError("Failed to generate self-signed certificate")
-    logger.info(f"Self-signed certificates created in {constants.DATA_DIR}")
+        logger.error("failed to generate self-signed certificate")
+        raise RuntimeError("failed to generate self-signed certificate")
+    logger.info(f"self-signed certificates created in {constants.DATA_DIR}")

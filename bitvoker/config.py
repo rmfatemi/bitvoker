@@ -21,7 +21,7 @@ class Config:
             else:
                 self.create_default_config()
         except Exception as e:
-            logger.error(f"Failed to load configuration: {str(e)}")
+            logger.error(f"failed to load configuration: {str(e)}")
             self.create_default_config()
 
     def create_default_config(self):
@@ -39,9 +39,9 @@ class Config:
         try:
             with open(self.filename, "w", encoding="utf-8") as f:
                 yaml.safe_dump(self.config_data, f, sort_keys=False)
-            logger.info(f"Created default configuration at {self.filename}")
+            logger.info(f"created default configuration at {self.filename}")
         except Exception as e:
-            logger.error(f"Failed to create default configuration: {str(e)}")
+            logger.error(f"failed to create default configuration: {str(e)}")
 
     @property
     def preprompt(self):

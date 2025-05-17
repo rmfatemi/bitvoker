@@ -20,15 +20,15 @@ class AI:
             try:
                 response = self.bot.prompt(prompt)
                 result = response["message"]
-                logger.debug("AI processed message result: %s", truncate(result, 80))
+                logger.debug("ai processed message result: %s", truncate(result, 80))
                 return result
             except Exception as e:
                 retry_count += 1
-                logger.warning(f"AI processing attempt {retry_count} failed: {e}")
+                logger.warning(f"ai processing attempt {retry_count} failed: {e}")
                 if retry_count > max_retries:
-                    logger.error("All AI processing attempts failed")
-                    raise RuntimeError(f"Failed to process message after {max_retries} retries") from e
+                    logger.error("all ai processing attempts failed")
+                    raise RuntimeError(f"failed to process message after {max_retries} retries") from e
                 try:
                     self.bot = MetaAI()
                 except Exception as init_error:
-                    logger.error(f"Failed to recreate AI connection: {init_error}")
+                    logger.error(f"failed to recreate ai connection: {init_error}")

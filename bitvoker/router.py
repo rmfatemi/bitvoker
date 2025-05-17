@@ -51,7 +51,7 @@ async def update_config(request: Request):
         with open(config_obj.filename, "w", encoding="utf-8") as f:
             yaml.safe_dump(new_config_data, f, sort_keys=False)
 
-        # dynamic TCP server configuration update
+        # dynamic tcp server configuration update
         tcp_server = request.app.state.tcp_server
         if tcp_server and hasattr(tcp_server, "config_manager"):
             fresh_config_manager = Config()
@@ -62,14 +62,14 @@ async def update_config(request: Request):
             from bitvoker.notifier import Notifier
 
             tcp_server.notifier = Notifier(fresh_config_manager.notification_channels)
-            logger.info("TCP Server configuration dynamically updated.")
+            logger.info("tcp server configuration dynamically updated.")
         else:
-            logger.warning("Could not dynamically update TCP server config instance.")
+            logger.warning("could not dynamically update tcp server config instance.")
 
         return {"success": True}
     except Exception as e:
-        logger.error("Failed to update configuration: %s", e)
-        return JSONResponse(content={"error": f"Failed to update config: {str(e)}"}, status_code=500)
+        logger.error("failed to update configuration: %s", e)
+        return JSONResponse(content={"error": f"failed to update config: {str(e)}"}, status_code=500)
 
 
 @api_router.get("/api/config")
@@ -78,8 +78,8 @@ async def get_config():
         config_obj = Config()
         return config_obj.config_data
     except Exception as e:
-        logger.error("Failed to retrieve configuration: %s", e)
-        return JSONResponse(content={"error": f"Failed to retrieve config: {str(e)}"}, status_code=500)
+        logger.error("failed to retrieve configuration: %s", e)
+        return JSONResponse(content={"error": f"failed to retrieve config: {str(e)}"}, status_code=500)
 
 
 # ----------------------
@@ -93,7 +93,7 @@ def get_notifications_route(
         notifs = get_notifications(limit, start_date or "", end_date or "")
         return {"notifications": notifs}
     except Exception as e:
-        logger.error("Error retrieving notifications: %s", e)
+        logger.error("error retrieving notifications: %s", e)
         return JSONResponse(content={"notifications": [], "error": str(e)}, status_code=500)
 
 
@@ -143,7 +143,7 @@ async def serve_index():
     index_path = REACT_BUILD_DIR / "index.html"
     if index_path.exists():
         return FileResponse(str(index_path))
-    return JSONResponse(content={"error": "Frontend not built"}, status_code=404)
+    return JSONResponse(content={"error": "frontend not built"}, status_code=404)
 
 
 @api_router.get("/{full_path:path}")
@@ -156,4 +156,4 @@ async def serve_react(full_path: str):
     index_path = REACT_BUILD_DIR / "index.html"
     if index_path.exists():
         return FileResponse(str(index_path))
-    return JSONResponse(content={"error": "Resource not found"}, status_code=404)
+    return JSONResponse(content={"error": "resource not found"}, status_code=404)

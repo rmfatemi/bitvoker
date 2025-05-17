@@ -21,7 +21,7 @@ class Handler(socketserver.BaseRequestHandler):
             logger.warning("Empty message received, ignoring")
             return
 
-        logger.debug("Received: %s", truncate(original_message, 120))
+        logger.debug("received: %s", truncate(original_message, 120))
 
         ai_result = ""
         message_body = ""
@@ -31,7 +31,7 @@ class Handler(socketserver.BaseRequestHandler):
             try:
                 ai_result = self.server.ai.process_message(original_message)
             except Exception as e:
-                logger.error(f"AI processing failed after all retries, disabling AI: {e}")
+                logger.error(f"ai processing failed after all retries, disabling ai: {e}")
                 config.enable_ai = False
                 self.server.ai = None
 
@@ -43,7 +43,7 @@ class Handler(socketserver.BaseRequestHandler):
             elif config.show_original:
                 message_body = original_message
             else:
-                message_body = "Error processing with AI. Original message not shown as per config."
+                message_body = "error processing with ai. original message not shown as per config."
         else:
             if config.show_original:
                 message_body = original_message
@@ -57,6 +57,6 @@ class Handler(socketserver.BaseRequestHandler):
             try:
                 self.server.notifier.send_message(message_body, title=title)
             except Exception as e:
-                logger.exception("Overall error during notification dispatch: %s", e)
+                logger.exception("overall error during notification dispatch: %s", e)
 
         insert_notification(ts, original_message, ai_result if config.enable_ai else "", client_ip)
