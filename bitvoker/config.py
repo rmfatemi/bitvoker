@@ -1,8 +1,7 @@
 import os
 import yaml
 
-from bitvoker.utils import setup_logger
-from bitvoker.constants import TCP_SERVER_PORT, SERVER_HOST
+from bitvoker.logger import setup_logger
 
 
 logger = setup_logger("config")
@@ -59,14 +58,6 @@ class Config:
     @property
     def gui_theme(self):
         return self.config_data.get("gui_theme", "dark")
-
-    @property
-    def server_host(self):
-        return SERVER_HOST
-
-    @property
-    def server_port(self):
-        return TCP_SERVER_PORT
 
     @property
     def notification_channels(self):

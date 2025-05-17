@@ -1,6 +1,8 @@
 from meta_ai_api import MetaAI
 
-from bitvoker.utils import setup_logger, truncate
+from bitvoker.utils import truncate
+from bitvoker.logger import setup_logger
+
 
 logger = setup_logger("ai")
 

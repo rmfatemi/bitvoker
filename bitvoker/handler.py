@@ -2,11 +2,10 @@ import socketserver
 
 from time import strftime, localtime
 
-from bitvoker.ai import AI
-from bitvoker.config import Config
-from bitvoker.notifier import Notifier
-from bitvoker.utils import setup_logger, truncate
+from bitvoker.utils import truncate
+from bitvoker.logger import setup_logger
 from bitvoker.database import insert_notification
+from bitvoker.components import refresh_server_components
 
 
 logger = setup_logger("handler")
@@ -14,15 +13,7 @@ logger = setup_logger("handler")
 
 class Handler(socketserver.BaseRequestHandler):
     def handle(self):
-        current_config_manager = Config()
-        self.server.config_manager = current_config_manager
-        if current_config_manager.enable_ai:
-            if self.server.ai is None or getattr(self.server.ai, "preprompt", None) != current_config_manager.preprompt:
-                self.server.ai = AI(current_config_manager.preprompt)
-        else:
-            self.server.ai = None
-
-        self.server.notifier = Notifier(current_config_manager.notification_channels)
+        refresh_server_components(self.server, force_new_config=True)
         data = self.request.recv(1024).strip()
         original_message = data.decode("utf-8")
 

@@ -1,6 +1,8 @@
 import requests
 
-from bitvoker.utils import setup_logger, truncate
+from bitvoker.utils import truncate
+from bitvoker.logger import setup_logger
+
 
 logger = setup_logger("notifier")
 
