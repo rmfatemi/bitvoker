@@ -1,4 +1,4 @@
-.DEFAULT_GOAL := help
+.DEFAULT_GOAL := docker
 
 .PHONY: help
 help: ## Show this help message.
@@ -30,7 +30,7 @@ docker-run: ## Run the container named bitvoker using the bitvoker image.
 	docker volume create bitvoker_data && docker run -p 8083:8083 -p 8084:8084 -p 8085:8085 -v bitvoker_data:/app/data -v /etc/localtime:/etc/localtime:ro --name bitvoker bitvoker
 
 .PHONY: docker
-docker: docker-build docker-run
+docker: clean docker-build docker-run
 
 .PHONY: clean
 clean: ## Clean Docker containers, volumes, Python cache, build artifacts and temporary files.
