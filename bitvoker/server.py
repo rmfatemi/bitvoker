@@ -33,7 +33,7 @@ def run_secure_tcp_server():
         try:
             server.serve_forever()
         except Exception as e:
-            logger.exception("Error in secure tcp server: %s", e)
+            logger.exception(f"error in secure tcp server: {e}")
         finally:
             server.server_close()
 
@@ -52,7 +52,7 @@ def run_plain_tcp_server():
         try:
             server.serve_forever()
         except Exception as e:
-            logger.exception("error in plain tcp server: %s", e)
+            logger.exception(f"error in plain tcp server: {e}")
         finally:
             server.server_close()
 

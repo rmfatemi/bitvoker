@@ -21,7 +21,7 @@ class Handler(socketserver.BaseRequestHandler):
             logger.warning("Empty message received, ignoring")
             return
 
-        logger.debug("received: %s", truncate(original_message, 120))
+        logger.debug(f"received: {truncate(original_message, 120)}")
 
         ai_result = ""
         message_body = ""
@@ -57,6 +57,6 @@ class Handler(socketserver.BaseRequestHandler):
             try:
                 self.server.notifier.send_message(message_body, title=title)
             except Exception as e:
-                logger.exception("overall error during notification dispatch: %s", e)
+                logger.exception(f"overall error during notification dispatch: {e}")
 
         insert_notification(ts, original_message, ai_result if config.enable_ai else "", client_ip)

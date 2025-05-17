@@ -68,7 +68,7 @@ async def update_config(request: Request):
 
         return {"success": True}
     except Exception as e:
-        logger.error("failed to update configuration: %s", e)
+        logger.error(f"failed to update configuration: {e}")
         return JSONResponse(content={"error": f"failed to update config: {str(e)}"}, status_code=500)
 
 
@@ -78,7 +78,7 @@ async def get_config():
         config_obj = Config()
         return config_obj.config_data
     except Exception as e:
-        logger.error("failed to retrieve configuration: %s", e)
+        logger.error(f"failed to retrieve configuration: {e}")
         return JSONResponse(content={"error": f"failed to retrieve config: {str(e)}"}, status_code=500)
 
 
@@ -93,7 +93,7 @@ def get_notifications_route(
         notifs = get_notifications(limit, start_date or "", end_date or "")
         return {"notifications": notifs}
     except Exception as e:
-        logger.error("error retrieving notifications: %s", e)
+        logger.error(f"error retrieving notifications: {e}")
         return JSONResponse(content={"notifications": [], "error": str(e)}, status_code=500)
 
 

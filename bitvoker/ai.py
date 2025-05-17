@@ -20,7 +20,7 @@ class AI:
             try:
                 response = self.bot.prompt(prompt)
                 result = response["message"]
-                logger.debug("ai processed message result: %s", truncate(result, 80))
+                logger.debug(f"ai processed message result: {truncate(result, 80)}")
                 return result
             except Exception as e:
                 retry_count += 1
