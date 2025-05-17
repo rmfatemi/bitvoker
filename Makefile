@@ -1,4 +1,4 @@
-.DEFAULT_GOAL := help
+.DEFAULT_GOAL := docker
 
 .PHONY: help
 help: ## Show this help message.
