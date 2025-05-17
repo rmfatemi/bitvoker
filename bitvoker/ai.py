@@ -1,5 +1,6 @@
 from meta_ai_api import MetaAI
-from bitvoker.utils import setup_logger
+
+from bitvoker.utils import setup_logger, truncate
 
 logger = setup_logger("ai")
 
@@ -17,17 +18,14 @@ class AI:
             try:
                 response = self.bot.prompt(prompt)
                 result = response["message"]
-                display_result = result[:120] + "..." if len(result) > 120 else result
-                logger.debug("AI processed message result: %s", display_result)
+                logger.debug("AI processed message result: %s", truncate(result, 80))
                 return result
             except Exception as e:
                 retry_count += 1
                 logger.warning(f"AI processing attempt {retry_count} failed: {e}")
-
                 if retry_count > max_retries:
                     logger.error("All AI processing attempts failed")
                     raise RuntimeError(f"Failed to process message after {max_retries} retries") from e
-
                 try:
                     self.bot = MetaAI()
                 except Exception as init_error:
