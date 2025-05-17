@@ -1,8 +1,6 @@
-import os
 import sqlite3
 
-
-DB_FILENAME = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "database.db")
+from bitvoker.constants import DB_FILENAME
 
 
 def init_db():

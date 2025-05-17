@@ -32,7 +32,7 @@ COPY data/ /app/initial_data/
 COPY --from=frontend-build /app/web/build /app/web/build
 COPY . .
 
-EXPOSE 8084 8085
+EXPOSE 8083 8084 8085
 
 # verify that a socket listening on port 8084 (0x1F94) exists without sending data
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
