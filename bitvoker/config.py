@@ -1,7 +1,7 @@
 import os
 import yaml
 
-from bitvoker.logger import setup_logger
+from bitvoker.utils import setup_logger
 from bitvoker.constants import TCP_SERVER_PORT, SERVER_HOST
 
 

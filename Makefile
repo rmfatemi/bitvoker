@@ -27,7 +27,7 @@ docker-build: ## Build the bitvoker Docker image.
 
 .PHONY: docker-run
 docker-run: ## Run the container named bitvoker using the bitvoker image.
-	docker volume create bitvoker_data && docker run -p 8084:8084 -p 8085:8085 -v bitvoker_data:/app/data -v /etc/localtime:/etc/localtime:ro --name bitvoker ghcr.io/rmfatemi/bitvoker:latest
+	docker volume create bitvoker_data && docker run -p 8084:8084 -p 8085:8085 -v bitvoker_data:/app/data -v /etc/localtime:/etc/localtime:ro --name bitvoker bitvoker
 
 .PHONY: docker
 docker: docker-build docker-run

@@ -7,7 +7,7 @@ from bitvoker.api import app
 from bitvoker.config import Config
 from bitvoker.handler import Handler
 from bitvoker.notifier import Notifier
-from bitvoker.logger import setup_logger
+from bitvoker.utils import setup_logger
 from bitvoker.constants import TCP_SERVER_PORT, UI_SERVER_PORT, SERVER_HOST
 
 logger = setup_logger("server")
@@ -19,7 +19,7 @@ def run_tcp_server():
     ai = AI(config.preprompt) if config.config_data.get("enable_ai", False) else None
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.ThreadingTCPServer((SERVER_HOST, TCP_SERVER_PORT), Handler) as server:
-        # Store the TCP server instance in app.state for dynamic updates.
+        # store tcp server instance for dynamic updates
         app.state.tcp_server = server
         server.ai = ai
         server.config_manager = config

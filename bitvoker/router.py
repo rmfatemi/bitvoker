@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse, FileResponse
 from fastapi import APIRouter, HTTPException, Query, Request
 
 from bitvoker.config import Config
-from bitvoker.logger import setup_logger
+from bitvoker.utils import setup_logger
 from bitvoker.database import get_notifications
 
 logger = setup_logger("router")
