@@ -9,8 +9,10 @@ from fastapi.responses import JSONResponse, FileResponse
 from fastapi import APIRouter, HTTPException, Query, Request
 
 from bitvoker.config import Config
-from bitvoker.utils import setup_logger
+from bitvoker.logger import setup_logger
 from bitvoker.database import get_notifications
+from bitvoker.components import refresh_server_components
+
 
 logger = setup_logger("router")
 
@@ -50,25 +52,36 @@ async def update_config(request: Request):
         with open(config_obj.filename, "w", encoding="utf-8") as f:
             yaml.safe_dump(new_config_data, f, sort_keys=False)
 
-        # dynamic TCP server configuration update
-        tcp_server = request.app.state.tcp_server
-        if tcp_server and hasattr(tcp_server, "config_manager"):
-            fresh_config_manager = Config()
-            tcp_server.config_manager = fresh_config_manager
-            from bitvoker.ai import AI
+        # dynamic tcp server configuration update
+        try:
+            if hasattr(request.app.state, "secure_tcp_server"):
+                refresh_server_components(request.app.state.secure_tcp_server, force_new_config=True)
+                logger.info("secure tcp server configuration dynamically updated")
+            else:
+                logger.warning("secure tcp server not found in application state")
 
-            tcp_server.ai = AI(fresh_config_manager.preprompt) if fresh_config_manager.enable_ai else None
-            from bitvoker.notifier import Notifier
+            if hasattr(request.app.state, "plain_tcp_server"):
+                refresh_server_components(request.app.state.plain_tcp_server, force_new_config=True)
+                logger.info("plain tcp server configuration dynamically updated")
+            else:
+                logger.warning("plain tcp server not found in application state")
 
-            tcp_server.notifier = Notifier(fresh_config_manager.notification_channels)
-            logger.info("TCP Server configuration dynamically updated.")
-        else:
-            logger.warning("Could not dynamically update TCP server config instance.")
+            request.app.state.tcp_servers = {
+                "secure": (
+                    request.app.state.secure_tcp_server if hasattr(request.app.state, "secure_tcp_server") else None
+                ),
+                "plain": request.app.state.plain_tcp_server if hasattr(request.app.state, "plain_tcp_server") else None,
+            }
+
+            return {"success": True}
+        except Exception as e:
+            logger.error(f"failed to update server configuration: {e}")
+            return JSONResponse(content={"error": f"failed to update config: {str(e)}"}, status_code=500)
 
         return {"success": True}
     except Exception as e:
-        logger.error("Failed to update configuration: %s", e)
-        return JSONResponse(content={"error": f"Failed to update config: {str(e)}"}, status_code=500)
+        logger.error(f"failed to update configuration: {e}")
+        return JSONResponse(content={"error": f"failed to update config: {str(e)}"}, status_code=500)
 
 
 @api_router.get("/api/config")
@@ -77,8 +90,8 @@ async def get_config():
         config_obj = Config()
         return config_obj.config_data
     except Exception as e:
-        logger.error("Failed to retrieve configuration: %s", e)
-        return JSONResponse(content={"error": f"Failed to retrieve config: {str(e)}"}, status_code=500)
+        logger.error(f"failed to retrieve configuration: {e}")
+        return JSONResponse(content={"error": f"failed to retrieve config: {str(e)}"}, status_code=500)
 
 
 # ----------------------
@@ -92,7 +105,7 @@ def get_notifications_route(
         notifs = get_notifications(limit, start_date or "", end_date or "")
         return {"notifications": notifs}
     except Exception as e:
-        logger.error("Error retrieving notifications: %s", e)
+        logger.error(f"error retrieving notifications: {e}")
         return JSONResponse(content={"notifications": [], "error": str(e)}, status_code=500)
 
 
@@ -142,7 +155,7 @@ async def serve_index():
     index_path = REACT_BUILD_DIR / "index.html"
     if index_path.exists():
         return FileResponse(str(index_path))
-    return JSONResponse(content={"error": "Frontend not built"}, status_code=404)
+    return JSONResponse(content={"error": "frontend not built"}, status_code=404)
 
 
 @api_router.get("/{full_path:path}")
@@ -155,4 +168,4 @@ async def serve_react(full_path: str):
     index_path = REACT_BUILD_DIR / "index.html"
     if index_path.exists():
         return FileResponse(str(index_path))
-    return JSONResponse(content={"error": "Resource not found"}, status_code=404)
+    return JSONResponse(content={"error": "resource not found"}, status_code=404)

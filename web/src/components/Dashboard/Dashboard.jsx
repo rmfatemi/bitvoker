@@ -14,11 +14,9 @@ function Dashboard({notifications = [], config = {}}) {
             setFilteredNotifications(notifications);
             return;
         }
-
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        end.setHours(23, 59, 59, 999);
-
+        const start = new Date(`${startDate}T00:00:00`);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(`${endDate}T23:59:59.999`);
         const filtered = notifications.filter((notif) => {
             const notifDate = new Date(notif.timestamp);
             return notifDate >= start && notifDate <= end;

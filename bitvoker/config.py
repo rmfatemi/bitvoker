@@ -1,8 +1,7 @@
 import os
 import yaml
 
-from bitvoker.utils import setup_logger
-from bitvoker.constants import TCP_SERVER_PORT, SERVER_HOST
+from bitvoker.logger import setup_logger
 
 
 logger = setup_logger("config")
@@ -22,12 +21,12 @@ class Config:
             else:
                 self.create_default_config()
         except Exception as e:
-            logger.error(f"Failed to load configuration: {str(e)}")
+            logger.error(f"failed to load configuration: {str(e)}")
             self.create_default_config()
 
     def create_default_config(self):
         self.config_data = {
-            "preprompt": "You are an assistant that summarizes technical logs and alerts. Be concise but informative.",
+            "preprompt": "You are an assistant that summarizes technical logs and alerts. Be concise but informative",
             "enable_ai": False,
             "show_original": True,
             "gui_theme": "dark",
@@ -40,9 +39,9 @@ class Config:
         try:
             with open(self.filename, "w", encoding="utf-8") as f:
                 yaml.safe_dump(self.config_data, f, sort_keys=False)
-            logger.info(f"Created default configuration at {self.filename}")
+            logger.info(f"created default configuration at {self.filename}")
         except Exception as e:
-            logger.error(f"Failed to create default configuration: {str(e)}")
+            logger.error(f"failed to create default configuration: {str(e)}")
 
     @property
     def preprompt(self):
@@ -59,14 +58,6 @@ class Config:
     @property
     def gui_theme(self):
         return self.config_data.get("gui_theme", "dark")
-
-    @property
-    def server_host(self):
-        return SERVER_HOST
-
-    @property
-    def server_port(self):
-        return TCP_SERVER_PORT
 
     @property
     def notification_channels(self):

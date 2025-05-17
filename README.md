@@ -30,17 +30,6 @@ This repository supports two ways of running **bitvoker**. For a consistent and 
 
 ### Docker
 
-#### Docker CLI
-
-You can run the Docker container directly. If the image is not present locally, Docker will automatically pull it from the registry.
-
-   ```bash
-    docker volume create bitvoker_data && docker run -p 8084:8084 -p 8085:8085 -v bitvoker_data:/app/data -v /etc/localtime:/etc/localtime:ro --name bitvoker ghcr.io/rmfatemi/bitvoker:latest
-   ```
-The application will be accessible on ports `8084` for server and `8085` for web GUI.
-
-#### Docker Compose
-
 Create a `docker-compose.yaml` file copy the following inside it:
 
 ```
@@ -49,8 +38,9 @@ services:
     image: ghcr.io/rmfatemi/bitvoker:latest
     container_name: bitvoker
     ports:
-      - "8084:8084"
-      - "8085:8085"
+      - "8083:8083"    # plain text tcp server
+      - "8084:8084"    # secure tcp server
+      - "8085:8085"    # web ui
     volumes:
       - bitvoker_data:/app/data
       - /etc/localtime:/etc/localtime:ro
@@ -90,27 +80,31 @@ docker-compose up -d
 
 ## 📖 Usage
 
-Send messages to **bitvoker**’s notification endpoint supports `nc` (netcat) or `curl` to send raw TCP messages.
+Send messages to **bitvoker**’s notification endpoint using nc (netcat) or openssl for secure connections.
 
-**Using nc (recommended):** `echo "Your notification message" | nc <server-ip> 8084`
+#### Plain text connection (Port 8083):
 
-**Using curl:** `echo "Your notification message" | curl -T - telnet://<server-ip>:8084`
+Using `nc`: `echo "Your notification message" | nc <server-ip> 8083`
+
+#### Secure connection with TLS (Port 8084):
+
+Using `openssl`: `echo "Your notification message" | openssl s_client -connect <server-ip>:8084`
 
 **bitvoker** is designed for both automated recurring notifications and one-time alerts. Below are some creative usage scenarios:
 
 1. **Daily Automated Rsync Backup Notification (Cron Job):**
     ```bash
-    0 2 * * * rsync -avh /path/to/source /path/to/backup && echo "Backup complete at $(date)" | nc <server-ip> 8084
+    0 2 * * * rsync -avh /path/to/source /path/to/backup && echo "Backup complete at $(date)" | openssl s_client -connect <server-ip>:8084
     ```
 
 2. **Uptime Monitoring (Cron Job):**
     ```bash
-    */30 * * * * uptime | nc <server-ip> 8084
+    */30 * * * * uptime | nc <server-ip> 8083
     ```
 
 3. **Hourly Weather Update Notification (Cron Job):**
     ```bash
-    0 * * * * curl -s "http://wttr.in/?format=3" | nc <server-ip> 8084
+    0 * * * * curl -s "http://wttr.in/?format=3" | nc <server-ip> 8083
     ```
 
 4. **Aggregated System Health Check:**
@@ -119,14 +113,14 @@ Send messages to **bitvoker**’s notification endpoint supports `nc` (netcat) o
     */5 * * * * (echo "System Health at $(date):" && \
     echo "CPU: $(top -bn1 | grep 'Cpu(s)' | awk '{print $2 + $4 \"%\"}')" && \
     echo "Memory Usage:" && free -h && \
-    echo "Disk Usage:" && df -h) | nc <server-ip> 8084
+    echo "Disk Usage:" && df -h) | openssl s_client -connect <server-ip>:8084
     ```
 
 5. **Log Monitoring Alert (Event-Driven):**
     Monitor a log file for errors and trigger notifications when issues occur:
     ```bash
     tail -F /var/log/application.log | grep --line-buffered "error" | while read -r line; do
-      echo "Alert: $line (detected at $(date))" | nc <server-ip> 8084
+      echo "Alert: $line (detected at $(date))" | openssl s_client -connect <server-ip>:8084
     done
     ```
 
@@ -134,7 +128,7 @@ Send messages to **bitvoker**’s notification endpoint supports `nc` (netcat) o
     Pipe Docker events directly to **bitvoker**:
     ```bash
     docker events --filter 'event=start' --filter 'event=stop' | while read event; do
-      echo "Docker Event: $event" | nc <server-ip> 8084
+      echo "Docker Event: $event" | openssl s_client -connect <server-ip>:8084
     done
     ```
 
@@ -147,25 +141,22 @@ Send messages to **bitvoker**’s notification endpoint supports `nc` (netcat) o
     LAST_IP=$(cat "$LAST_IP_FILE" 2>/dev/null)
 
     if [ "$CURRENT_IP" != "$LAST_IP" ]; then
-        echo "External IP updated to: $CURRENT_IP at $(date)" | curl -T - telnet://<server-ip>:8084
+        echo "External IP updated to: $CURRENT_IP at $(date)" | nc <server-ip>:8083
         echo "$CURRENT_IP" > "$LAST_IP_FILE"
     fi
     ```
 
-8. **Integrated CI/CD Pipeline Notification:**
-    Trigger notifications from your CI/CD pipeline by piping build results:
-    ```bash
-    # Example within a build script:
-    build_status=$(curl -s http://jenkins:8080/job/myjob/lastBuild/api/json | jq -r '.result') && echo "Jenkins Build Status at $(date): $build_status" | curl -T - telnet://<server-ip>:8084
-    ```
-
-9. **Custom Aggregated Alert Script:**
+8. **Custom Aggregated Alert Script:**
     Create a custom script that aggregates several checks and sends a notification only if issues are detected. Save the following as `healthcheck.sh` and schedule it via cron:
     ```bash
     #!/bin/bash
-    OUTPUT=$( (df -h | grep '100%'; uptime; free -h) 2>&1 )
-    if [ -n "$OUTPUT" ]; then
-      echo "Health Check Alert at $(date): $OUTPUT" | nc <server-ip> 8084
+    LAST_IP_FILE="/tmp/last_ip.txt"
+    CURRENT_IP=$(curl -s https://api.ipify.org)
+    LAST_IP=$(cat "$LAST_IP_FILE" 2>/dev/null)
+
+    if [ "$CURRENT_IP" != "$LAST_IP" ]; then
+        echo "External IP updated to: $CURRENT_IP at $(date)" | openssl s_client -connect <server-ip>:8084
+        echo "$CURRENT_IP" > "$LAST_IP_FILE"
     fi
     ```
     And add to cron:
@@ -184,15 +175,14 @@ Access the web interface at `http://<server-ip>:8085` to:
 - View system logs
 
 #### Main dashboard
-  <img src="https://github.com/user-attachments/assets/7b8884b5-f4d9-47b5-8988-c04b49708c78" width="1200">
+  <img src="https://github.com/user-attachments/assets/57c67819-091b-4963-aed6-9bfb2f523ae5" width="1200">
 
 
 #### Settings and configurations
-  <img src="https://github.com/user-attachments/assets/04306a72-8f83-4d42-b280-994aed72d69f" width="1200">
-
+  <img src="https://github.com/user-attachments/assets/eb8ef1be-e44c-4943-9214-209e1915e403" width="1200">
 
 #### Light mode
-  <img src="https://github.com/user-attachments/assets/755c663d-7788-48b3-98e2-3ccd106abd27" width="1200">
+  <img src="https://github.com/user-attachments/assets/06b1fce3-a88b-4c10-a44f-e71d731e4bae" width="1200">
 
 #### Telegram notifcation
   <img src="https://github.com/user-attachments/assets/ba10c5a5-3bd4-4340-a973-7f2986b26c61" width="300">

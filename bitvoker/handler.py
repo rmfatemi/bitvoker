@@ -2,11 +2,10 @@ import socketserver
 
 from time import strftime, localtime
 
-from bitvoker.ai import AI
-from bitvoker.config import Config
-from bitvoker.notifier import Notifier
-from bitvoker.utils import setup_logger, truncate
+from bitvoker.utils import truncate
+from bitvoker.logger import setup_logger
 from bitvoker.database import insert_notification
+from bitvoker.components import refresh_server_components
 
 
 logger = setup_logger("handler")
@@ -14,15 +13,7 @@ logger = setup_logger("handler")
 
 class Handler(socketserver.BaseRequestHandler):
     def handle(self):
-        current_config_manager = Config()
-        self.server.config_manager = current_config_manager
-        if current_config_manager.enable_ai:
-            if self.server.ai is None or getattr(self.server.ai, "preprompt", None) != current_config_manager.preprompt:
-                self.server.ai = AI(current_config_manager.preprompt)
-        else:
-            self.server.ai = None
-
-        self.server.notifier = Notifier(current_config_manager.notification_channels)
+        refresh_server_components(self.server, force_new_config=True)
         data = self.request.recv(1024).strip()
         original_message = data.decode("utf-8")
 
@@ -30,7 +21,7 @@ class Handler(socketserver.BaseRequestHandler):
             logger.warning("Empty message received, ignoring")
             return
 
-        logger.debug("Received: %s", truncate(original_message, 120))
+        logger.debug(f"received: {truncate(original_message, 120)}")
 
         ai_result = ""
         message_body = ""
@@ -40,7 +31,7 @@ class Handler(socketserver.BaseRequestHandler):
             try:
                 ai_result = self.server.ai.process_message(original_message)
             except Exception as e:
-                logger.error(f"AI processing failed after all retries, disabling AI: {e}")
+                logger.error(f"ai processing failed after all retries, disabling ai: {e}")
                 config.enable_ai = False
                 self.server.ai = None
 
@@ -52,7 +43,7 @@ class Handler(socketserver.BaseRequestHandler):
             elif config.show_original:
                 message_body = original_message
             else:
-                message_body = "Error processing with AI. Original message not shown as per config."
+                message_body = "error processing with ai. original message not shown as per config"
         else:
             if config.show_original:
                 message_body = original_message
@@ -66,6 +57,6 @@ class Handler(socketserver.BaseRequestHandler):
             try:
                 self.server.notifier.send_message(message_body, title=title)
             except Exception as e:
-                logger.exception("Overall error during notification dispatch: %s", e)
+                logger.exception(f"overall error during notification dispatch: {e}")
 
         insert_notification(ts, original_message, ai_result if config.enable_ai else "", client_ip)
