@@ -75,8 +75,8 @@ async def update_config(request: Request):
 
             return {"success": True}
         except Exception as e:
-            logger.error(f"Failed to update server configuration: {e}")
-            return JSONResponse(content={"error": f"Failed to update config: {str(e)}"}, status_code=500)
+            logger.error(f"failed to update server configuration: {e}")
+            return JSONResponse(content={"error": f"failed to update config: {str(e)}"}, status_code=500)
 
         return {"success": True}
     except Exception as e:

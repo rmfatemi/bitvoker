@@ -47,7 +47,7 @@ def run_plain_tcp_server():
         app.state.plain_tcp_server = server
         logger.info(
             f'plain tcp server listening on <server-ip>:{constants.PLAIN_TCP_SERVER_PORT} ... e.g., echo "message"'
-            f" | nc <server-ip>:{constants.PLAIN_TCP_SERVER_PORT}"
+            f" | nc <server-ip> {constants.PLAIN_TCP_SERVER_PORT}"
         )
         try:
             server.serve_forever()
