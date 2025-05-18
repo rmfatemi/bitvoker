@@ -222,7 +222,7 @@ function Settings({config = {}, onSave}) {
                             />
                             <label htmlFor="enable_ai" className="bold-label">Enable AI Processing</label>
                         </div>
-                        <small style={{display: "block", marginTop: "5px", marginLeft: "5px"}}>
+                        <small style={{display: "block", marginTop: "-2px", marginLeft: "5px"}}>
                             Generated AI summary of received messages processed via <a href="https://www.meta.ai"
                                                                                        target="_blank"
                                                                                        rel="noopener noreferrer">Meta
@@ -249,7 +249,7 @@ function Settings({config = {}, onSave}) {
                                 Show Original Message
                             </label>
                         </div>
-                        <small style={{display: "block", marginTop: "5px", marginLeft: "5px"}}>
+                        <small style={{display: "block", marginTop: "-2px", marginLeft: "5px"}}>
                             If AI is enabled, appends the original to the AI summary. If AI is disabled, this is forced
                             on and the original message is sent.
                         </small>
@@ -297,7 +297,7 @@ function Settings({config = {}, onSave}) {
                             </label>
                         </div>
 
-                        <small style={{display: "block", marginTop: "5px", marginLeft: "5px"}}>
+                        <small style={{display: "block", marginTop: "-2px", marginLeft: "5px"}}>
                             Select which AI provider to use for message processing
                         </small>
                     </div>
@@ -328,7 +328,7 @@ function Settings({config = {}, onSave}) {
                             onChange={handleAIProviderChange}
                             style={{width: "100%", marginTop: "8px"}}
                         />
-                        <small style={{display: "block", marginTop: "5px", marginLeft: "5px"}}>
+                        <small style={{display: "block", marginTop: "-2px", marginLeft: "5px"}}>
                             URL for the AI provider's API endpoint
                         </small>
                     </div>
@@ -348,7 +348,7 @@ function Settings({config = {}, onSave}) {
                             onChange={handleAIProviderChange}
                             style={{width: "100%", marginTop: "8px"}}
                         />
-                        <small style={{display: "block", marginTop: "5px", marginLeft: "5px"}}>
+                        <small style={{display: "block", marginTop: "-2px", marginLeft: "5px"}}>
                             The model to use (e.g., gemma3:1b, llama2)
                         </small>
                     </div>
@@ -370,7 +370,7 @@ function Settings({config = {}, onSave}) {
                         rows="6"
                         placeholder="Instructions for the AI model"
                         maxLength="2048"
-                        style={{width: "100%", marginTop: "5px"}}
+                        style={{width: "100%", marginTop: "-2px"}}
                         disabled={!settings.enable_ai}
                         value={settings.preprompt}
                         onChange={handleChange}
