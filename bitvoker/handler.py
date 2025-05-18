@@ -18,7 +18,7 @@ class Handler(socketserver.BaseRequestHandler):
         original_message = data.decode("utf-8")
 
         if not original_message or original_message.strip() == "":
-            logger.warning("Empty message received, ignoring")
+            logger.warning("empty message received, ignoring")
             return
 
         logger.debug(f"received: {truncate(original_message, 120)}")
@@ -27,25 +27,25 @@ class Handler(socketserver.BaseRequestHandler):
         message_body = ""
         config = self.server.config_manager
 
-        if config.enable_ai and self.server.ai is not None:
+        if config.get_enable_ai() and self.server.ai is not None:
             try:
                 ai_result = self.server.ai.process_message(original_message)
             except Exception as e:
                 logger.error(f"ai processing failed after all retries, disabling ai: {e}")
-                config.enable_ai = False
+                config.set_enable_ai(False)
                 self.server.ai = None
 
             if ai_result:
-                if config.show_original:
+                if config.get_show_original():
                     message_body = f"[AI Summary]\n{ai_result}\n[Original Message]\n{original_message}"
                 else:
                     message_body = ai_result
-            elif config.show_original:
+            elif config.get_show_original():
                 message_body = original_message
             else:
                 message_body = "error processing with ai. original message not shown as per config"
         else:
-            if config.show_original:
+            if config.get_show_original():
                 message_body = original_message
             else:
                 message_body = ""
@@ -59,4 +59,4 @@ class Handler(socketserver.BaseRequestHandler):
             except Exception as e:
                 logger.exception(f"overall error during notification dispatch: {e}")
 
-        insert_notification(ts, original_message, ai_result if config.enable_ai else "", client_ip)
+        insert_notification(ts, original_message, ai_result if config.get_enable_ai() else "", client_ip)
