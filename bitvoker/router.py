@@ -1,15 +1,15 @@
 import time
-import yaml
 import logging
 
-from pathlib import Path
 from typing import Dict, List, Optional
+from pathlib import Path
 
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi import APIRouter, HTTPException, Query, Request
 
 from bitvoker.config import Config
 from bitvoker.logger import setup_logger
+from bitvoker.constants import REACT_BUILD_DIR
 from bitvoker.database import get_notifications
 from bitvoker.components import refresh_server_components
 
@@ -22,19 +22,21 @@ api_router = APIRouter()
 # ----------------------
 # Config Endpoints
 # ----------------------
+
+
 @api_router.post("/api/config")
 async def update_config(request: Request):
     form_data = await request.json()
     config_obj = Config()
     try:
-        new_config_data = config_obj.config_data.copy()
-
-        new_config_data["preprompt"] = form_data.get("preprompt", new_config_data.get("preprompt", ""))[:2048]
-        new_config_data["enable_ai"] = form_data.get("enable_ai", False)
-        new_config_data["show_original"] = (
-            True if not new_config_data["enable_ai"] else form_data.get("show_original", True)
-        )
-        new_config_data["gui_theme"] = form_data.get("gui_theme", new_config_data.get("gui_theme", "dark"))
+        if "preprompt" in form_data:
+            config_obj.set_preprompt(form_data.get("preprompt", ""))
+        if "enable_ai" in form_data:
+            config_obj.set_enable_ai(form_data.get("enable_ai", False))
+        if "show_original" in form_data:
+            config_obj.set_show_original(form_data.get("show_original", True))
+        if "gui_theme" in form_data:
+            config_obj.set_gui_theme(form_data.get("gui_theme", "dark"))
 
         channel_configs = {
             "telegram": ["chat_id", "token"],
@@ -42,42 +44,36 @@ async def update_config(request: Request):
             "slack": ["webhook_id", "token"],
             "gotify": ["server_url", "token"],
         }
-
         for channel, fields in channel_configs.items():
-            channel_data = form_data.get(channel, {})
-            new_config_data.setdefault(channel, {})["enabled"] = channel_data.get("enabled", False)
-            for field in fields:
-                new_config_data[channel][field] = channel_data.get(field, new_config_data[channel].get(field, ""))
+            if channel in form_data:
+                channel_data = form_data.get(channel, {})
+                kwargs = {field: channel_data.get(field, "") for field in fields}
+                config_obj.update_channel_config(channel, enabled=channel_data.get("enabled", False), **kwargs)
 
-        with open(config_obj.filename, "w", encoding="utf-8") as f:
-            yaml.safe_dump(new_config_data, f, sort_keys=False)
+        if "ai_provider" in form_data:
+            ai_provider_config = form_data.get(
+                "ai_provider", {"type": "meta_ai", "url": "http://<server-ip>:11434", "model": "gemma3:1b"}
+            )
+            config_obj.set_ai_provider_config(ai_provider_config)
+            if hasattr(request.app.state, "ai"):
+                logger.info("updating ai instance with new configuration")
+                request.app.state.ai.update_config(ai_provider_config)
 
-        # dynamic tcp server configuration update
-        try:
-            if hasattr(request.app.state, "secure_tcp_server"):
-                refresh_server_components(request.app.state.secure_tcp_server, force_new_config=True)
-                logger.info("secure tcp server configuration dynamically updated")
+        server_types = ["secure_tcp_server", "plain_tcp_server"]
+        updated_servers = {}
+
+        for server_type in server_types:
+            if hasattr(request.app.state, server_type):
+                refresh_server_components(
+                    getattr(request.app.state, server_type), app=request.app, force_new_config=False
+                )
+                logger.info(f"{server_type} configuration dynamically updated")
+                updated_servers[server_type.split("_")[0]] = getattr(request.app.state, server_type)
             else:
-                logger.warning("secure tcp server not found in application state")
+                logger.warning(f"{server_type} not found in application state")
+                updated_servers[server_type.split("_")[0]] = None
 
-            if hasattr(request.app.state, "plain_tcp_server"):
-                refresh_server_components(request.app.state.plain_tcp_server, force_new_config=True)
-                logger.info("plain tcp server configuration dynamically updated")
-            else:
-                logger.warning("plain tcp server not found in application state")
-
-            request.app.state.tcp_servers = {
-                "secure": (
-                    request.app.state.secure_tcp_server if hasattr(request.app.state, "secure_tcp_server") else None
-                ),
-                "plain": request.app.state.plain_tcp_server if hasattr(request.app.state, "plain_tcp_server") else None,
-            }
-
-            return {"success": True}
-        except Exception as e:
-            logger.error(f"failed to update server configuration: {e}")
-            return JSONResponse(content={"error": f"failed to update config: {str(e)}"}, status_code=500)
-
+        request.app.state.tcp_servers = updated_servers
         return {"success": True}
     except Exception as e:
         logger.error(f"failed to update configuration: {e}")
@@ -97,6 +93,8 @@ async def get_config():
 # ----------------------
 # Notifications Endpoints
 # ----------------------
+
+
 @api_router.get("/api/notifications")
 def get_notifications_route(
     limit: int = Query(20), start_date: Optional[str] = Query(None), end_date: Optional[str] = Query(None)
@@ -112,6 +110,8 @@ def get_notifications_route(
 # ----------------------
 # Logs Endpoints
 # ----------------------
+
+
 class MemoryLogHandler(logging.Handler):
     def __init__(self, max_entries: int = 200):
         super().__init__()
@@ -147,12 +147,11 @@ def get_logs(level: Optional[str] = Query(None)):
 # ----------------------
 # Catch-All for React App
 # ----------------------
-REACT_BUILD_DIR = Path(__file__).parent.parent / "web" / "build"
 
 
 @api_router.get("/")
 async def serve_index():
-    index_path = REACT_BUILD_DIR / "index.html"
+    index_path = Path(REACT_BUILD_DIR) / "index.html"
     if index_path.exists():
         return FileResponse(str(index_path))
     return JSONResponse(content={"error": "frontend not built"}, status_code=404)
@@ -162,10 +161,10 @@ async def serve_index():
 async def serve_react(full_path: str):
     if full_path.startswith("api/"):
         raise HTTPException(status_code=404)
-    requested_path = REACT_BUILD_DIR / full_path
+    requested_path = Path(REACT_BUILD_DIR) / full_path
     if requested_path.exists() and requested_path.is_file():
         return FileResponse(str(requested_path))
-    index_path = REACT_BUILD_DIR / "index.html"
+    index_path = Path(REACT_BUILD_DIR) / "index.html"
     if index_path.exists():
         return FileResponse(str(index_path))
     return JSONResponse(content={"error": "resource not found"}, status_code=404)
