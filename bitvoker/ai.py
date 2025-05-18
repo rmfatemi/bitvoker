@@ -135,7 +135,7 @@ class OllamaProvider(AIProvider):
 
     @classmethod
     def from_config(cls, config):
-        url = config.get("url", "http://localhost:11434")
+        url = config.get("url", "http://<server-ip>:11434")
         model = config.get("model", "gemma3:1b")
         return cls(url=url, model=model)
 
