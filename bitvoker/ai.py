@@ -106,7 +106,7 @@ class OllamaProvider(AIProvider):
                 try:
                     result = response.json().get("response", "")
                     logger.debug(f"ollama processed message: {truncate(result, 80)}")
-                    return result
+                    return result + "\n"
                 except json.JSONDecodeError:
                     text = response.text
                     full_response = ""
@@ -122,7 +122,7 @@ class OllamaProvider(AIProvider):
 
                     if full_response:
                         logger.debug(f"ollama processed message from stream: {truncate(full_response, 80)}")
-                        return full_response
+                        return full_response + "\n"
                     else:
                         raise ValueError("could not extract response from ollama")
 
