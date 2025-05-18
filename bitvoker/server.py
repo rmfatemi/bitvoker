@@ -22,7 +22,7 @@ def run_secure_tcp_server():
     ssl_context.load_cert_chain(certfile=constants.CERT_PATH, keyfile=constants.KEY_PATH)
 
     with socketserver.ThreadingTCPServer((constants.SERVER_HOST, constants.SECURE_TCP_SERVER_PORT), Handler) as server:
-        server = refresh_server_components(server, force_new_config=True)
+        server = refresh_server_components(server, app=app, force_new_config=True)
         # store the secure tcp server instance in app.state for dynamic updates
         app.state.secure_tcp_server = server
         server.socket = ssl_context.wrap_socket(server.socket, server_side=True)
@@ -42,7 +42,7 @@ def run_plain_tcp_server():
     socketserver.TCPServer.allow_reuse_address = True
 
     with socketserver.ThreadingTCPServer((constants.SERVER_HOST, constants.PLAIN_TCP_SERVER_PORT), Handler) as server:
-        server = refresh_server_components(server, force_new_config=True)
+        server = refresh_server_components(server, app=app, force_new_config=True)
         # store the plain tcp server instance in app.state for dynamic updates
         app.state.plain_tcp_server = server
         logger.info(
