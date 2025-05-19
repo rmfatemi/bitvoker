@@ -11,7 +11,7 @@ from bitvoker.config import Config
 from bitvoker.logger import setup_logger
 from bitvoker.constants import REACT_BUILD_DIR
 from bitvoker.database import get_notifications
-from bitvoker.components import refresh_server_components
+from bitvoker.refresher import refresh_components
 
 
 logger = setup_logger("router")
@@ -55,25 +55,8 @@ async def update_config(request: Request):
                 "ai_provider", {"type": "meta_ai", "url": "http://<server-ip>:11434", "model": "gemma3:1b"}
             )
             config_obj.set_ai_provider_config(ai_provider_config)
-            if hasattr(request.app.state, "ai"):
-                logger.info("updating ai instance with new configuration")
-                request.app.state.ai.update_config(ai_provider_config)
 
-        server_types = ["secure_tcp_server", "plain_tcp_server"]
-        updated_servers = {}
-
-        for server_type in server_types:
-            if hasattr(request.app.state, server_type):
-                refresh_server_components(
-                    getattr(request.app.state, server_type), app=request.app, force_new_config=False
-                )
-                logger.info(f"{server_type} configuration dynamically updated")
-                updated_servers[server_type.split("_")[0]] = getattr(request.app.state, server_type)
-            else:
-                logger.warning(f"{server_type} not found in application state")
-                updated_servers[server_type.split("_")[0]] = None
-
-        request.app.state.tcp_servers = updated_servers
+        refresh_components(request.app)
         return {"success": True}
     except Exception as e:
         logger.error(f"failed to update configuration: {e}")
