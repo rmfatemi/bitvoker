@@ -1,8 +1,10 @@
-from typing import List, Dict, Any, Optional
 import requests
+
+from typing import List, Dict, Any, Optional
 
 from bitvoker.utils import truncate
 from bitvoker.logger import setup_logger
+
 
 logger = setup_logger("notifier")
 

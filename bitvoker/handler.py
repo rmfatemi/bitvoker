@@ -7,6 +7,7 @@ from bitvoker.logger import setup_logger
 from bitvoker.database import insert_notification
 from bitvoker.refresher import refresh_components
 
+
 logger = setup_logger("handler")
 
 

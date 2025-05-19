@@ -3,6 +3,7 @@ import yaml
 
 from bitvoker.logger import setup_logger
 
+
 logger = setup_logger("config")
 
 
