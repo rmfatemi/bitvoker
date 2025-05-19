@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {useState, useEffect} from 'react';
 
-function Dashboard({ notifications = [], config = {}, onRefresh }) {
+function Dashboard({notifications = [], config = {}}) {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [filteredNotifications, setFilteredNotifications] = useState(notifications);
@@ -8,15 +8,6 @@ function Dashboard({ notifications = [], config = {}, onRefresh }) {
     useEffect(() => {
         setFilteredNotifications(notifications);
     }, [notifications]);
-
-    // Add auto-refresh functionality
-    useEffect(() => {
-        const intervalId = setInterval(() => {
-            if (onRefresh) onRefresh();
-        }, 3000);
-
-        return () => clearInterval(intervalId);
-    }, [onRefresh]);
 
     const handleFilter = () => {
         if (!startDate || !endDate) {
@@ -82,18 +73,18 @@ function Dashboard({ notifications = [], config = {}, onRefresh }) {
                             <td>{notif.timestamp}</td>
                             <td>{notif.client || 'N/A'}</td>
                             <td>
-                                <pre
-                                    dangerouslySetInnerHTML={{
-                                        __html: escapeHtml(notif.original || notif.message),
-                                    }}
-                                />
+                  <pre
+                      dangerouslySetInnerHTML={{
+                          __html: escapeHtml(notif.original || notif.message),
+                      }}
+                  />
                             </td>
                             <td>
-                                <pre
-                                    dangerouslySetInnerHTML={{
-                                        __html: escapeHtml(notif.ai || ''),
-                                    }}
-                                />
+                  <pre
+                      dangerouslySetInnerHTML={{
+                          __html: escapeHtml(notif.ai || ''),
+                      }}
+                  />
                             </td>
                         </tr>
                     ))}
