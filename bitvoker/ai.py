@@ -1,7 +1,6 @@
 import abc
 import json
 import requests
-import threading
 
 from meta_ai_api import MetaAI
 
@@ -28,23 +27,21 @@ class MetaAIProvider(AIProvider):
         self.bot = MetaAI()
 
     def process_message(self, prompt, max_retries=3):
-        retry_count = 0
-        while retry_count <= max_retries:
+        for retry_count in range(max_retries):
             try:
                 response = self.bot.prompt(prompt)
                 result = response["message"]
                 logger.debug(f"meta ai processed message: {truncate(result, 80)}")
                 return result
             except Exception as e:
-                retry_count += 1
-                logger.warning(f"meta ai processing attempt {retry_count} failed: {e}")
-                if retry_count > max_retries:
-                    logger.error("all meta ai processing attempts failed")
-                    raise RuntimeError(f"failed to process message after {max_retries} retries") from e
+                logger.warning(f"meta ai processing attempt {retry_count + 1} failed: {e}")
                 try:
                     self.bot = MetaAI()
                 except Exception as init_error:
                     logger.error(f"failed to recreate meta ai connection: {init_error}")
+
+        logger.error("all meta ai processing attempts failed")
+        raise RuntimeError(f"failed to process message after {max_retries} retries")
 
     @classmethod
     def from_config(cls, config):
@@ -56,19 +53,19 @@ class OllamaProvider(AIProvider):
         self.url = url
         self.model = model
         self.session = requests.Session()
-        self.model_ready = False
         logger.info(f"initialized ollama provider with url: {url}, model: {model}")
         try:
             logger.info(f"testing connection to ollama at {self.url}...")
             health_check = self.session.get(f"{self.url}/api/tags")
             health_check.raise_for_status()
             logger.info("successfully connected to ollama service")
-            threading.Thread(target=self._ensure_model_exists).start()
+            self._verify_model_exists()
         except requests.exceptions.RequestException as e:
             logger.error(f"ollama service not available at {self.url}: {e}")
-            logger.error("If ollama is running on a different host/container, update the URL in your config")
+            logger.error("if ollama is running on a different host/container, update the url in your config")
+            raise RuntimeError(f"ollama service not available: {e}")
 
-    def _ensure_model_exists(self):
+    def _verify_model_exists(self):
         try:
             list_url = f"{self.url}/api/tags"
             response = self.session.get(list_url)
@@ -79,59 +76,30 @@ class OllamaProvider(AIProvider):
             model_names = [m.get("name", "") for m in models]
 
             if not any(self.model == name for name in model_names):
-                logger.info(f"model '{self.model}' not found. Pulling it now...")
-                pull_url = f"{self.url}/api/pull"
-                payload = {"name": self.model}
-                response = self.session.post(pull_url, json=payload)
-                response.raise_for_status()
-                logger.info(f"successfully pulled model '{self.model}'")
+                error_msg = f"model '{self.model}' not found in ollama. ai will be disabled."
+                logger.error(error_msg)
+                raise RuntimeError(error_msg)
 
-            self.model_ready = True
         except Exception as e:
-            logger.warning(f"failed to check/pull model: {e}")
+            logger.error(f"failed to verify model exists: {e}")
+            raise RuntimeError(f"failed to verify model exists: {e}")
 
     def process_message(self, prompt, max_retries=3):
-        if not self.model_ready:
-            logger.warning("model is still being prepared, message processing may be delayed")
-
-        retry_count = 0
         api_url = f"{self.url}/api/generate"
-
         payload = {"model": self.model, "prompt": prompt, "stream": False}
 
-        while retry_count <= max_retries:
+        for retry_count in range(max_retries):
             try:
                 response = self.session.post(api_url, json=payload)
                 response.raise_for_status()
-                try:
-                    result = response.json().get("response", "")
-                    logger.debug(f"ollama processed message: {truncate(result, 80)}")
-                    return result + "\n"
-                except json.JSONDecodeError:
-                    text = response.text
-                    full_response = ""
-
-                    for line in text.strip().split("\n"):
-                        if line:
-                            try:
-                                json_obj = json.loads(line)
-                                if "response" in json_obj:
-                                    full_response += json_obj["response"]
-                            except json.JSONDecodeError:
-                                continue
-
-                    if full_response:
-                        logger.debug(f"ollama processed message from stream: {truncate(full_response, 80)}")
-                        return full_response + "\n"
-                    else:
-                        raise ValueError("could not extract response from ollama")
-
+                result = response.json().get("response", "")
+                logger.debug(f"ollama processed message: {truncate(result, 80)}")
+                return result + "\n"
             except Exception as e:
-                retry_count += 1
-                logger.warning(f"ollama processing attempt {retry_count} failed: {e}")
-                if retry_count > max_retries:
-                    logger.error("all ollama processing attempts failed")
-                    raise RuntimeError(f"failed to process message after {max_retries} retries") from e
+                logger.warning(f"ollama processing attempt {retry_count + 1} failed: {e}")
+
+        logger.error("all ollama processing attempts failed")
+        raise RuntimeError(f"failed to process message after {max_retries} retries")
 
     @classmethod
     def from_config(cls, config):
@@ -141,10 +109,19 @@ class OllamaProvider(AIProvider):
 
 
 class AI:
-    def __init__(self, preprompt, provider_config=None):
+    def __init__(self, preprompt, provider_config=None, config_manager=None):
         self.preprompt = preprompt
         self.provider_config = provider_config or {}
-        self.provider = self._initialize_provider()
+        self.config_manager = config_manager
+        self.provider = None
+        try:
+            self.provider = self._initialize_provider()
+        except Exception as e:
+            logger.error(f"failed to initialize ai provider: {e}")
+            self.provider_config = {"type": "none", "enabled": False}
+            if self.config_manager:
+                logger.info("updating config manager to disable ai")
+                self.config_manager.set_enable_ai(False)
 
     def _initialize_provider(self):
         provider_type = self.provider_config.get("type", "meta_ai")
@@ -189,6 +166,10 @@ class AI:
                 self.provider = None
 
     def process_message(self, message, max_retries=3):
+        if not self.provider:
+            logger.warning("no ai provider available, skipping message processing")
+            return None
+
         prompt = f"{self.preprompt}: {message}"
         try:
             return self.provider.process_message(prompt, max_retries)
