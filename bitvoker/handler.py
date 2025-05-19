@@ -5,15 +5,16 @@ from time import strftime, localtime
 from bitvoker.utils import truncate
 from bitvoker.logger import setup_logger
 from bitvoker.database import insert_notification
-from bitvoker.components import refresh_server_components
-
+from bitvoker.refresher import refresh_components
 
 logger = setup_logger("handler")
 
 
 class Handler(socketserver.BaseRequestHandler):
     def handle(self):
-        refresh_server_components(self.server, force_new_config=True)
+        app = self.server.app
+        refresh_components(app)
+
         data = self.request.recv(1024).strip()
         original_message = data.decode("utf-8")
 
