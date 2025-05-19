@@ -1,15 +1,18 @@
 import React from 'react';
+import bitvokerLogo from '../../assets/bitvoker.png';
 
 function Header({toggleTheme, theme}) {
     return (
         <header>
             <div className="logo-container">
-                <svg id="app-logo" width="32" height="32" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="100" height="100" rx="15" fill="var(--logo-bg)"/>
-                    <text x="50%" y="52%" dominantBaseline="middle" textAnchor="middle" fontFamily="Arial, sans-serif"
-                          fontSize="60" fontWeight="bold" fill="var(--logo-text)">bv
-                    </text>
-                </svg>
+                <img
+                    src={bitvokerLogo}
+                    alt="Bitvoker Logo"
+                    className="app-logo"
+                    width="32"
+                    height="32"
+                    style={{marginRight: '5px'}}
+                />
                 <h1>bitvoker</h1>
             </div>
             <button
