@@ -262,7 +262,11 @@ function Settings({config = {}, onSave}) {
                                     checked={settings.ai_provider.type === "meta_ai"}
                                     disabled={!settings.enable_ai}
                                     onChange={handleAIProviderChange}
-                                    style={{marginRight: "8px"}}
+                                    style={{
+                                        marginRight: "8px",
+                                        position: "relative",
+                                        top: "-1px"
+                                    }}
                                 />
                                 <span>Meta AI</span>
                             </label>
@@ -279,7 +283,11 @@ function Settings({config = {}, onSave}) {
                                     checked={settings.ai_provider.type === "ollama"}
                                     disabled={!settings.enable_ai}
                                     onChange={handleAIProviderChange}
-                                    style={{marginRight: "8px"}}
+                                    style={{
+                                        marginRight: "8px",
+                                        position: "relative",
+                                        top: "-1px"
+                                    }}
                                 />
                                 <span>Ollama</span>
                             </label>
