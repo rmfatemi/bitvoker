@@ -11,7 +11,7 @@ function Logs({logs = [], onRefresh}) {
     useEffect(() => {
         const intervalId = setInterval(() => {
             if (onRefresh) onRefresh();
-        }, 3000);
+        }, 20000);
 
         return () => clearInterval(intervalId);
     }, [onRefresh]);
