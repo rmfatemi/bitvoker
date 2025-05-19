@@ -76,7 +76,7 @@ class OllamaProvider(AIProvider):
             model_names = [m.get("name", "") for m in models]
 
             if not any(self.model == name for name in model_names):
-                error_msg = f"model '{self.model}' not found in ollama. ai will be disabled."
+                error_msg = f"model '{self.model}' not found in ollama."
                 logger.error(error_msg)
                 raise RuntimeError(error_msg)
 
