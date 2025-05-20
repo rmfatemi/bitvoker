@@ -51,7 +51,7 @@
    For users who prioritize complete data privacy or wish to avoid potential external usage limits, bitvoker supports local AI processing with [Ollama](https://ollama.com/). This solution allows you to deploy a model such as `gemma3:1b`, which we recommend as a compact yet powerful option that performs well even on limited hardware.
 
 >[!WARNING]
-> The AI summary feature relies on unauthenticated interactions with Meta's AI APIs. If complete privacy is a requirement or if you encounter rate limits under heavy usage, it is recommended that you disable this option and consider the self-hosted Ollama configuration. Note that the AI summary feature is disabled by default in regions where Meta’s service is unavailable or restricted.
+> If privacy or independence from third-party services is a priority, the self-hosted Ollama option is recommended. Additionally, users encountering rate limits or availability issues with Meta’s service may opt for the local AI processing solution. The AI summary feature is disabled by default, and you can choose the most suitable configuration based on your needs.
 
 ## Setup
 This repository supports two ways of running **bitvoker**. For a consistent and isolated environment, using Docker is recommended.
@@ -195,17 +195,15 @@ Access the web interface at `http://<server-ip>:8085` to:
 - Adjust AI settings
 - View system logs
 
-| Main dashboard |
-| --- |
-| <img src="https://github.com/user-attachments/assets/402b1394-6d29-4d6e-8720-095fc123a7bd" width="1000" alt="Main dashboard"> |
+### Main dashboard
 
-| Settings and configurations |
-| --- |
-| <img src="https://github.com/user-attachments/assets/b8d01264-4eb8-4cfb-afca-f86e1eae7d1a" width="1000" alt="Settings and configurations"> |
+<img src="https://github.com/user-attachments/assets/402b1394-6d29-4d6e-8720-095fc123a7bd">
 
-| Light mode | Telegram notification |
-| --- | --- |
-| <img src="https://github.com/user-attachments/assets/7b90af4a-2cee-4fdf-a59c-a8f809cb3cd2" height="400"> | <img src="https://github.com/user-attachments/assets/1e72234a-8d8c-44d6-a73e-36a5d370c059" height="400"> |
+
+
+### Settings and configurations
+
+<img src="https://github.com/user-attachments/assets/b8d01264-4eb8-4cfb-afca-f86e1eae7d1a">
 
 
 
