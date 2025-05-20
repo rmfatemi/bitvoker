@@ -1,29 +1,57 @@
+
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/2b2ed949-fa68-4de4-83c7-546067cfd8ba" width="500">
+  <img src="https://github.com/user-attachments/assets/f2fa251e-0038-47b8-8b2e-d693eb38106f" width="500">
 </p>
 
-**bitvoker** is an open-source, dynamic notification system built to streamline automated alerts in both homelab setups and production environments. It operates via a dedicated TCP server that accepts messages and can optionally refine them with AI-generated summaries before dispatching notifications through multiple channels such as Telegram, Discord, Slack, and more.
+
+
+**bitvoker** is an open-source, dynamic notification system designed to streamline automated alerts in both homelab setups and production environments. It operates via a dedicated TCP server that accepts messages and, if enabled, can refine them using AI-generated summaries before dispatching notifications through multiple channels such as Telegram, Discord, Slack, and more.
 
 ## Features
 
 - 🌐 **Multi-Channel Support**: Send notifications to:
-  - Telegram
-  - Discord
-  - Slack
-  - Gotify
-- 🤖 **AI Processing**: Optional message enhancement that refines and summarizes notifications with customizable pre-prompts.
+    <ul>
+      <li>
+        <span style="background-color: #039be5; color: white; padding: 2px; border-radius: 5px;">
+          <img src="https://github.com/rmfatemi/bitvoker/blob/d9e4136baf0ddfeb3ec06e79c7888005d6a39fc3/web/src/assets/telegram.svg" width="15" style="vertical-align: middle;"> Telegram
+        </span>
+      </li>
+      <li>
+        <span style="background-color: #7289da; color: white; padding: 2px; border-radius: 5px;">
+          <img src="https://github.com/rmfatemi/bitvoker/blob/d9e4136baf0ddfeb3ec06e79c7888005d6a39fc3/web/src/assets/discord.svg" width="15" style="vertical-align: middle;"> Discord
+        </span>
+      </li>
+      <li>
+        <span style="background-color: #4a154b; color: white; padding: 2px; border-radius: 5px;">
+          <img src="https://github.com/rmfatemi/bitvoker/blob/d9e4136baf0ddfeb3ec06e79c7888005d6a39fc3/web/src/assets/slack.svg" width="15" style="vertical-align: middle;"> Slack
+        </span>
+      </li>
+      <li>
+        <span style="background-color: #3498db; color: white; padding: 2px; border-radius: 5px;">
+          <img src="https://github.com/rmfatemi/bitvoker/blob/d9e4136baf0ddfeb3ec06e79c7888005d6a39fc3/web/src/assets/gotify.svg" width="15" style="vertical-align: middle;"> Gotify
+        </span>
+      </li>
+    </ul>
+
+- 🤖 **Optional AI Processing**: Enhance messages by summarizing notifications using customizable pre-prompts.
 - 📜 **Notification History**: Store and browse past notifications with timestamps and source information
 - 🖥️ **Web Dashboard**: User-friendly interface for configuration and notification management
 - 🔄 **Real-time Updates**: Instantly receive notifications across all configured channels
-- ⚡ **Dynamic Configuration**: Update settings without restarting the server
+- ⚙️ **Dynamic Configuration**: Update settings without restarting the server
 - 📊 **Detailed Logging**: Logging system accessible via web interface
 
->[!WARNING]
-> The AI summary is provided through unauthenticated interactions with Meta's AI APIs on the backend of [Meta AI](https://www.meta.ai/). Although this unauthenticated access results in improved privacy, if you truly prefer complete privacy, you must disable this option. It is disabled by default.
-> The AI summary feature is not available in all regions due to [Meta AI](https://www.meta.ai/)'s regional limitations.
+## Optional AI Summaries
 
->[!TIP]
-> Unauthenticated prompts are subject to usage limits. If you are sending hundreds of notifications per day to **bitvoker**, it is recommended that you disable the AI feature when you encounter a rate limit. Support for selective AI summary to help avoid this issue will be available in a future release.
+**bitvoker** offers an optional AI-powered enhancement to refine and summarize notifications. You can tailor the alert content to your exact needs. Not only can you enable this feature through unauthenticated interactions with Meta's LLAMA4 model or through local self-hosting with Ollama, but you can also customize the pre-prompts that guide the AI's summarization process. This lets you define specific instructions and contextual cues for how notifications should be summarized. There are two supported configurations:
+
+1. **Unauthenticated Access to Meta's LLAMA4**:  
+   By default, bitvoker can connect to [Meta's LLAMA4](https://www.meta.ai/) model via unauthenticated API calls. This method simplifies setup and provides out-of-the-box enhancements, though it is subject to API rate limits and regional availability.
+
+2. **Self-Hosted AI Processing with Ollama**:  
+   For users who prioritize complete data privacy or wish to avoid potential external usage limits, bitvoker supports local AI processing with [Ollama](https://ollama.com/). This solution allows you to deploy a model such as `gemma3:1b`, which we recommend as a compact yet powerful option that performs well even on limited hardware.
+
+>[!WARNING]
+> The AI summary feature relies on unauthenticated interactions with Meta's AI APIs. If complete privacy is a requirement or if you encounter rate limits under heavy usage, it is recommended that you disable this option and consider the self-hosted Ollama configuration. Note that the AI summary feature is disabled by default in regions where Meta’s service is unavailable or restricted.
 
 ## Setup
 This repository supports two ways of running **bitvoker**. For a consistent and isolated environment, using Docker is recommended.
@@ -55,7 +83,7 @@ Then start the service with:
 docker-compose up -d
 ```
 ### Standalone Installation
-### Prerequisites
+#### Prerequisites
 
 - Python 3.11 or higher
 - [Poetry](https://python-poetry.org/docs/#installation) package manager
@@ -97,17 +125,7 @@ Using `openssl`: `echo "Your notification message" | openssl s_client -connect <
     0 2 * * * rsync -avh /path/to/source /path/to/backup && echo "Backup complete at $(date)" | openssl s_client -connect <server-ip>:8084
     ```
 
-2. **Uptime Monitoring (Cron Job):**
-    ```bash
-    */30 * * * * uptime | nc <server-ip> 8083
-    ```
-
-3. **Hourly Weather Update Notification (Cron Job):**
-    ```bash
-    0 * * * * curl -s "http://wttr.in/?format=3" | nc <server-ip> 8083
-    ```
-
-4. **Aggregated System Health Check:**
+2. **Aggregated System Health Check:**
     Combine multiple system metrics into one comprehensive update:
     ```bash
     */5 * * * * (echo "System Health at $(date):" && \
@@ -116,7 +134,7 @@ Using `openssl`: `echo "Your notification message" | openssl s_client -connect <
     echo "Disk Usage:" && df -h) | openssl s_client -connect <server-ip>:8084
     ```
 
-5. **Log Monitoring Alert (Event-Driven):**
+3. **Log Monitoring Alert (Event-Driven):**
     Monitor a log file for errors and trigger notifications when issues occur:
     ```bash
     tail -F /var/log/application.log | grep --line-buffered "error" | while read -r line; do
@@ -124,7 +142,7 @@ Using `openssl`: `echo "Your notification message" | openssl s_client -connect <
     done
     ```
 
-6. **Docker Event Notification:**
+4. **Docker Event Notification:**
     Pipe Docker events directly to **bitvoker**:
     ```bash
     docker events --filter 'event=start' --filter 'event=stop' | while read event; do
@@ -132,21 +150,7 @@ Using `openssl`: `echo "Your notification message" | openssl s_client -connect <
     done
     ```
 
-7. **External IP Address Change Alert:**
-    Monitor for changes in your public IP by using **bitvoker** in a script:
-    ```bash
-    #!/bin/bash
-    LAST_IP_FILE="/tmp/last_ip.txt"
-    CURRENT_IP=$(curl -s https://api.ipify.org)
-    LAST_IP=$(cat "$LAST_IP_FILE" 2>/dev/null)
-
-    if [ "$CURRENT_IP" != "$LAST_IP" ]; then
-        echo "External IP updated to: $CURRENT_IP at $(date)" | nc <server-ip>:8083
-        echo "$CURRENT_IP" > "$LAST_IP_FILE"
-    fi
-    ```
-
-8. **Custom Aggregated Alert Script:**
+5. **Custom Aggregated Alert Script:**
     Create a custom script that aggregates several checks and sends a notification only if issues are detected. Save the following as `healthcheck.sh` and schedule it via cron:
     ```bash
     #!/bin/bash
@@ -164,28 +168,50 @@ Using `openssl`: `echo "Your notification message" | openssl s_client -connect <
     */15 * * * * /path/to/healthcheck.sh
     ```
 
+6. **Website Content Monitoring:**
+ Monitor a webpage for specific content (e.g., a deal or release) and trigger an alert through **bitvoker**. For example, use this minimal Bash script:
+    ```bash
+    #!/bin/bash
+    # /usr/local/bin/bitvoker-cron.sh
+    # This script fetches Microcenter's Specials page, prepends an AI pre-prompt,
+    # and sends it to Bitvoker.
+    URL="https://www.microcenter.com/site/specials.aspx"
+    SERVER_IP="your.server.ip"      # Replace with your Bitvoker server IP
+    PORT="8083"                     # Use 8084 for TLS
+    
+    PREPROMPT="Summarize and extract any notable computer component deals from the text below:"
+    PAGE_CONTENT=$(curl -s "$URL")
+    MESSAGE="${PREPROMPT}\n\n${PAGE_CONTENT}"
+    echo -e "$MESSAGE" | nc $SERVER_IP $PORT
+    ```
+Then make it executable `chmod +x /usr/local/bin/bitvoker-cron.sh` and add your cronjob `*/10 * * * * /usr/local/bin/bitvoker-cron.sh`
+
 These examples illustrate just a portion of the creative ways you can integrate **bitvoker** into your environment. By chaining and piping various system commands, you can engineer powerful, automated notifications tailored to your specific homelab or production needs.
 
 ### Web Interface
-
 Access the web interface at `http://<server-ip>:8085` to:
 - View notification history
 - Configure notification channels
 - Adjust AI settings
 - View system logs
 
-#### Main dashboard
-  <img src="https://github.com/user-attachments/assets/57c67819-091b-4963-aed6-9bfb2f523ae5" width="1200">
+| Main dashboard |
+| --- |
+| <img src="https://github.com/user-attachments/assets/402b1394-6d29-4d6e-8720-095fc123a7bd" width="1000" alt="Main dashboard"> |
+
+| Settings and configurations |
+| --- |
+| <img src="https://github.com/user-attachments/assets/b8d01264-4eb8-4cfb-afca-f86e1eae7d1a" width="1000" alt="Settings and configurations"> |
+
+| Light mode | Telegram notification |
+| --- | --- |
+| <img src="https://github.com/user-attachments/assets/7b90af4a-2cee-4fdf-a59c-a8f809cb3cd2" height="400"> | <img src="https://github.com/user-attachments/assets/1e72234a-8d8c-44d6-a73e-36a5d370c059" height="400"> |
 
 
-#### Settings and configurations
-  <img src="https://github.com/user-attachments/assets/eb8ef1be-e44c-4943-9214-209e1915e403" width="1200">
 
-#### Light mode
-  <img src="https://github.com/user-attachments/assets/06b1fce3-a88b-4c10-a44f-e71d731e4bae" width="1200">
 
-#### Telegram notifcation
-  <img src="https://github.com/user-attachments/assets/ba10c5a5-3bd4-4340-a973-7f2986b26c61" width="300">
+
+
 
 ## 📄 License
 

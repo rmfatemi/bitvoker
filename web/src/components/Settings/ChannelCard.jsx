@@ -9,12 +9,17 @@ function ChannelCard({channel, config, updateConfig, icon, title, fields}) {
                     {icon}
                     <span>{title}</span>
                 </div>
-                <label>
+                <label style={{display: 'flex', alignItems: 'center'}}>
                     <input
                         type="checkbox"
                         name={`channel_${channel}_enabled`}
                         checked={config.enabled}
                         onChange={(e) => updateConfig(channel, 'enabled', e.target.checked)}
+                        style={{
+                            marginRight: "8px",
+                            position: "relative",
+                            top: "-1px"
+                        }}
                     /> Enabled
                 </label>
             </h4>

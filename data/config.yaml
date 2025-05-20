@@ -2,6 +2,10 @@ preprompt: You are an assistant that summarizes technical logs and alerts. Be co
 enable_ai: false
 show_original: true
 gui_theme: dark
+ai_provider:
+  type: "meta_ai"
+  url: "http://<server-ip>:11434"
+  model: "gemma3:1b"
 telegram:
   enabled: false
   chat_id: ''

@@ -169,33 +169,27 @@ function App() {
                     border: '1px solid #ccc',
                     padding: '20px',
                     minHeight: '75vh',
-                    maxHeight: '125vh', // Limit height to 85% of viewport
-                    overflowY: 'auto' // Enable internal scrolling
+                    ...(activeTab === 'dashboard' || activeTab === 'logs' ? {
+                        maxHeight: '125vh',
+                        overflowY: 'auto'
+                    } : {})
                 }}>
+                    {/* Tab content remains the same */}
                     {isLoading && activeTab === 'dashboard' ? (
                         <div>Loading notifications...</div>
                     ) : (
                         <>
                             {activeTab === 'dashboard' && (
-                                <Dashboard
-                                    notifications={notifications}
-                                    config={config}
-                                    onRefresh={fetchNotifications}
-                                />
+                                <Dashboard notifications={notifications} config={config}
+                                           onRefresh={fetchNotifications}/>
                             )}
 
                             {activeTab === 'settings' && (
-                                <Settings
-                                    config={config}
-                                    onSave={saveConfig}
-                                />
+                                <Settings config={config} onSave={saveConfig}/>
                             )}
 
                             {activeTab === 'logs' && (
-                                <Logs
-                                    logs={logs}
-                                    onRefresh={fetchLogs}
-                                />
+                                <Logs logs={logs} onRefresh={fetchLogs}/>
                             )}
                         </>
                     )}

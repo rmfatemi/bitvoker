@@ -11,3 +11,5 @@ CERT_PATH = os.path.join(DATA_DIR, "server.crt")
 KEY_PATH = os.path.join(DATA_DIR, "server.key")
 
 DB_FILENAME = os.path.join(DATA_DIR, "database.db")
+
+REACT_BUILD_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "web", "build")
