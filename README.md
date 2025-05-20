@@ -40,7 +40,7 @@
 - ⚙️ **Dynamic Configuration**: Update settings without restarting the server
 - 📊 **Detailed Logging**: Logging system accessible via web interface
 
-## Optional AI Summaries
+## AI Summaries
 
 **bitvoker** offers an optional AI-powered enhancement to refine and summarize notifications. You can tailor the alert content to your exact needs. Not only can you enable this feature through unauthenticated interactions with Meta's LLAMA4 model or through local self-hosting with Ollama, but you can also customize the pre-prompts that guide the AI's summarization process. This lets you define specific instructions and contextual cues for how notifications should be summarized. There are two supported configurations:
 
