@@ -12,7 +12,7 @@ class Notifier:
     def __init__(self, channels_config: Optional[List[Dict[str, Any]]] = None):
         self.channels_config = channels_config if channels_config else []
         self.apprise = apprise.Apprise()
-        self.channel_instances = {}
+        self.channel_instances: Dict[str, apprise.Apprise] = {}
         self._setup_notification_channels()
 
     def update_channels(self, channels_config: Optional[List[Dict[str, Any]]] = None):
@@ -46,7 +46,7 @@ class Notifier:
                 logger.error(f"failed to add channel {channel_conf.get('name', 'unknown')}: {str(e)}")
 
     def send_message(
-        self, message_body: str, title: str = "bitvoker notification", channel_names: List[str] = None
+        self, message_body: str, title: str = "bitvoker notification", channel_names: Optional[List[str]] = None
     ) -> None:
         if not self.channels_config:
             logger.warning("no notification channels configured")
