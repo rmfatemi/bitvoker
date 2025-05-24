@@ -16,7 +16,7 @@ function Header({ toggleTheme, theme }) {
       position="static"
       color="default"
       elevation={1}
-      sx={{ bgcolor: theme => theme.palette.background.paper }}
+      sx={{ bgcolor: theme => theme.palette.background.default }}
     >
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
