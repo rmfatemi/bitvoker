@@ -1,24 +1,46 @@
-preprompt: You are an assistant that summarizes technical logs and alerts. Be concise but informative. Use up to 20 Words.
-enable_ai: false
-show_original: true
-gui_theme: dark
-ai_provider:
-  type: "meta_ai"
-  url: "http://<server-ip>:11434"
-  model: "gemma3:1b"
-telegram:
-  enabled: false
-  chat_id: ''
-  token: ''
-discord:
-  enabled: false
-  webhook_id: ''
-  token: ''
-slack:
-  enabled: false
-  webhook_id: ''
-  token: ''
-gotify:
-  enabled: false
-  server_url: ''
-  token: ''
+# ai processing configuration
+ai:
+  enabled: false                           # master switch for all ai functionality
+  provider: "meta_ai"                      # provider options: "meta_ai" or "ollama"
+  meta_ai: {}                              # meta ai has no additional configuration
+  ollama:
+    url: "http://{server_ip}:11434"        # service endpoint url
+    model: "gemma3:1b"                     # model to use for processing messages
+
+# all fields are mandatory
+# empty string ("") for regex fields matches everything
+# empty array ([]) for destinations means send to all configured channels
+rules:
+  - name: "default-rule"                                              # clear rule identifier
+    enabled: false                                                    # toggle rule on/off
+    preprompt: "summarize this technical message briefly and clearly" # if not empty runs through model
+    match:                                                            # rule matching conditions
+      source: ""                                                      # source identifier, empty matches any
+      og_text_regex: ""                                               # match against original text, empty to match all
+      ai_text_regex: ""                                               # match against ai-processed text, empty to match all
+    notify:
+      destinations: []                                                # destinations, empty for all
+      original_message:                                               # original message version
+        enabled: true                                                 # enable/disable original text
+        match_regex: ""                                               # only send if this matches, empty for always
+      ai_summary:                                                     # ai-processed version
+        enabled: true                                                 # explicitly control sending
+        match_regex: ""                                               # only send if this matches, empty for always
+
+# notification channel configurations
+notification_channels:
+  - name: "Telegram"                    # application name
+    enabled: false                      # whether channel should be disabled (overrides custom rules)
+    url: "tgram://{token}/{chat_id}"    # apprise compatible url with tokens
+
+  - name: "Slack"
+    enabled: false
+    url: "slack://{token}/{channel}"
+
+  - name: "ntfy"
+    enabled: false
+    url: "ntfy://{topic}"
+
+  - name: "custom apprise"
+    enabled: false
+    url: ""
