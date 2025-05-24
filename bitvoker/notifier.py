@@ -11,6 +11,7 @@ class Notifier:
     def __init__(self, channels_config: Optional[List[Dict[str, Any]]] = None):
         self.channels_config = channels_config if channels_config else []
         self.apprise = apprise.Apprise()
+        self.channel_instances = {}  # Store individual channel instances
         self._setup_notification_channels()
 
     def update_channels(self, channels_config: Optional[List[Dict[str, Any]]] = None):
@@ -20,6 +21,8 @@ class Notifier:
 
     def _setup_notification_channels(self):
         self.apprise.clear()
+        self.channel_instances = {}
+
         for channel_conf in self.channels_config:
             if not channel_conf.get("enabled", False):
                 logger.debug(f"skipping disabled channel: {channel_conf.get('name', 'unnamed channel')}")
@@ -28,7 +31,15 @@ class Notifier:
             try:
                 url = self._build_apprise_url(channel_conf)
                 if url:
+                    # Add to main Apprise instance for broadcasting
                     self.apprise.add(url)
+
+                    # Create individual Apprise instance for this channel
+                    if "name" in channel_conf:
+                        channel_apprise = apprise.Apprise()
+                        channel_apprise.add(url)
+                        self.channel_instances[channel_conf["name"]] = channel_apprise
+
                     logger.debug(f"added notification channel: {channel_conf.get('name')}")
             except Exception as e:
                 logger.error(f"failed to add channel {channel_conf.get('name', 'unknown')}: {str(e)}")
@@ -62,17 +73,33 @@ class Notifier:
             logger.warning(f"unsupported or incomplete notification channel: {channel_conf.get('name')}")
             return None
 
-    def send_message(self, message_body: str, title: str = "bitvoker notification") -> None:
+    def send_message(
+        self, message_body: str, title: str = "bitvoker notification", channel_names: List[str] = None
+    ) -> None:
         if not self.channels_config:
             logger.warning("no notification channels configured")
             return
 
-        try:
-            message_body = truncate(message_body, 4000, preserve_newlines=True, suffix="\n[TRUNCATED]")
+        message_body = truncate(message_body, 4000, preserve_newlines=True, suffix="\n[TRUNCATED]")
 
-            if self.apprise.notify(body=message_body, title=title):
-                logger.info(f"successfully sent notifications to {len(self.apprise.servers())} channels")
+        try:
+            if channel_names:
+                success_count = 0
+                for name in channel_names:
+                    if name in self.channel_instances:
+                        if self.channel_instances[name].notify(body=message_body, title=title):
+                            success_count += 1
+                        else:
+                            logger.warning(f"failed to send notification to channel: {name}")
+
+                logger.info(f"sent notifications to {success_count}/{len(channel_names)} specified channels")
+
+            # Send to all channels if no specific channels provided
             else:
-                logger.warning("some or all notifications failed to send")
+                if self.apprise.notify(body=message_body, title=title):
+                    logger.info(f"successfully sent notifications to {len(self.apprise.servers())} channels")
+                else:
+                    logger.warning("some or all notifications failed to send")
+
         except Exception as e:
             logger.error(f"failed to send notifications: {str(e)}")
