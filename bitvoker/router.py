@@ -27,60 +27,21 @@ api_router = APIRouter()
 
 @api_router.post("/api/config")
 async def update_config(request: Request):
-    form_data = await request.json()
-    config_obj = Config()
     try:
-        if "ai" in form_data:
-            ai_config = form_data.get("ai", {})
-            config_obj.update_ai_config(ai_config)
+        form_data = await request.json()
+        config_obj = Config()
 
-        if "rules" in form_data:
-            rules = form_data.get("rules", [])
-            default_rule_found = False
+        required_keys = ["ai", "rules", "notification_channels"]
+        config_is_valid = all(key in form_data for key in required_keys)
+        if not config_is_valid:
+            return JSONResponse(content={"error": "Invalid configuration format"}, status_code=400)
 
-            for rule in rules:
-                if rule.get("name") == "default-rule":
-                    default_rule_found = True
-                    config_obj.update_default_rule(rule)
-                    break
+        default_rule_exists = any(rule.get("name") == "default-rule" for rule in form_data.get("rules", []))
+        if not default_rule_exists:
+            return JSONResponse(content={"error": "Default rule must be present"}, status_code=400)
 
-            if not default_rule_found:
-                default_rule = config_obj.get_default_rule()
-                rules.insert(0, default_rule)
-
-            current_rules = config_obj.get_rules()
-            default_index = None
-
-            for i, rule in enumerate(current_rules):
-                if rule.get("name") == "default-rule":
-                    default_index = i
-                    break
-
-            i = len(current_rules) - 1
-            while i >= 0:
-                if i != default_index:
-                    config_obj.delete_rule(i)
-                i -= 1
-
-            for rule in rules:
-                if rule.get("name") != "default-rule":
-                    config_obj.add_rule(rule)
-
-        if "notification_channels" in form_data:
-            for idx, channel in enumerate(form_data.get("notification_channels", [])):
-                if idx < len(config_obj.get_channels()):
-                    config_obj.update_channel(idx, channel)
-                else:
-                    config_obj.add_channel(channel)
-
-            while len(config_obj.get_channels()) > len(form_data.get("notification_channels", [])):
-                config_obj.delete_channel(len(config_obj.get_channels()) - 1)
-
-        if "gui_theme" in form_data:
-            if "gui" not in config_obj.config_data:
-                config_obj.config_data["gui"] = {}
-            config_obj.config_data["gui"]["theme"] = form_data.get("gui_theme", "dark")
-            config_obj.save()
+        config_obj.config_data = form_data
+        config_obj.save()
 
         refresh_components(request.app)
         return {"success": True}
