@@ -1,5 +1,7 @@
-import React, {useState, useEffect} from 'react';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import { ThemeProvider, CssBaseline } from '@mui/material';
+import { Container, Box, Tabs, Tab } from '@mui/material';
+import { getAppTheme } from './theme';
 import Header from './components/Header/Header';
 import Dashboard from './components/Dashboard/Dashboard';
 import Settings from './components/Settings/Settings';
@@ -7,7 +9,7 @@ import Logs from './components/Logs/Logs';
 
 function App() {
     const [activeTab, setActiveTab] = useState('dashboard');
-    const [theme, setTheme] = useState('dark');
+    const [themeMode, setThemeMode] = useState(localStorage.getItem('theme') || 'dark');
     const [isLoading, setIsLoading] = useState(true);
 
     // State for data from API
@@ -24,6 +26,9 @@ function App() {
         gotify: {enabled: false, server_url: '', token: ''}
     });
 
+    // Apply Material UI theme
+    const theme = getAppTheme(themeMode);
+
     // API base URL
     const API_BASE = '/api';
 
@@ -34,16 +39,14 @@ function App() {
             setActiveTab(savedTab);
         }
 
-        // Load saved theme from localStorage
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        setTheme(savedTheme);
-        document.body.className = savedTheme === 'light' ? 'light-mode' : '';
+        // Apply theme
+        document.documentElement.setAttribute('data-theme', themeMode);
 
         // Fetch initial data
         fetchConfig();
         fetchNotifications();
         fetchLogs();
-    }, []);
+    }, [themeMode]);
 
     const fetchNotifications = () => {
         setIsLoading(true);
@@ -80,7 +83,7 @@ function App() {
             .then(data => {
                 if (data && data.config) {
                     // Preserve current theme but update all other settings
-                    setConfig({...data.config, gui_theme: theme});
+                    setConfig({...data.config, gui_theme: themeMode});
                 }
             })
             .catch(err => {
@@ -89,10 +92,9 @@ function App() {
     };
 
     const toggleTheme = () => {
-        const newTheme = theme === 'dark' ? 'light' : 'dark';
-        setTheme(newTheme);
+        const newTheme = themeMode === 'dark' ? 'light' : 'dark';
+        setThemeMode(newTheme);
         localStorage.setItem('theme', newTheme);
-        document.body.className = newTheme === 'light' ? 'light-mode' : '';
 
         // Update config with new theme
         setConfig(prevConfig => ({
@@ -101,16 +103,16 @@ function App() {
         }));
     };
 
-    const handleTabChange = (tab) => {
-        setActiveTab(tab);
-        localStorage.setItem('activeTab', tab);
+    const handleTabChange = (event, newValue) => {
+        setActiveTab(newValue);
+        localStorage.setItem('activeTab', newValue);
 
         // Refresh data when switching tabs
-        if (tab === 'dashboard') {
+        if (newValue === 'dashboard') {
             fetchNotifications();
-        } else if (tab === 'logs') {
+        } else if (newValue === 'logs') {
             fetchLogs();
-        } else if (tab === 'settings') {
+        } else if (newValue === 'settings') {
             fetchConfig();
         }
     };
@@ -140,62 +142,65 @@ function App() {
     };
 
     return (
-        <div className="app-container">
-            <Header toggleTheme={toggleTheme} theme={theme}/>
+        <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <Box className="app-container">
+                <Header toggleTheme={toggleTheme} theme={themeMode} />
 
-            <div className="container">
-                <div className="tabs">
-                    <button
-                        className={`tab-button ${activeTab === 'dashboard' ? 'active' : ''}`}
-                        onClick={() => handleTabChange('dashboard')}
+                <Container maxWidth={false}>
+                    <Tabs
+                        value={activeTab}
+                        onChange={handleTabChange}
+                        sx={{ mb: 2, mt: 1 }}
                     >
-                        Dashboard
-                    </button>
-                    <button
-                        className={`tab-button ${activeTab === 'settings' ? 'active' : ''}`}
-                        onClick={() => handleTabChange('settings')}
+                        <Tab label="Dashboard" value="dashboard" />
+                        <Tab label="Settings" value="settings" />
+                        <Tab label="Logs" value="logs" />
+                    </Tabs>
+
+                    <Box
+                        sx={{
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            p: 3,
+                            minHeight: '75vh',
+                            ...(activeTab === 'dashboard' || activeTab === 'logs' ? {
+                                maxHeight: '125vh',
+                                overflowY: 'auto'
+                            } : {})
+                        }}
                     >
-                        Settings
-                    </button>
-                    <button
-                        className={`tab-button ${activeTab === 'logs' ? 'active' : ''}`}
-                        onClick={() => handleTabChange('logs')}
-                    >
-                        Logs
-                    </button>
-                </div>
+                        {isLoading && activeTab === 'dashboard' ? (
+                            <Box>Loading notifications...</Box>
+                        ) : (
+                            <>
+                                {activeTab === 'dashboard' && (
+                                    <Dashboard
+                                        notifications={notifications}
+                                        config={config}
+                                        onRefresh={fetchNotifications}
+                                    />
+                                )}
 
-                <div style={{
-                    border: '1px solid #ccc',
-                    padding: '20px',
-                    minHeight: '75vh',
-                    ...(activeTab === 'dashboard' || activeTab === 'logs' ? {
-                        maxHeight: '125vh',
-                        overflowY: 'auto'
-                    } : {})
-                }}>
-                    {/* Tab content remains the same */}
-                    {isLoading && activeTab === 'dashboard' ? (
-                        <div>Loading notifications...</div>
-                    ) : (
-                        <>
-                            {activeTab === 'dashboard' && (
-                                <Dashboard notifications={notifications} config={config}
-                                           onRefresh={fetchNotifications}/>
-                            )}
+                                {activeTab === 'settings' && (
+                                    <Settings
+                                        config={config}
+                                        onSave={saveConfig}
+                                    />
+                                )}
 
-                            {activeTab === 'settings' && (
-                                <Settings config={config} onSave={saveConfig}/>
-                            )}
-
-                            {activeTab === 'logs' && (
-                                <Logs logs={logs} onRefresh={fetchLogs}/>
-                            )}
-                        </>
-                    )}
-                </div>
-            </div>
-        </div>
+                                {activeTab === 'logs' && (
+                                    <Logs
+                                        logs={logs}
+                                        onRefresh={fetchLogs}
+                                    />
+                                )}
+                            </>
+                        )}
+                    </Box>
+                </Container>
+            </Box>
+        </ThemeProvider>
     );
 }
 

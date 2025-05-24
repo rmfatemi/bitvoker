@@ -1,5 +1,4 @@
 import socketserver
-
 from time import strftime, localtime
 
 from bitvoker.utils import truncate
@@ -25,40 +24,36 @@ class Handler(socketserver.BaseRequestHandler):
 
         logger.debug(f"received: {truncate(original_message, 120)}")
 
-        ai_result = ""
-        message_body = ""
-        config = self.server.config_manager
-
-        if config.get_enable_ai() and self.server.ai is not None:
-            try:
-                ai_result = self.server.ai.process_message(original_message)
-            except Exception as e:
-                logger.error(f"ai processing failed after all retries, disabling ai: {e}")
-                config.set_enable_ai(False)
-                self.server.ai = None
-
-            if ai_result:
-                if config.get_show_original():
-                    message_body = f"[AI Summary]\n{ai_result}\n[Original Message]\n{original_message}"
-                else:
-                    message_body = ai_result
-            elif config.get_show_original():
-                message_body = original_message
-            else:
-                message_body = "error processing with ai. original message not shown as per config"
-        else:
-            if config.get_show_original():
-                message_body = original_message
-            else:
-                message_body = ""
-
         ts = strftime("%Y-%m-%d %H:%M:%S", localtime())
         client_ip = self.client_address[0]
         title = f"[{ts} - Notification from {client_ip}]"
-        if message_body:
-            try:
-                self.server.notifier.send_message(message_body, title=title)
-            except Exception as e:
-                logger.exception(f"overall error during notification dispatch: {e}")
 
-        insert_notification(ts, original_message, ai_result if config.get_enable_ai() else "", client_ip)
+        alert_result = (
+            self.server.alert.process("tcp_socket", original_message) if hasattr(self.server, "alert") else None
+        )
+
+        ai_result = ""
+
+        if alert_result:
+            ai_result = alert_result.ai_summary or ""
+
+            message = ""
+
+            if alert_result.should_send_ai and alert_result.should_send_original:
+                message = f"[AI Summary]\n{alert_result.ai_summary}\n[Original Message]\n{alert_result.original_text}"
+            elif alert_result.should_send_ai:
+                message = alert_result.ai_summary
+            elif alert_result.should_send_original:
+                message = alert_result.original_text
+
+            if message:
+                try:
+                    if alert_result.destinations:
+                        self.server.alert.get_enabled_channels_by_names(alert_result.destinations)
+                        self.server.notifier.send_message(message, title=title, channel_names=alert_result.destinations)
+                    else:
+                        self.server.notifier.send_message(message, title=title)
+                except Exception as e:
+                    logger.exception(f"Error during notification dispatch: {e}")
+
+        insert_notification(ts, original_message, ai_result, client_ip)
