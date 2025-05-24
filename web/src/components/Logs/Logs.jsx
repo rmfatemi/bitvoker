@@ -42,18 +42,18 @@ function Logs({logs = [], onRefresh}) {
             .replace(/'/g, "&#039;");
     };
 
-    const getLogLevelStyle = (level) => {
+    const getLogLevelStyle = (level, theme) => {
         switch (level) {
             case 'DEBUG':
-                return {color: '#888'};
+                return {color: theme.palette.text.secondary};
             case 'INFO':
-                return {color: '#4CAF50'};
+                return {color: theme.palette.success.main};
             case 'WARNING':
-                return {color: '#FFC107'};
+                return {color: theme.palette.warning.main};
             case 'ERROR':
-                return {color: '#F44336'};
+                return {color: theme.palette.error.main};
             case 'CRITICAL':
-                return {color: '#F44336', fontWeight: 'bold'};
+                return {color: theme.palette.error.main, fontWeight: 'bold'};
             default:
                 return {};
         }
@@ -63,28 +63,28 @@ function Logs({logs = [], onRefresh}) {
         <TableContainer
             component={Paper}
             ref={logsContainerRef}
-            sx={{
+            sx={(theme) => ({
                 maxHeight: '75vh',
                 overflowY: 'auto',
-                border: '1px solid rgba(120, 120, 120, 0.8)',
-                boxShadow: '0 0 8px rgba(0, 0, 0, 0.1)',
+                border: `1px solid ${theme.palette.divider}`,
+                boxShadow: theme.shadows[1],
                 '& .MuiTableCell-root': {
                     fontSize: '0.9em',
                     padding: '2px 10px',
-                    borderBottom: '1px solid rgba(120, 120, 120, 0.4)',
-                    borderRight: '1px solid rgba(120, 120, 120, 0.3)'
+                    borderBottom: `1px solid ${theme.palette.divider}`,
+                    borderRight: `1px solid ${theme.palette.divider}`
                 },
                 '& .MuiTableCell-root:last-child': {
                     borderRight: 'none'
                 },
                 '& .MuiTableHead-root .MuiTableRow-root': {
-                    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                    backgroundColor: theme.palette.background.header,
                     '& .MuiTableCell-root': {
                         fontWeight: 'bold',
-                        borderBottom: '2px solid rgba(120, 120, 120, 0.6)'
+                        borderBottom: `2px solid ${theme.palette.divider}`
                     }
                 }
-            }}
+            })}
         >
             <Table stickyHeader size="small" id="logsTable">
                 <TableHead>
@@ -101,11 +101,11 @@ function Logs({logs = [], onRefresh}) {
                                 {log.timestamp}
                             </TableCell>
                             <TableCell
-                                sx={{
+                                sx={(theme) => ({
                                     width: '1%',
                                     whiteSpace: 'nowrap',
-                                    ...getLogLevelStyle(log.level)
-                                }}
+                                    ...getLogLevelStyle(log.level, theme)
+                                })}
                             >
                                 {log.level}
                             </TableCell>

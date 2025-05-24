@@ -24,20 +24,16 @@ function Dashboard({notifications = [], config = {}, onRefresh}) {
         setFilteredNotifications(notifications);
     }, [notifications]);
 
-    // Add auto-refresh every 20 seconds
     useEffect(() => {
         const intervalId = setInterval(() => {
             if (onRefresh) onRefresh();
         }, 20000);
-
-        // Clean up interval on unmount
         return () => clearInterval(intervalId);
     }, [onRefresh]);
 
     const handleFilter = () => {
         let filtered = notifications;
 
-        // Filter by date if both dates are provided
         if (startDate && endDate) {
             const start = new Date(`${startDate}T00:00:00`);
             start.setHours(0, 0, 0, 0);
@@ -47,8 +43,6 @@ function Dashboard({notifications = [], config = {}, onRefresh}) {
                 return notifDate >= start && notifDate <= end;
             });
         }
-
-        // Filter by client IP if provided
         if (clientIp) {
             filtered = filtered.filter((notif) =>
                 notif.client && notif.client.includes(clientIp)
@@ -130,28 +124,28 @@ function Dashboard({notifications = [], config = {}, onRefresh}) {
 
             <TableContainer
                 component={Paper}
-                sx={{
+                sx={(theme) => ({
                     maxWidth: '100%',
                     overflowX: 'auto',
-                    border: '1px solid rgba(120, 120, 120, 0.8)',
-                    boxShadow: '0 0 8px rgba(0, 0, 0, 0.1)',
+                    border: `1px solid ${theme.palette.divider}`,
+                    boxShadow: theme.shadows[1],
                     '& .MuiTableCell-root': {
                         fontSize: '0.9em',
                         padding: '2px 10px',
-                        borderBottom: '1px solid rgba(120, 120, 120, 0.4)',
-                        borderRight: '1px solid rgba(120, 120, 120, 0.3)'
+                        borderBottom: `1px solid ${theme.palette.divider}`,
+                        borderRight: `1px solid ${theme.palette.divider}`
                     },
                     '& .MuiTableCell-root:last-child': {
                         borderRight: 'none'
                     },
                     '& .MuiTableHead-root .MuiTableRow-root': {
-                        backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                        backgroundColor: theme.palette.background.header,
                         '& .MuiTableCell-root': {
                             fontWeight: 'bold',
-                            borderBottom: '2px solid rgba(120, 120, 120, 0.6)'
+                            borderBottom: `2px solid ${theme.palette.divider}`
                         }
                     }
-                }}
+                })}
             >
                 <Table id="notificationsTable" size="small">
                     <TableHead>
