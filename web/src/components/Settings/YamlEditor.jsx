@@ -144,7 +144,7 @@ function YamlEditor({
                         inputRef={yamlReferenceRef}
                         multiline
                         fullWidth
-                        rows={10}
+                        rows={3}
                         value={referenceText}
                         variant="outlined"
                         InputProps={{

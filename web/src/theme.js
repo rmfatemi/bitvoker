@@ -1,5 +1,5 @@
 import { createTheme } from '@mui/material/styles';
-import { blue, indigo, grey, red, amber, lightBlue, green } from '@mui/material/colors';
+import { blue, indigo, grey, red, amber, orange, lightBlue, green } from '@mui/material/colors';
 
 export const getAppTheme = (mode) => {
   return createTheme({
@@ -48,7 +48,7 @@ export const getAppTheme = (mode) => {
           }
         : {
             // Dark theme
-            primary: indigo,
+            primary: orange,
             secondary: {
               main: grey[500],
             },

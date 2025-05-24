@@ -1,233 +1,265 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box,
     Typography,
     Button,
     CircularProgress,
+    Snackbar,
+    Alert,
     styled,
-    Paper,
-    TextField
+    Paper
 } from '@mui/material';
-import ChannelEditor from './ChannelEditor';
+import DefaultRule from './DefaultRule';
+import AIProvider from './AIProvider';
 import RuleEditor from './RuleEditor';
-import AISettings from './AISettings';
+import ChannelEditor from './ChannelEditor';
 
-// Custom styled components to match the theme system
 const StyledPaper = styled(Paper)(() => ({
-    padding: '15px',
+    padding: '20px',
     border: '1px solid var(--border-color)',
-    borderRadius: '5px',
     backgroundColor: 'var(--card-bg)',
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
+    marginBottom: '20px'
 }));
 
-const StyledTextField = styled(TextField)(() => ({
-    marginBottom: '15px',
-    '& .MuiInputBase-root': {
-        backgroundColor: 'var(--input-bg)',
-    },
-    '& .MuiOutlinedInput-root': {
-        '& fieldset': {
-            borderColor: 'var(--input-border)',
-        },
-        '&:hover fieldset': {
-            borderColor: 'var(--primary-color)',
-        },
-    },
-    '& .MuiInputLabel-root': {
-        color: 'var(--text-color)',
-    },
-}));
-
-function Settings({config = {}, onSave}) {
-    const [settings, setSettings] = useState(null);
+function Settings() {
     const [loading, setLoading] = useState(true);
-    const [notificationChannels, setNotificationChannels] = useState([]);
+    const [saving, setSaving] = useState(false);
+    const [configData, setConfigData] = useState(null);
+    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+
+    const fetchConfig = async () => {
+        try {
+            setLoading(true);
+            const response = await fetch('/api/config');
+            if (!response.ok) {
+                throw new Error(`Server responded with ${response.status}`);
+            }
+            const data = await response.json();
+            setConfigData(data);
+        } catch (error) {
+            console.error('Error loading config:', error);
+            setSnackbar({
+                open: true,
+                message: `Failed to load settings: ${error.message}`,
+                severity: 'error'
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        async function fetchConfig() {
-            try {
-                const response = await fetch('/api/config');
-                const data = await response.json();
-
-                setSettings({
-                    enable_ai: data.enable_ai || false,
-                    show_original: data.show_original !== undefined ? data.show_original : true,
-                    preprompt: data.preprompt || '',
-                    gui_theme: data.gui_theme || 'dark',
-                    ai_provider: data.ai_provider || {
-                        type: 'ollama',
-                        url: 'http://{server_ip}:11434',
-                        model: 'gemma3:1b'
-                    },
-                    rules: data.rules || [{
-                        name: "default-rule",
-                        enabled: data.enable_ai || false,
-                        preprompt: data.preprompt || "summarize this technical message briefly and clearly",
-                        match: {
-                            source: "",
-                            og_text_regex: "",
-                            ai_text_regex: ""
-                        },
-                        notify: {
-                            destinations: [],
-                            original_message: {
-                                enabled: true,
-                                match_regex: ""
-                            },
-                            ai_summary: {
-                                enabled: true,
-                                match_regex: ""
-                            }
-                        }
-                    }]
-                });
-
-                setNotificationChannels(data.notification_channels || []);
-
-            } catch (error) {
-                console.error('Failed to fetch config:', error);
-            } finally {
-                setLoading(false);
-            }
-        }
-
         fetchConfig();
     }, []);
 
-    // Sync default rule with AI settings
-    useEffect(() => {
-        if (settings && settings.rules && settings.rules.length > 0) {
-            // Sync the default rule with the main preprompt setting
-            const updatedRules = [...settings.rules];
-            updatedRules[0].preprompt = settings.preprompt;
-            updatedRules[0].enabled = settings.enable_ai;
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setSaving(true);
+        try {
+            const response = await fetch('/api/config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(configData),
+            });
 
-            setSettings(prev => ({
+            if (!response.ok) {
+                throw new Error(`Server responded with ${response.status}`);
+            }
+
+            await fetchConfig();
+
+            setSnackbar({
+                open: true,
+                message: 'Settings saved successfully',
+                severity: 'success'
+            });
+        } catch (error) {
+            console.error('Error saving settings:', error);
+            setSnackbar({
+                open: true,
+                message: `Failed to save settings: ${error.message}`,
+                severity: 'error'
+            });
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const updateAIEnabled = (e) => {
+        const enabled = e.target.checked;
+        setConfigData(prev => ({
+            ...prev,
+            ai: {
+                ...prev.ai,
+                enabled: enabled
+            },
+            rules: prev.rules.map(rule =>
+                rule.name === "default-rule"
+                    ? { ...rule, enabled: enabled }
+                    : rule
+            )
+        }));
+    };
+
+    const updateShowOriginal = (e) => {
+        const enabled = e.target.checked;
+        setConfigData(prev => ({
+            ...prev,
+            rules: prev.rules.map(rule =>
+                rule.name === "default-rule"
+                    ? {
+                        ...rule,
+                        notify: {
+                            ...rule.notify,
+                            original_message: {
+                                ...rule.notify.original_message,
+                                enabled: enabled
+                            }
+                        }
+                    }
+                    : rule
+            )
+        }));
+    };
+
+    const updatePreprompt = (e) => {
+        const value = e.target.value;
+        setConfigData(prev => ({
+            ...prev,
+            rules: prev.rules.map(rule =>
+                rule.name === "default-rule"
+                    ? { ...rule, preprompt: value }
+                    : rule
+            )
+        }));
+    };
+
+    const updateAIProvider = (e) => {
+        const { name, value } = e.target;
+
+        if (name === "provider") {
+            setConfigData(prev => ({
                 ...prev,
-                rules: updatedRules
+                ai: {
+                    ...prev.ai,
+                    provider: value
+                }
+            }));
+        } else if (name === "url" || name === "model") {
+            setConfigData(prev => ({
+                ...prev,
+                ai: {
+                    ...prev.ai,
+                    ollama: {
+                        ...prev.ai.ollama,
+                        [name]: value
+                    }
+                }
             }));
         }
-    }, [settings?.preprompt, settings?.enable_ai]);
-
-    useEffect(() => {
-        if (settings && notificationChannels && notificationChannels.length > 0) {
-            const updatedSettings = {...settings};
-
-            notificationChannels.forEach(channel => {
-                if (updatedSettings[channel.name]) {
-                    delete updatedSettings[channel.name];
-                }
-            });
-            notificationChannels.forEach(channel => {
-                updatedSettings[channel.name] = {
-                    enabled: channel.enabled,
-                    url: channel.url
-                };
-            });
-
-            setSettings(updatedSettings);
-        }
-    }, [notificationChannels]);
-
-    const toggleAI = (e) => {
-        const enabled = e.target.checked;
-        setSettings((prevSettings) => ({
-            ...prevSettings,
-            enable_ai: enabled,
-        }));
     };
 
-    const handleChange = (e) => {
-        const {name, value, type, checked} = e.target;
-
-        setSettings((prevSettings) => ({
-            ...prevSettings,
-            [name]: type === "checkbox" ? checked : value,
-        }));
-    };
-
-    const handleAIProviderChange = (e) => {
-        const {name, value} = e.target;
-        setSettings((prevSettings) => ({
-            ...prevSettings,
-            ai_provider: {
-                ...prevSettings.ai_provider,
-                [name]: value
-            }
-        }));
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onSave(settings);
-
-        setTimeout(() => {
-            window.location.reload();
-        }, 500);
-    };
-
-    // Function to update rules
     const updateRules = (newRules) => {
-        setSettings({
-            ...settings,
-            rules: newRules,
-            // If default rule is updated, sync its values back to the main settings
-            preprompt: newRules[0]?.preprompt || settings.preprompt,
-            enable_ai: newRules[0]?.enabled || settings.enable_ai
-        });
+        setConfigData(prev => ({
+            ...prev,
+            rules: newRules
+        }));
+    };
+
+    const updateChannels = (newChannels) => {
+        setConfigData(prev => ({
+            ...prev,
+            notification_channels: newChannels
+        }));
+    };
+
+    const handleCloseSnackbar = () => {
+        setSnackbar({ ...snackbar, open: false });
     };
 
     if (loading) {
         return (
-            <Box sx={{display: 'flex', justifyContent: 'center', p: 4}}>
-                <CircularProgress/>
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+                <CircularProgress />
             </Box>
         );
     }
 
+    const aiEnabled = configData?.ai?.enabled || false;
+    const aiProvider = configData?.ai?.provider || 'meta_ai';
+    const ollamaUrl = configData?.ai?.ollama?.url || '';
+    const ollamaModel = configData?.ai?.ollama?.model || '';
+    const defaultRule = configData?.rules?.find(r => r.name === "default-rule") || {};
+    const preprompt = defaultRule?.preprompt || '';
+    const showOriginal = defaultRule?.notify?.original_message?.enabled || false;
+
     return (
-        <Box component="form" id="settingsForm" onSubmit={handleSubmit}>
-            <input type="hidden" name="gui_theme" id="gui_theme_input" value={settings.gui_theme}/>
-
-            <Typography variant="h5" component="h3" id="settings-general" sx={{mb: 2}}>
-                General Settings
+        <Box component="form" onSubmit={handleSubmit}>
+            <Typography variant="h5" component="h1" sx={{ mb: 3 }}>
+                Settings
             </Typography>
 
-            <AISettings
-                settings={settings}
-                toggleAI={toggleAI}
-                handleChange={handleChange}
-                handleAIProviderChange={handleAIProviderChange}
+            <DefaultRule
+                aiEnabled={aiEnabled}
+                showOriginal={showOriginal}
+                preprompt={preprompt}
+                updateAIEnabled={updateAIEnabled}
+                updateShowOriginal={updateShowOriginal}
+                updatePreprompt={updatePreprompt}
             />
 
-            <Typography variant="h5" component="h3" id="settings-notifications" sx={{mb: 2}}>
-                Notification Channels
-            </Typography>
-
-            <ChannelEditor
-                channels={notificationChannels}
-                updateChannels={setNotificationChannels}
+            <AIProvider
+                aiProvider={aiProvider}
+                ollamaUrl={ollamaUrl}
+                ollamaModel={ollamaModel}
+                updateAIProvider={updateAIProvider}
             />
 
-            <Typography variant="h5" component="h3" id="settings-rules" sx={{mt: 4, mb: 2}}>
-                Rules Configuration
-            </Typography>
-            <RuleEditor
-                rules={settings?.rules || []}
-                updateRules={updateRules}
-            />
+            <StyledPaper>
+                <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+                    Notification Channels
+                </Typography>
+                <ChannelEditor
+                    channels={configData?.notification_channels || []}
+                    updateChannels={updateChannels}
+                />
+            </StyledPaper>
+
+            <StyledPaper>
+                <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+                    Rules Configuration
+                </Typography>
+                <RuleEditor
+                    rules={configData?.rules || []}
+                    updateRules={updateRules}
+                />
+            </StyledPaper>
 
             <Button
                 variant="contained"
                 type="submit"
-                size="medium"
-                sx={{mt: 3}}
+                size="large"
+                sx={{ mt: 3 }}
+                disabled={saving}
             >
-                Save Settings
+                {saving ? 'Saving...' : 'Save Settings'}
             </Button>
+
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={6000}
+                onClose={handleCloseSnackbar}
+            >
+                <Alert
+                    onClose={handleCloseSnackbar}
+                    severity={snackbar.severity}
+                    sx={{ width: '100%' }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 }
