@@ -23,8 +23,8 @@ def run_plain_tcp_server():
         server.app = app
         app.state.plain_tcp_server = server
         logger.info(
-            f'plain tcp server listening on <server-ip>:{constants.PLAIN_TCP_SERVER_PORT} ... e.g., echo "message"'
-            f" | nc <server-ip> {constants.PLAIN_TCP_SERVER_PORT}"
+            f'plain tcp server listening on {{server_ip}}:{constants.PLAIN_TCP_SERVER_PORT} ... e.g., echo "message"'
+            f" | nc {{server_ip}} {constants.PLAIN_TCP_SERVER_PORT}"
         )
         try:
             server.serve_forever()
@@ -45,8 +45,8 @@ def run_secure_tcp_server():
         app.state.secure_tcp_server = server
         server.socket = ssl_context.wrap_socket(server.socket, server_side=True)
         logger.info(
-            f"secure tcp server listening on <server-ip>:{constants.SECURE_TCP_SERVER_PORT} ... e.g., echo"
-            f' "message" | openssl s_client -connect <server-ip>:{constants.SECURE_TCP_SERVER_PORT}'
+            f"secure tcp server listening on {{server_ip}}:{constants.SECURE_TCP_SERVER_PORT} ... e.g., echo"
+            f' "message" | openssl s_client -connect {{server_ip}}:{constants.SECURE_TCP_SERVER_PORT}'
         )
         try:
             server.serve_forever()
@@ -57,7 +57,7 @@ def run_secure_tcp_server():
 
 
 def start_web_server():
-    logger.info(f"starting web server at https://<server-ip>:{constants.WEB_SERVER_PORT} ...")
+    logger.info(f"starting web server at https://{{server_ip}}:{constants.WEB_SERVER_PORT} ...")
     uvicorn.run(
         app,
         host=constants.SERVER_HOST,
