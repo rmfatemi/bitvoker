@@ -26,15 +26,33 @@ class Config:
 
     def create_default_config(self):
         self.config_data = {
-            "preprompt": "You are an assistant that summarizes technical logs and alerts. Be concise but informative",
-            "enable_ai": False,
-            "show_original": True,
-            "gui_theme": "dark",
-            "ai_provider": {"type": "meta_ai", "url": "http://<server-ip>:11434", "model": "gemma3:1b"},
-            "telegram": {"enabled": False, "chat_id": "", "token": ""},
-            "discord": {"enabled": False, "webhook_id": "", "token": ""},
-            "slack": {"enabled": False, "webhook_id": "", "token": ""},
-            "gotify": {"enabled": False, "server_url": "", "token": ""},
+            "ai": {
+                "enabled": False,
+                "provider": "meta_ai",
+                "meta_ai": {},
+                "ollama": {"url": "http://{server_ip}:11434", "model": "gemma3:1b"},
+            },
+            "rules": [
+                {
+                    "name": "default-rule",
+                    "enabled": True,
+                    "preprompt": "summarize this technical message briefly and clearly",
+                    "match": {"source": "", "og_text_regex": "", "ai_text_regex": ""},
+                    "notify": {
+                        "destinations": [],
+                        "original_message": {"enabled": True, "match_regex": ""},
+                        "ai_summary": {"enabled": True, "match_regex": ""},
+                    },
+                }
+            ],
+            "notification_channels": [
+                {"name": "telegram", "enabled": False, "url": "tgram://{token}/{chat_id}"},
+                {"name": "slack", "enabled": False, "url": "slack://{token}/{channel}"},
+                {"name": "discord", "enabled": False, "url": "discord://{webhook_id}/{webhook_token}"},
+                {"name": "ntfy", "enabled": False, "url": "ntfy://{topic}"},
+                {"name": "pushover", "enabled": False, "url": "pover://{user_key}/{token}"},
+                {"name": "gotify", "enabled": False, "url": "gotify://{host}/{token}"},
+            ],
         }
 
         try:
@@ -52,71 +70,79 @@ class Config:
         except Exception as e:
             logger.error(f"failed to save configuration: {str(e)}")
 
-    def get_preprompt(self):
-        return self.config_data.get("preprompt", "")
+    def get_ai_config(self):
+        return self.config_data.get(
+            "ai",
+            {
+                "enabled": False,
+                "provider": "meta_ai",
+                "meta_ai": {},
+                "ollama": {"url": "http://{server_ip}:11434", "model": "gemma3:1b"},
+            },
+        )
 
-    def set_preprompt(self, value):
-        self.config_data["preprompt"] = value[:2048]
+    def update_ai_config(self, config):
+        self.config_data["ai"] = config
         self.save()
 
-    def get_ai_provider_config(self):
-        return self.config_data.get("ai_provider", {"type": "meta_ai"})
+    def get_rules(self):
+        return self.config_data.get("rules", [])
 
-    def set_ai_provider_config(self, value):
-        self.config_data["ai_provider"] = value
-        self.save()
-
-    def get_enable_ai(self):
-        return self.config_data.get("enable_ai", False)
-
-    def set_enable_ai(self, value):
-        self.config_data["enable_ai"] = value
-        if not value:
-            self.config_data["show_original"] = True
-        self.save()
-
-    def get_show_original(self):
-        return self.config_data.get("show_original", True)
-
-    def set_show_original(self, value):
-        if self.config_data.get("enable_ai", False):
-            self.config_data["show_original"] = value
+    def update_rule(self, rule_id, rule_data):
+        rules = self.get_rules()
+        if 0 <= rule_id < len(rules):
+            rules[rule_id] = rule_data
+            self.config_data["rules"] = rules
             self.save()
+            return True
+        return False
 
-    def get_gui_theme(self):
-        return self.config_data.get("gui_theme", "dark")
-
-    def set_gui_theme(self, value):
-        self.config_data["gui_theme"] = value
+    def add_rule(self, rule_data):
+        rules = self.get_rules()
+        rules.append(rule_data)
+        self.config_data["rules"] = rules
         self.save()
+        return len(rules) - 1
 
-    def get_notification_channels(self):
-        channels = []
-        for channel_type in ["telegram", "discord", "slack", "gotify"]:
-            if channel_type in self.config_data and self.config_data[channel_type].get("enabled", False):
-                channel_config = self.config_data[channel_type].copy()
-                channels.append(
-                    {
-                        "type": channel_type,
-                        "enabled": True,
-                        "name": f"{channel_type.capitalize()} Notification",
-                        "config": {k: v for k, v in channel_config.items() if k != "enabled"},
-                    }
-                )
-        return channels
+    def delete_rule(self, rule_id):
+        rules = self.get_rules()
+        if 0 <= rule_id < len(rules):
+            del rules[rule_id]
+            self.config_data["rules"] = rules
+            self.save()
+            return True
+        return False
 
-    def update_channel_config(self, channel_type, enabled=None, **kwargs):
-        if channel_type not in ["telegram", "discord", "slack", "gotify"]:
-            logger.error(f"invalid channel type: {channel_type}")
-            return
+    def get_channels(self):
+        return self.config_data.get("notification_channels", [])
 
-        if channel_type not in self.config_data:
-            self.config_data[channel_type] = {}
+    def update_channel(self, channel_id, channel_data):
+        channels = self.get_channels()
+        if 0 <= channel_id < len(channels):
+            channels[channel_id] = channel_data
+            self.config_data["notification_channels"] = channels
+            self.save()
+            return True
+        return False
 
-        if enabled is not None:
-            self.config_data[channel_type]["enabled"] = enabled
-
-        for key, value in kwargs.items():
-            self.config_data[channel_type][key] = value
-
+    def add_channel(self, channel_data):
+        channels = self.get_channels()
+        channels.append(channel_data)
+        self.config_data["notification_channels"] = channels
         self.save()
+        return len(channels) - 1
+
+    def delete_channel(self, channel_id):
+        channels = self.get_channels()
+        if 0 <= channel_id < len(channels):
+            del channels[channel_id]
+            self.config_data["notification_channels"] = channels
+            self.save()
+            return True
+        return False
+
+    def get_enabled_channels(self):
+        return [c for c in self.get_channels() if c.get("enabled", False)]
+
+    def get_enabled_rules(self):
+        return [r for r in self.get_rules() if r.get("enabled", False)]

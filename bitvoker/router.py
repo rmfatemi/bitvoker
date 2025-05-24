@@ -13,7 +13,6 @@ from bitvoker.constants import REACT_BUILD_DIR
 from bitvoker.database import get_notifications
 from bitvoker.refresher import refresh_components
 
-
 logger = setup_logger("router")
 
 api_router = APIRouter()
@@ -29,32 +28,41 @@ async def update_config(request: Request):
     form_data = await request.json()
     config_obj = Config()
     try:
-        if "preprompt" in form_data:
-            config_obj.set_preprompt(form_data.get("preprompt", ""))
-        if "enable_ai" in form_data:
-            config_obj.set_enable_ai(form_data.get("enable_ai", False))
-        if "show_original" in form_data:
-            config_obj.set_show_original(form_data.get("show_original", True))
+        # Handle AI configuration
+        if "ai" in form_data:
+            ai_config = form_data.get("ai", {})
+            config_obj.update_ai_config(ai_config)
+
+        # Handle rules
+        if "rules" in form_data:
+            for idx, rule in enumerate(form_data.get("rules", [])):
+                if idx < len(config_obj.get_rules()):
+                    config_obj.update_rule(idx, rule)
+                else:
+                    config_obj.add_rule(rule)
+
+            # Delete any extra rules
+            while len(config_obj.get_rules()) > len(form_data.get("rules", [])):
+                config_obj.delete_rule(len(config_obj.get_rules()) - 1)
+
+        # Handle notification channels
+        if "notification_channels" in form_data:
+            for idx, channel in enumerate(form_data.get("notification_channels", [])):
+                if idx < len(config_obj.get_channels()):
+                    config_obj.update_channel(idx, channel)
+                else:
+                    config_obj.add_channel(channel)
+
+            # Delete any extra channels
+            while len(config_obj.get_channels()) > len(form_data.get("notification_channels", [])):
+                config_obj.delete_channel(len(config_obj.get_channels()) - 1)
+
+        # Theme settings
         if "gui_theme" in form_data:
-            config_obj.set_gui_theme(form_data.get("gui_theme", "dark"))
-
-        channel_configs = {
-            "telegram": ["chat_id", "token"],
-            "discord": ["webhook_id", "token"],
-            "slack": ["webhook_id", "token"],
-            "gotify": ["server_url", "token"],
-        }
-        for channel, fields in channel_configs.items():
-            if channel in form_data:
-                channel_data = form_data.get(channel, {})
-                kwargs = {field: channel_data.get(field, "") for field in fields}
-                config_obj.update_channel_config(channel, enabled=channel_data.get("enabled", False), **kwargs)
-
-        if "ai_provider" in form_data:
-            ai_provider_config = form_data.get(
-                "ai_provider", {"type": "meta_ai", "url": "http://<server-ip>:11434", "model": "gemma3:1b"}
-            )
-            config_obj.set_ai_provider_config(ai_provider_config)
+            if "gui" not in config_obj.config_data:
+                config_obj.config_data["gui"] = {}
+            config_obj.config_data["gui"]["theme"] = form_data.get("gui_theme", "dark")
+            config_obj.save()
 
         refresh_components(request.app)
         return {"success": True}
