@@ -44,10 +44,10 @@
 
 **bitvoker** offers an optional AI-powered enhancement to refine and summarize notifications. You can tailor the alert content to your exact needs. Not only can you enable this feature through unauthenticated interactions with Meta's LLAMA4 model or through local self-hosting with Ollama, but you can also customize the pre-prompts that guide the AI's summarization process. This lets you define specific instructions and contextual cues for how notifications should be summarized. There are two supported configurations:
 
-1. **Unauthenticated Access to Meta's LLAMA4**:  
+1. **Unauthenticated Access to Meta's LLAMA4**:
    By default, bitvoker can connect to [Meta's LLAMA4](https://www.meta.ai/) model via unauthenticated API calls. This method simplifies setup and provides out-of-the-box enhancements, though it is subject to API rate limits and regional availability.
 
-2. **Self-Hosted AI Processing with Ollama**:  
+2. **Self-Hosted AI Processing with Ollama**:
    For users who prioritize complete data privacy or wish to avoid potential external usage limits, bitvoker supports local AI processing with [Ollama](https://ollama.com/). This solution allows you to deploy a model such as `gemma3:1b`, which we recommend as a compact yet powerful option that performs well even on limited hardware.
 
 >[!WARNING]
@@ -178,7 +178,7 @@ Using `openssl`: `echo "Your notification message" | openssl s_client -connect <
     URL="https://www.microcenter.com/site/specials.aspx"
     SERVER_IP="your.server.ip"      # Replace with your Bitvoker server IP
     PORT="8083"                     # Use 8084 for TLS
-    
+
     PREPROMPT="Summarize and extract any notable computer component deals from the text below:"
     PAGE_CONTENT=$(curl -s "$URL")
     MESSAGE="${PREPROMPT}\n\n${PAGE_CONTENT}"
