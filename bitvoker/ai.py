@@ -5,6 +5,7 @@ from meta_ai_api import MetaAI
 from bitvoker.utils import truncate
 from bitvoker.logger import setup_logger
 
+
 logger = setup_logger("ai")
 
 
@@ -86,7 +87,6 @@ class OllamaProvider:
 
 def get_provider(ai_config):
     provider_type = ai_config.get("type", "meta_ai")
-
     if provider_type == "ollama":
         logger.info("using ollama as ai provider")
         url = ai_config.get("url", "http://localhost:11434")

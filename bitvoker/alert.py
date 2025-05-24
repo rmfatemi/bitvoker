@@ -116,7 +116,6 @@ class Alert:
         return True
 
     def get_enabled_channels_by_names(self, channel_names: List[str]) -> Dict[str, Dict[str, Any]]:
-        """Return a dictionary of enabled channels that match the given names"""
         channels = {}
         for channel in self.config.get_enabled_channels():
             if channel["name"] in channel_names:

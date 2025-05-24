@@ -30,7 +30,7 @@ class Notifier:
                 continue
 
             try:
-                url = self._build_apprise_url(channel_conf)
+                url = channel_conf.get("url")
                 if url:
                     self.apprise.add(url)
 
@@ -40,37 +40,10 @@ class Notifier:
                         self.channel_instances[channel_conf["name"]] = channel_apprise
 
                     logger.debug(f"added notification channel: {channel_conf.get('name')}")
+                else:
+                    logger.warning(f"missing URL for channel: {channel_conf.get('name', 'unnamed channel')}")
             except Exception as e:
                 logger.error(f"failed to add channel {channel_conf.get('name', 'unknown')}: {str(e)}")
-
-    def _build_apprise_url(self, channel_conf: Dict[str, Any]) -> Optional[str]:
-        channel_type = channel_conf.get("type")
-        config = channel_conf.get("config", {})
-
-        if channel_type == "telegram" and "token" in config and "chat_id" in config:
-            return f"tgram://{config['token']}/{config['chat_id']}"
-
-        elif channel_type == "slack" and "webhook_id" in config:
-            return f"slack://{config['webhook_id']}"
-
-        elif channel_type == "discord" and "webhook_id" in config:
-            return config["webhook_id"]
-
-        elif channel_type == "gotify" and "server_url" in config and "token" in config:
-            return f"gotify://{config['server_url'].rstrip('/')}/{config['token']}"
-
-        elif channel_type == "pushover" and "user_key" in config and "token" in config:
-            return f"pover://{config['user_key']}/{config['token']}"
-
-        elif channel_type == "ntfy" and "topic" in config:
-            return f"ntfy://{config['topic']}"
-
-        elif "url" in channel_conf:
-            return channel_conf["url"]
-
-        else:
-            logger.warning(f"unsupported or incomplete notification channel: {channel_conf.get('name')}")
-            return None
 
     def send_message(
         self, message_body: str, title: str = "bitvoker notification", channel_names: List[str] = None
