@@ -1,61 +1,72 @@
-# ai processing configuration
 ai:
-  provider: "meta_ai"                      # provider options: "meta_ai" or "ollama"
+  provider: 'meta_ai'                      # provider options: 'meta_ai' or 'ollama'
   meta_ai: {}                              # meta ai has no additional configuration
   ollama:
-    url: "http://{server_ip}:11434"        # service endpoint url
-    model: "gemma3:1b"                     # model to use for processing messages
+    url: 'http://{server_ip}:11434'        # ollama endpoint url
+    model: 'gemma3:1b'                     # model to use for processing messages
 
-# all fields are mandatory
-# empty string ("") for regex fields matches everything
-# empty array ([]) for destinations means send to all configured channels
 rules:
-  - name: "default-rule"                                              # clear rule identifier
-    enabled: false                                                    # toggle rule on/off
-    preprompt: "summarize this technical message briefly and clearly" # if not empty runs through model
+  - name: 'default-rule'                                              # rule identifier
+    enabled: true                                                     # default rule is always enabled
+    preprompt: 'summarize this technical message briefly and clearly' # if not empty string ('') runs through model
     match:                                                            # rule matching conditions
-      source: ""                                                      # source identifier, empty matches any
-      og_text_regex: ""                                               # match against original text, empty to match all
-      ai_text_regex: ""                                               # match against ai-processed text, empty to match all
+      source: ''                                                      # source identifier, empty string ('') matches any
+      og_text_regex: ''                                               # match regex against original text, empty string ('') to match all
+      ai_text_regex: ''                                               # match regex against ai-processed text, empty string ('') to match all
     notify:
-      destinations: []                                                # destinations, empty for all
+      destinations: []                                                # destinations, empty array ([]) for all
       original_message:                                               # original message version
         enabled: true                                                 # enable/disable original text
-        match_regex: ""                                               # only send if this matches, empty for always
+        match_regex: ''                                               # only send if this regex matches, empty string ('') for always
       ai_summary:                                                     # ai-processed version
         enabled: true                                                 # explicitly control sending
-        match_regex: ""                                               # only send if this matches, empty for always
+        match_regex: ''                                               # only send if this regex matches, empty string ('') for always
 
-  - name: "custom-rule"                                               # rule identifier
-    enabled: false                                                    # toggle rule on/off
-    preprompt: "summarize this technical message briefly"             # if not empty runs through model
-    match:                                                            # rule matching conditions
-      source: ""                                                      # source identifier, empty matches any
-      og_text_regex: ""                                               # match against original text, empty to match all
-      ai_text_regex: ""                                               # match against ai-processed text, empty to match all
+  - name: 'custom-rule-1'
+    enabled: true
+    preprompt: 'Extract the following from this log or alert message: 1) Error type, 2) Root cause, 3) Severity, 4) Recommended action. Format as bullet points.'
+    match:
+      source: '192.168.20.201'
+      og_text_regex: '(error|warning|critical|exception|failed).*?(timeout|connection refused|memory allocation|disk space)'
+      ai_text_regex: '(high|critical) severity'
     notify:
-      destinations: []                                                # destinations, empty for all
-      original_message:                                               # original message version
-        enabled: true                                                 # enable/disable original text
-        match_regex: ""                                               # only send if this matches, empty for always
-      ai_summary:                                                     # ai-processed version
-        enabled: true                                                 # explicitly control sending
-        match_regex: ""                                               # only send if this matches, empty for always
+      destinations: ['Telegram', 'Slack']
+      original_message:
+        enabled: true
+        match_regex: 'IP address: (\d{1,3}\.){3}\d{1,3}'
+      ai_summary:
+        enabled: true
+        match_regex: ''
 
-# notification channel configurations
+  - name: 'custom-rule-2'
+    enabled: false
+    preprompt: ''
+    match:
+      source: ''
+      og_text_regex: ''
+      ai_text_regex: ''
+    notify:
+      destinations: []
+      original_message:
+        enabled: true
+        match_regex: ''
+      ai_summary:
+        enabled: true
+        match_regex: ''
+
 notification_channels:
-  - name: "Telegram"                    # application name
-    enabled: false                      # whether channel should be disabled (overrides custom rules)
-    url: "tgram://{token}/{chat_id}"    # apprise compatible url with tokens
+  - name: 'Telegram'                    # application name
+    enabled: false                      # whether channel should be disabled (global setting, overrides custom rules)
+    url: 'tgram://{token}/{chat_id}'    # apprise compatible url with tokens e.g. for telegram refer to (https://github.com/caronc/apprise/wiki/Notify_telegram)
 
-  - name: "Slack"
+  - name: 'Slack'
     enabled: false
-    url: "slack://{token}/{channel}"
+    url: 'slack://{token}/{channel}'
 
-  - name: "ntfy"
+  - name: 'ntfy'
     enabled: false
-    url: "ntfy://{topic}"
+    url: 'ntfy://{topic}'
 
-  - name: "custom apprise"
+  - name: 'custom apprise'
     enabled: false
-    url: ""
+    url: ''
