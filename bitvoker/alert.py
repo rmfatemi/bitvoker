@@ -1,12 +1,23 @@
 import re
 import apprise
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
 from bitvoker.config import Config
 from bitvoker.logger import setup_logger
 from bitvoker.ai import process_with_ai
 
 logger = setup_logger("alert")
+
+
+class AlertResult:
+    def __init__(self):
+        self.original_text = ""
+        self.ai_summary = ""
+        self.destinations = []
+        self.should_send_original = False
+        self.should_send_ai = False
+        self.source = ""
+        self.matched_rule_name = ""
 
 
 class Alert:
@@ -25,22 +36,38 @@ class Alert:
             except Exception as e:
                 logger.error(f"failed to add channel {channel.get('name', 'unknown')}: {str(e)}")
 
-    def process(self, source: str, text: str) -> bool:
-        """Process an alert from a source with text content"""
+    def process(self, source: str, text: str) -> Optional[AlertResult]:
+        """Process an alert from a source with text content
+
+        Returns:
+            AlertResult object containing what should be sent and where, or None if no rules match
+        """
         if not text or not source:
-            return False
+            return None
 
         matched_rule = self._find_matching_rule(source, text)
         if not matched_rule:
             logger.debug(f"no matching rule found for source: {source}")
-            return False
+            return None
 
-        ai_summary = None
+        result = AlertResult()
+        result.original_text = text
+        result.source = source
+        result.matched_rule_name = matched_rule.get("name", "unnamed")
+
+        # Get AI summary if needed
         if self._should_process_with_ai(matched_rule):
-            ai_summary = self._get_ai_summary(text, matched_rule.get("preprompt", ""))
+            result.ai_summary = self._get_ai_summary(text, matched_rule.get("preprompt", ""))
 
-        self._send_notifications(matched_rule, source, text, ai_summary)
-        return True
+        # Determine what should be sent
+        notify_config = matched_rule.get("notify", {})
+        result.should_send_original = self._should_send_original(notify_config, text)
+        result.should_send_ai = result.ai_summary and self._should_send_ai_summary(notify_config, result.ai_summary)
+
+        # Determine destinations
+        result.destinations = notify_config.get("destinations", [])
+
+        return result
 
     def _find_matching_rule(self, source: str, text: str) -> Optional[Dict[str, Any]]:
         for rule in self.config.get_enabled_rules():
@@ -78,32 +105,6 @@ class Alert:
             logger.error(f"ai processing failed: {str(e)}")
             return None
 
-    def _send_notifications(self, rule: Dict[str, Any], source: str, original_text: str, ai_summary: Optional[str]):
-        notify_config = rule.get("notify", {})
-        destinations = notify_config.get("destinations", [])
-
-        if not destinations:
-            logger.debug(f"no destinations for rule: {rule.get('name')}")
-            return
-
-        self._setup_notification_channels()
-        channels = {}
-        for channel in self.config.get_enabled_channels():
-            if channel["name"] in destinations:
-                channels[channel["name"]] = channel
-
-        if not channels:
-            logger.debug("no enabled channels match rule destinations")
-            return
-
-        # send original message if configured
-        if self._should_send_original(notify_config, original_text):
-            self._send_message(f"[{source}] {original_text[:2000]}", channels)
-
-        # send ai summary if configured
-        if ai_summary and self._should_send_ai_summary(notify_config, ai_summary):
-            self._send_message(f"[{source} AI] {ai_summary[:2000]}", channels)
-
     def _should_send_original(self, notify_config: Dict[str, Any], text: str) -> bool:
         original_config = notify_config.get("original_message", {})
         if not original_config.get("enabled", False):
@@ -126,9 +127,10 @@ class Alert:
 
         return True
 
-    def _send_message(self, message: str, channels: Dict[str, Dict[str, Any]]):
-        try:
-            self.apprise.notify(body=message)
-            logger.info(f"sent notification to {len(channels)} channels")
-        except Exception as e:
-            logger.error(f"failed to send notification: {str(e)}")
+    def get_enabled_channels_by_names(self, channel_names: List[str]) -> Dict[str, Dict[str, Any]]:
+        """Return a dictionary of enabled channels that match the given names"""
+        channels = {}
+        for channel in self.config.get_enabled_channels():
+            if channel["name"] in channel_names:
+                channels[channel["name"]] = channel
+        return channels
