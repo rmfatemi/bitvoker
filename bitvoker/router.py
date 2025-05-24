@@ -35,15 +35,42 @@ async def update_config(request: Request):
 
         # Handle rules
         if "rules" in form_data:
-            for idx, rule in enumerate(form_data.get("rules", [])):
-                if idx < len(config_obj.get_rules()):
-                    config_obj.update_rule(idx, rule)
-                else:
-                    config_obj.add_rule(rule)
+            rules = form_data.get("rules", [])
+            default_rule_found = False
 
-            # Delete any extra rules
-            while len(config_obj.get_rules()) > len(form_data.get("rules", [])):
-                config_obj.delete_rule(len(config_obj.get_rules()) - 1)
+            # Look for default rule in the submitted rules
+            for rule in rules:
+                if rule.get("name") == "default-rule":
+                    default_rule_found = True
+                    config_obj.update_default_rule(rule)
+                    break
+
+            # If default rule wasn't in submission, preserve it
+            if not default_rule_found:
+                default_rule = config_obj.get_default_rule()
+                rules.insert(0, default_rule)
+
+            # Clear all rules except default and add the submitted ones
+            current_rules = config_obj.get_rules()
+            default_index = None
+
+            # Find default rule index
+            for i, rule in enumerate(current_rules):
+                if rule.get("name") == "default-rule":
+                    default_index = i
+                    break
+
+            # Delete all non-default rules
+            i = len(current_rules) - 1
+            while i >= 0:
+                if i != default_index:
+                    config_obj.delete_rule(i)
+                i -= 1
+
+            # Add new rules (skipping default rule)
+            for rule in rules:
+                if rule.get("name") != "default-rule":
+                    config_obj.add_rule(rule)
 
         # Handle notification channels
         if "notification_channels" in form_data:
@@ -75,6 +102,8 @@ async def update_config(request: Request):
 async def get_config():
     try:
         config_obj = Config()
+        # Ensure default rule exists before returning config
+        config_obj.get_default_rule()
         return config_obj.config_data
     except Exception as e:
         logger.error(f"failed to retrieve configuration: {e}")
@@ -88,7 +117,7 @@ async def get_config():
 
 @api_router.get("/api/notifications")
 def get_notifications_route(
-    limit: int = Query(20), start_date: Optional[str] = Query(None), end_date: Optional[str] = Query(None)
+        limit: int = Query(20), start_date: Optional[str] = Query(None), end_date: Optional[str] = Query(None)
 ):
     try:
         notifs = get_notifications(limit, start_date or "", end_date or "")
