@@ -1,15 +1,18 @@
-import os
+from pathlib import Path
 
+
+SERVER_HOST = "0.0.0.0"  # listen on all interfaces
 
 WEB_SERVER_PORT = 8085
 SECURE_TCP_SERVER_PORT = 8084
 PLAIN_TCP_SERVER_PORT = 8083
-SERVER_HOST = "0.0.0.0"  # listen on all interfaces
 
-DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
-CERT_PATH = os.path.join(DATA_DIR, "server.crt")
-KEY_PATH = os.path.join(DATA_DIR, "server.key")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-DB_FILENAME = os.path.join(DATA_DIR, "database.db")
+DATA_DIR = PROJECT_ROOT / "data"
+KEY_PATH = DATA_DIR / "server.key"
+CERT_PATH = DATA_DIR / "server.crt"
+DB_FILENAME = DATA_DIR / "database.db"
+CONFIG_FILENAME = DATA_DIR / "config.yaml"
 
-REACT_BUILD_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "web", "build")
+REACT_BUILD_DIR = PROJECT_ROOT / "web" / "build"

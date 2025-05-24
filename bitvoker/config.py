@@ -1,26 +1,28 @@
 import os
 import yaml
+
 from typing import Dict, Any, List, Optional
 
 from bitvoker.logger import setup_logger
+from bitvoker.constants import CONFIG_FILENAME
+
 
 logger = setup_logger("config")
 
 
 class Config:
     def __init__(self):
-        self.filename = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "config.yaml")
         self.config_data = {}
         self.load_config()
 
     def load_config(self):
         try:
-            if os.path.exists(self.filename):
-                with open(self.filename, "r", encoding="utf-8") as f:
+            if os.path.exists(CONFIG_FILENAME):
+                with open(CONFIG_FILENAME, "r", encoding="utf-8") as f:
                     self.config_data = yaml.safe_load(f) or {}
-                logger.info(f"Configuration loaded from {self.filename}")
+                logger.info(f"Configuration loaded from {CONFIG_FILENAME}")
             else:
-                logger.warning(f"Config file {self.filename} not found, using empty configuration")
+                logger.warning(f"Config file {CONFIG_FILENAME} not found, using empty configuration")
                 self.config_data = {}
         except Exception as e:
             logger.error(f"Failed to load configuration: {str(e)}")
@@ -28,8 +30,8 @@ class Config:
 
     def save(self):
         try:
-            os.makedirs(os.path.dirname(self.filename), exist_ok=True)
-            with open(self.filename, "w", encoding="utf-8") as f:
+            os.makedirs(os.path.dirname(CONFIG_FILENAME), exist_ok=True)
+            with open(CONFIG_FILENAME, "w", encoding="utf-8") as f:
                 yaml.safe_dump(self.config_data, f, sort_keys=False)
             logger.info("Configuration saved")
         except Exception as e:
