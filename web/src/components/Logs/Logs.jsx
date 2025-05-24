@@ -66,15 +66,23 @@ function Logs({logs = [], onRefresh}) {
             sx={{
                 maxHeight: '75vh',
                 overflowY: 'auto',
+                border: '1px solid rgba(120, 120, 120, 0.8)',
+                boxShadow: '0 0 8px rgba(0, 0, 0, 0.1)',
                 '& .MuiTableCell-root': {
                     fontSize: '0.9em',
                     padding: '2px 10px',
                     borderBottom: '1px solid rgba(120, 120, 120, 0.4)',
                     borderRight: '1px solid rgba(120, 120, 120, 0.3)'
                 },
-                // Remove border from last column
                 '& .MuiTableCell-root:last-child': {
                     borderRight: 'none'
+                },
+                '& .MuiTableHead-root .MuiTableRow-root': {
+                    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                    '& .MuiTableCell-root': {
+                        fontWeight: 'bold',
+                        borderBottom: '2px solid rgba(120, 120, 120, 0.6)'
+                    }
                 }
             }}
         >

@@ -15,21 +15,21 @@ function RuleEditor({ rules, updateRules }) {
   };
 
   const rulesReference =
-`- name: "custom-rule"                                               # rule identifier
-  enabled: false                                                    # toggle rule on/off
-  preprompt: "summarize this technical message briefly"             # if not empty runs through model
+`- name: 'custom-rule-1'                                             # rule identifier
+  enabled: true                                                     # default rule is always enabled
+  preprompt: 'summarize this technical message briefly and clearly' # if not empty string ('') runs through model
   match:                                                            # rule matching conditions
-    source: ""                                                      # source identifier, empty matches any
-    og_text_regex: ""                                               # match against original text, empty to match all
-    ai_text_regex: ""                                               # match against ai-processed text, empty to match all
+    source: ''                                                      # source identifier, empty string ('') matches any
+    og_text_regex: ''                                               # match regex against original text, empty string ('') to match all
+    ai_text_regex: ''                                               # match regex against ai-processed text, empty string ('') to match all
   notify:
-    destinations: []                                                # destinations, empty for all
-    original_message: # original message version
+    destinations: []                                                # destinations, empty array ([]) for all
+    original_message:                                               # original message version
       enabled: true                                                 # enable/disable original text
-      match_regex: ""                                               # only send if this matches, empty for always
-    ai_summary: # ai-processed version
+      match_regex: ''                                               # only send if this regex matches, empty string ('') for always
+    ai_summary:                                                     # ai-processed version
       enabled: true                                                 # explicitly control sending
-      match_regex: ""                                               # only send if this matches, empty for always`;
+      match_regex: ''                                               # only send if this regex matches, empty string ('') for always`;
 
   return (
     <YamlEditor
@@ -37,7 +37,7 @@ function RuleEditor({ rules, updateRules }) {
       updateData={handleRuleUpdate}
       referenceText={rulesReference}
       title="Define your custom rules in YAML format:"
-      referenceTitle="Rule Format Reference (all keys are mandatory)"
+      referenceTitle="Rule Format Reference"
     />
   );
 }

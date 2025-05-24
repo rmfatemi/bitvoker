@@ -12,7 +12,15 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.11.2",
     "react-scripts": "^5.0.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "yaml": "^1.10.2",
+    "react-icons": "^4.8.0",
+    "react-ace": "^10.1.0",
+    "ace-builds": "^1.22.0",
+    "@mui/material": "^5.13.0",
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.11.16"
   },
   "scripts": {
     "start": "react-scripts start",

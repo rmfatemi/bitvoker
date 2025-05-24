@@ -9,7 +9,6 @@ import {
     Typography
 } from '@mui/material';
 
-// Styled components
 const StyledPaper = styled(Paper)(() => ({
     padding: '20px',
     border: '1px solid var(--border-color)',

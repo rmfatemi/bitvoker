@@ -13,6 +13,7 @@ import DefaultRule from './DefaultRule';
 import AIProvider from './AIProvider';
 import RuleEditor from './RuleEditor';
 import ChannelEditor from './ChannelEditor';
+import DownloadConfig from './DownloadConfig';
 
 const StyledPaper = styled(Paper)(() => ({
     padding: '20px',
@@ -237,15 +238,17 @@ function Settings() {
                 />
             </StyledPaper>
 
-            <Button
-                variant="contained"
-                type="submit"
-                size="large"
-                sx={{ mt: 3 }}
-                disabled={saving}
-            >
-                {saving ? 'Saving...' : 'Save Settings'}
-            </Button>
+            <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
+                <Button
+                    variant="contained"
+                    type="submit"
+                    size="large"
+                    disabled={saving}
+                >
+                    {saving ? 'Saving...' : 'Save Settings'}
+                </Button>
+                <DownloadConfig configData={configData} />
+            </Box>
 
             <Snackbar
                 open={snackbar.open}

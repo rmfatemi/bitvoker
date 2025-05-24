@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
-  Box,
-  Typography,
-  TextField,
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Stack
+    Box,
+    Typography,
+    TextField,
+    Button,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    Stack
 } from '@mui/material';
 
 function Dashboard({notifications = [], config = {}, onRefresh}) {
@@ -79,7 +79,7 @@ function Dashboard({notifications = [], config = {}, onRefresh}) {
                 spacing={2}
                 alignItems="flex-end"
                 flexWrap="wrap"
-                sx={{ mb: 2 }}
+                sx={{mb: 2}}
             >
                 <Box>
                     <TextField
@@ -88,9 +88,9 @@ function Dashboard({notifications = [], config = {}, onRefresh}) {
                         type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
-                        InputLabelProps={{ shrink: true }}
+                        InputLabelProps={{shrink: true}}
                         size="small"
-                        sx={{ width: 150 }}
+                        sx={{width: 150}}
                     />
                 </Box>
 
@@ -101,9 +101,9 @@ function Dashboard({notifications = [], config = {}, onRefresh}) {
                         type="date"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
-                        InputLabelProps={{ shrink: true }}
+                        InputLabelProps={{shrink: true}}
                         size="small"
-                        sx={{ width: 150 }}
+                        sx={{width: 150}}
                     />
                 </Box>
 
@@ -115,7 +115,7 @@ function Dashboard({notifications = [], config = {}, onRefresh}) {
                         value={clientIp}
                         onChange={(e) => setClientIp(e.target.value)}
                         size="small"
-                        sx={{ width: 150 }}
+                        sx={{width: 150}}
                     />
                 </Box>
 
@@ -133,15 +133,23 @@ function Dashboard({notifications = [], config = {}, onRefresh}) {
                 sx={{
                     maxWidth: '100%',
                     overflowX: 'auto',
+                    border: '1px solid rgba(120, 120, 120, 0.8)',
+                    boxShadow: '0 0 8px rgba(0, 0, 0, 0.1)',
                     '& .MuiTableCell-root': {
                         fontSize: '0.9em',
                         padding: '2px 10px',
                         borderBottom: '1px solid rgba(120, 120, 120, 0.4)',
                         borderRight: '1px solid rgba(120, 120, 120, 0.3)'
                     },
-                    // Remove border from last column
                     '& .MuiTableCell-root:last-child': {
                         borderRight: 'none'
+                    },
+                    '& .MuiTableHead-root .MuiTableRow-root': {
+                        backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                        '& .MuiTableCell-root': {
+                            fontWeight: 'bold',
+                            borderBottom: '2px solid rgba(120, 120, 120, 0.6)'
+                        }
                     }
                 }}
             >
@@ -157,8 +165,8 @@ function Dashboard({notifications = [], config = {}, onRefresh}) {
                     <TableBody>
                         {filteredNotifications.map((notif, index) => (
                             <TableRow key={index}>
-                                <TableCell sx={{ whiteSpace: 'nowrap' }}>{notif.timestamp}</TableCell>
-                                <TableCell sx={{ whiteSpace: 'nowrap' }}>{notif.client || 'N/A'}</TableCell>
+                                <TableCell sx={{whiteSpace: 'nowrap'}}>{notif.timestamp}</TableCell>
+                                <TableCell sx={{whiteSpace: 'nowrap'}}>{notif.client || 'N/A'}</TableCell>
                                 <TableCell>
                                     <Box
                                         component="pre"
