@@ -5,6 +5,7 @@ from bitvoker.notifier import Notifier
 from bitvoker.alert import Alert
 from bitvoker.logger import setup_logger
 
+
 logger = setup_logger("components")
 
 
@@ -13,10 +14,7 @@ def refresh_components(app: Any, component_types: Optional[list] = None) -> None
 
     try:
         config = Config()
-
-        # Ensure default rule exists
         config.get_default_rule()
-
         if component_types is None or "servers" in component_types:
             for server_type in ["secure_tcp_server", "plain_tcp_server"]:
                 if hasattr(app.state, server_type):
@@ -46,8 +44,6 @@ def _refresh_server_components(server: Any, app: Any, config: Optional[Config] =
             config = Config()
 
         server.config = config
-
-        # Update notification channels with error handling
         try:
             channels = config.get_enabled_channels()
             if hasattr(server, "notifier") and server.notifier is not None:
@@ -58,10 +54,8 @@ def _refresh_server_components(server: Any, app: Any, config: Optional[Config] =
                 server.notifier = Notifier(channels)
         except Exception as e:
             logger.error(f"failed to update notifier: {str(e)}")
-            # Create with empty channels as fallback
             server.notifier = Notifier([])
 
-        # Create or update the alert system
         try:
             server.alert = Alert(config)
             logger.debug("alert system updated")

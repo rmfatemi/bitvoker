@@ -4,6 +4,7 @@ from typing import List, Dict, Any, Optional
 from bitvoker.utils import truncate
 from bitvoker.logger import setup_logger
 
+
 logger = setup_logger("notifier")
 
 
@@ -11,7 +12,7 @@ class Notifier:
     def __init__(self, channels_config: Optional[List[Dict[str, Any]]] = None):
         self.channels_config = channels_config if channels_config else []
         self.apprise = apprise.Apprise()
-        self.channel_instances = {}  # Store individual channel instances
+        self.channel_instances = {}
         self._setup_notification_channels()
 
     def update_channels(self, channels_config: Optional[List[Dict[str, Any]]] = None):
@@ -31,10 +32,8 @@ class Notifier:
             try:
                 url = self._build_apprise_url(channel_conf)
                 if url:
-                    # Add to main Apprise instance for broadcasting
                     self.apprise.add(url)
 
-                    # Create individual Apprise instance for this channel
                     if "name" in channel_conf:
                         channel_apprise = apprise.Apprise()
                         channel_apprise.add(url)
@@ -94,7 +93,6 @@ class Notifier:
 
                 logger.info(f"sent notifications to {success_count}/{len(channel_names)} specified channels")
 
-            # Send to all channels if no specific channels provided
             else:
                 if self.apprise.notify(body=message_body, title=title):
                     logger.info(f"successfully sent notifications to {len(self.apprise.servers())} channels")

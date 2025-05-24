@@ -107,7 +107,6 @@ def process_with_ai(message, preprompt, ai_config, max_retries=3):
         prompt = f"{preprompt}: {message}"
         result = provider.process_message(prompt, max_retries)
 
-        # Clean up resources if needed
         if isinstance(provider, OllamaProvider) and hasattr(provider, "session"):
             provider.session.close()
 

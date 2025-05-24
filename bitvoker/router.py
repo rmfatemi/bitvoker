@@ -13,7 +13,9 @@ from bitvoker.constants import REACT_BUILD_DIR
 from bitvoker.database import get_notifications
 from bitvoker.refresher import refresh_components
 
+
 logger = setup_logger("router")
+
 
 api_router = APIRouter()
 
@@ -28,51 +30,42 @@ async def update_config(request: Request):
     form_data = await request.json()
     config_obj = Config()
     try:
-        # Handle AI configuration
         if "ai" in form_data:
             ai_config = form_data.get("ai", {})
             config_obj.update_ai_config(ai_config)
 
-        # Handle rules
         if "rules" in form_data:
             rules = form_data.get("rules", [])
             default_rule_found = False
 
-            # Look for default rule in the submitted rules
             for rule in rules:
                 if rule.get("name") == "default-rule":
                     default_rule_found = True
                     config_obj.update_default_rule(rule)
                     break
 
-            # If default rule wasn't in submission, preserve it
             if not default_rule_found:
                 default_rule = config_obj.get_default_rule()
                 rules.insert(0, default_rule)
 
-            # Clear all rules except default and add the submitted ones
             current_rules = config_obj.get_rules()
             default_index = None
 
-            # Find default rule index
             for i, rule in enumerate(current_rules):
                 if rule.get("name") == "default-rule":
                     default_index = i
                     break
 
-            # Delete all non-default rules
             i = len(current_rules) - 1
             while i >= 0:
                 if i != default_index:
                     config_obj.delete_rule(i)
                 i -= 1
 
-            # Add new rules (skipping default rule)
             for rule in rules:
                 if rule.get("name") != "default-rule":
                     config_obj.add_rule(rule)
 
-        # Handle notification channels
         if "notification_channels" in form_data:
             for idx, channel in enumerate(form_data.get("notification_channels", [])):
                 if idx < len(config_obj.get_channels()):
@@ -80,11 +73,9 @@ async def update_config(request: Request):
                 else:
                     config_obj.add_channel(channel)
 
-            # Delete any extra channels
             while len(config_obj.get_channels()) > len(form_data.get("notification_channels", [])):
                 config_obj.delete_channel(len(config_obj.get_channels()) - 1)
 
-        # Theme settings
         if "gui_theme" in form_data:
             if "gui" not in config_obj.config_data:
                 config_obj.config_data["gui"] = {}
@@ -102,7 +93,6 @@ async def update_config(request: Request):
 async def get_config():
     try:
         config_obj = Config()
-        # Ensure default rule exists before returning config
         config_obj.get_default_rule()
         return config_obj.config_data
     except Exception as e:

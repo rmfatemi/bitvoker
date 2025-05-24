@@ -35,10 +35,10 @@ rules:
       ai_text_regex: ""                                               # match against ai-processed text, empty to match all
     notify:
       destinations: []                                                # destinations, empty for all
-      original_message: # original message version
+      original_message:                                               # original message version
         enabled: true                                                 # enable/disable original text
         match_regex: ""                                               # only send if this matches, empty for always
-      ai_summary: # ai-processed version
+      ai_summary:                                                     # ai-processed version
         enabled: true                                                 # explicitly control sending
         match_regex: ""                                               # only send if this matches, empty for always
 

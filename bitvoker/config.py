@@ -83,7 +83,6 @@ class Config:
 
     def update_ai_config(self, config):
         self.config_data["ai"] = config
-        # Sync AI enabled state with default rule
         default_rule = self.get_default_rule()
         if default_rule:
             default_rule["enabled"] = config.get("enabled", False)
@@ -112,7 +111,6 @@ class Config:
     def delete_rule(self, rule_id):
         rules = self.get_rules()
         if 0 <= rule_id < len(rules):
-            # Don't allow deleting default rule
             if rules[rule_id]["name"] == "default-rule":
                 logger.error("cannot delete default rule")
                 return False
@@ -164,16 +162,13 @@ class Config:
             self.add_rule(default_rule)
             return default_rule
 
-        # Find default rule by name
         for i, rule in enumerate(rules):
             if rule.get("name") == "default-rule":
                 return rule
 
-        # Create default rule if not found
         logger.warning("default rule not found, creating it")
         default_rule = self._create_default_rule()
 
-        # Insert as first rule
         rules.insert(0, default_rule)
         self.config_data["rules"] = rules
         self.save()
@@ -189,14 +184,12 @@ class Config:
                 break
 
         if default_rule_index is not None:
-            # Preserve the name
             rule_data["name"] = "default-rule"
             rules[default_rule_index] = rule_data
             self.config_data["rules"] = rules
             self.save()
             return True
 
-        # If default rule not found, add it
         rule_data["name"] = "default-rule"
         rules.insert(0, rule_data)
         self.config_data["rules"] = rules
@@ -208,10 +201,8 @@ class Config:
         if not default_rule:
             return False
 
-        # Handle top-level fields
         if "enabled" in fields:
             default_rule["enabled"] = fields["enabled"]
-            # Sync with AI settings
             ai_config = self.get_ai_config()
             ai_config["enabled"] = fields["enabled"]
             self.config_data["ai"] = ai_config
@@ -219,7 +210,6 @@ class Config:
         if "preprompt" in fields:
             default_rule["preprompt"] = fields["preprompt"]
 
-        # Handle nested fields
         if "show_original" in fields:
             if "notify" not in default_rule:
                 default_rule["notify"] = {}
@@ -227,6 +217,5 @@ class Config:
                 default_rule["notify"]["original_message"] = {}
             default_rule["notify"]["original_message"]["enabled"] = fields["show_original"]
 
-        # Save changes to the rule
         self.update_default_rule(default_rule)
         return True

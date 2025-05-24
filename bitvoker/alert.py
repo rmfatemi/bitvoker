@@ -37,11 +37,6 @@ class Alert:
                 logger.error(f"failed to add channel {channel.get('name', 'unknown')}: {str(e)}")
 
     def process(self, source: str, text: str) -> Optional[AlertResult]:
-        """Process an alert from a source with text content
-
-        Returns:
-            AlertResult object containing what should be sent and where, or None if no rules match
-        """
         if not text or not source:
             return None
 
@@ -55,16 +50,13 @@ class Alert:
         result.source = source
         result.matched_rule_name = matched_rule.get("name", "unnamed")
 
-        # Get AI summary if needed
         if self._should_process_with_ai(matched_rule):
             result.ai_summary = self._get_ai_summary(text, matched_rule.get("preprompt", ""))
 
-        # Determine what should be sent
         notify_config = matched_rule.get("notify", {})
         result.should_send_original = self._should_send_original(notify_config, text)
         result.should_send_ai = result.ai_summary and self._should_send_ai_summary(notify_config, result.ai_summary)
 
-        # Determine destinations
         result.destinations = notify_config.get("destinations", [])
 
         return result
@@ -73,16 +65,13 @@ class Alert:
         for rule in self.config.get_enabled_rules():
             match_config = rule.get("match", {})
 
-            # check source match
             if match_config.get("source") and match_config["source"] != source:
                 continue
 
-            # check original text regex match
             og_regex = match_config.get("og_text_regex", "")
             if og_regex and not re.search(og_regex, text, re.DOTALL | re.IGNORECASE):
                 continue
 
-            # this rule matches
             return rule
 
         return None
@@ -92,7 +81,6 @@ class Alert:
         if not ai_config.get("enabled", False):
             return False
 
-        # check if ai summary is enabled for this rule's notifications
         notify_config = rule.get("notify", {})
         ai_summary_config = notify_config.get("ai_summary", {})
 

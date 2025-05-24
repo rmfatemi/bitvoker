@@ -8,7 +8,7 @@ export const getAppTheme = (mode) => {
       ...(mode === 'light'
         ? {
             // Light theme
-            primary: blue,
+            primary: orange,
             secondary: {
               main: grey[600],
             },

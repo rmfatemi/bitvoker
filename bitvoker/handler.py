@@ -6,6 +6,7 @@ from bitvoker.logger import setup_logger
 from bitvoker.database import insert_notification
 from bitvoker.refresher import refresh_components
 
+
 logger = setup_logger("handler")
 
 
@@ -27,7 +28,6 @@ class Handler(socketserver.BaseRequestHandler):
         client_ip = self.client_address[0]
         title = f"[{ts} - Notification from {client_ip}]"
 
-        # Try to access alert from the server object instead of app
         alert_result = (
             self.server.alert.process("tcp_socket", original_message) if hasattr(self.server, "alert") else None
         )
@@ -49,7 +49,6 @@ class Handler(socketserver.BaseRequestHandler):
             if message:
                 try:
                     if alert_result.destinations:
-                        # Also fix this line to use server.alert instead of app.alert
                         self.server.alert.get_enabled_channels_by_names(alert_result.destinations)
                         self.server.notifier.send_message(message, title=title, channel_names=alert_result.destinations)
                     else:
