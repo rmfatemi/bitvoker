@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import YamlEditor from './YamlEditor';
 
-function RuleEditor({ rules, updateRules }) {
+function RuleEditor({ rules, updateConfig }) {
   const displayRules = useMemo(() => {
     return rules.filter(rule => rule.name !== "default-rule");
   }, [rules]);
@@ -11,7 +11,11 @@ function RuleEditor({ rules, updateRules }) {
     const newRules = defaultRule
       ? [defaultRule, ...updatedDisplayRules]
       : updatedDisplayRules;
-    updateRules(newRules);
+
+    updateConfig(prev => ({
+      ...prev,
+      rules: newRules
+    }));
   };
 
   const rulesReference =

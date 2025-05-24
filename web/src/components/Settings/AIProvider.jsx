@@ -26,7 +26,32 @@ const StyledTextField = styled(TextField)(() => ({
     }
 }));
 
-function AIProvider({ aiProvider, ollamaUrl, ollamaModel, updateAIProvider }) {
+function AIProvider({ aiProvider, ollamaUrl, ollamaModel, updateConfig }) {
+    const handleProviderChange = (e) => {
+        const newProvider = e.target.value;
+        updateConfig(prev => ({
+            ...prev,
+            ai: {
+                ...prev.ai,
+                provider: newProvider
+            }
+        }));
+    };
+
+    const handleOllamaConfigChange = (e) => {
+        const { name, value } = e.target;
+        updateConfig(prev => ({
+            ...prev,
+            ai: {
+                ...prev.ai,
+                ollama: {
+                    ...prev.ai.ollama,
+                    [name]: value
+                }
+            }
+        }));
+    };
+
     return (
         <StyledPaper>
             <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
@@ -37,7 +62,7 @@ function AIProvider({ aiProvider, ollamaUrl, ollamaModel, updateAIProvider }) {
                 <RadioGroup
                     name="provider"
                     value={aiProvider}
-                    onChange={updateAIProvider}
+                    onChange={handleProviderChange}
                     row
                 >
                     <FormControlLabel
@@ -63,7 +88,7 @@ function AIProvider({ aiProvider, ollamaUrl, ollamaModel, updateAIProvider }) {
                         label="Ollama URL"
                         name="url"
                         value={ollamaUrl}
-                        onChange={updateAIProvider}
+                        onChange={handleOllamaConfigChange}
                         fullWidth
                         margin="normal"
                         disabled={aiProvider !== 'ollama'}
@@ -75,7 +100,7 @@ function AIProvider({ aiProvider, ollamaUrl, ollamaModel, updateAIProvider }) {
                         label="Ollama Model"
                         name="model"
                         value={ollamaModel}
-                        onChange={updateAIProvider}
+                        onChange={handleOllamaConfigChange}
                         fullWidth
                         margin="normal"
                         disabled={aiProvider !== 'ollama'}

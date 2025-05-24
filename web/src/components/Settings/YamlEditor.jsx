@@ -49,8 +49,8 @@ function YamlEditor({
     useEffect(() => {
         try {
             const parsedData = yaml.load(yamlContent);
-            if (parsedData && !yamlError) {
-                updateData(parsedData);
+            if (!yamlError && (yamlContent.trim() === '' || parsedData)) {
+                updateData(parsedData || []);
             }
         } catch (error) {
             // will be caught by input validation

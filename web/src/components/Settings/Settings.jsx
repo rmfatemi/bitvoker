@@ -1,13 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Box,
-    Typography,
-    Button,
-    CircularProgress,
-    Snackbar,
-    Alert,
-    styled,
-    Paper
+    Box, Typography, Button, CircularProgress,
+    Snackbar, Alert, styled, Paper
 } from '@mui/material';
 import DefaultRule from './DefaultRule';
 import AIProvider from './AIProvider';
@@ -88,92 +82,8 @@ function Settings() {
         }
     };
 
-    const updateAIEnabled = (e) => {
-        const enabled = e.target.checked;
-        setConfigData(prev => ({
-            ...prev,
-            ai: {
-                ...prev.ai,
-                enabled: enabled
-            },
-            rules: prev.rules.map(rule =>
-                rule.name === "default-rule"
-                    ? { ...rule, enabled: enabled }
-                    : rule
-            )
-        }));
-    };
-
-    const updateShowOriginal = (e) => {
-        const enabled = e.target.checked;
-        setConfigData(prev => ({
-            ...prev,
-            rules: prev.rules.map(rule =>
-                rule.name === "default-rule"
-                    ? {
-                        ...rule,
-                        notify: {
-                            ...rule.notify,
-                            original_message: {
-                                ...rule.notify.original_message,
-                                enabled: enabled
-                            }
-                        }
-                    }
-                    : rule
-            )
-        }));
-    };
-
-    const updatePreprompt = (e) => {
-        const value = e.target.value;
-        setConfigData(prev => ({
-            ...prev,
-            rules: prev.rules.map(rule =>
-                rule.name === "default-rule"
-                    ? { ...rule, preprompt: value }
-                    : rule
-            )
-        }));
-    };
-
-    const updateAIProvider = (e) => {
-        const { name, value } = e.target;
-
-        if (name === "provider") {
-            setConfigData(prev => ({
-                ...prev,
-                ai: {
-                    ...prev.ai,
-                    provider: value
-                }
-            }));
-        } else if (name === "url" || name === "model") {
-            setConfigData(prev => ({
-                ...prev,
-                ai: {
-                    ...prev.ai,
-                    ollama: {
-                        ...prev.ai.ollama,
-                        [name]: value
-                    }
-                }
-            }));
-        }
-    };
-
-    const updateRules = (newRules) => {
-        setConfigData(prev => ({
-            ...prev,
-            rules: newRules
-        }));
-    };
-
-    const updateChannels = (newChannels) => {
-        setConfigData(prev => ({
-            ...prev,
-            notification_channels: newChannels
-        }));
+    const updateConfig = (updater) => {
+        setConfigData(prev => updater(prev));
     };
 
     const handleCloseSnackbar = () => {
@@ -188,6 +98,7 @@ function Settings() {
         );
     }
 
+    // Extract values for component props
     const aiEnabled = configData?.ai?.enabled || false;
     const aiProvider = configData?.ai?.provider || 'meta_ai';
     const ollamaUrl = configData?.ai?.ollama?.url || '';
@@ -206,16 +117,14 @@ function Settings() {
                 aiEnabled={aiEnabled}
                 showOriginal={showOriginal}
                 preprompt={preprompt}
-                updateAIEnabled={updateAIEnabled}
-                updateShowOriginal={updateShowOriginal}
-                updatePreprompt={updatePreprompt}
+                updateConfig={updateConfig}
             />
 
             <AIProvider
                 aiProvider={aiProvider}
                 ollamaUrl={ollamaUrl}
                 ollamaModel={ollamaModel}
-                updateAIProvider={updateAIProvider}
+                updateConfig={updateConfig}
             />
 
             <StyledPaper>
@@ -224,7 +133,7 @@ function Settings() {
                 </Typography>
                 <ChannelEditor
                     channels={configData?.notification_channels || []}
-                    updateChannels={updateChannels}
+                    updateConfig={updateConfig}
                 />
             </StyledPaper>
 
@@ -234,7 +143,7 @@ function Settings() {
                 </Typography>
                 <RuleEditor
                     rules={configData?.rules || []}
-                    updateRules={updateRules}
+                    updateConfig={updateConfig}
                 />
             </StyledPaper>
 
