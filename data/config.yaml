@@ -1,27 +1,25 @@
 ai:
-  provider: 'meta_ai'                      # provider options: 'meta_ai' or 'ollama'
-  meta_ai: {}                              # meta ai has no additional configuration
+  provider: 'meta_ai'
+  meta_ai: {}
   ollama:
-    url: 'http://{server_ip}:11434'        # ollama endpoint url
-    model: 'gemma3:1b'                     # model to use for processing messages
-
+    url: 'http://{server_ip}:11434'
+    model: 'gemma3:1b'
 rules:
-  - name: 'default-rule'                                              # rule identifier
-    enabled: true                                                     # default rule is always enabled
-    preprompt: 'summarize this technical message briefly and clearly' # if not empty string ('') runs through model
-    match:                                                            # rule matching conditions
-      source: ''                                                      # source identifier, empty string ('') matches any
-      og_text_regex: ''                                               # match regex against original text, empty string ('') to match all
-      ai_text_regex: ''                                               # match regex against ai-processed text, empty string ('') to match all
+  - name: 'default-rule'
+    enabled: true
+    preprompt: 'summarize this technical message briefly and clearly'
+    match:
+      source: ''
+      og_text_regex: ''
+      ai_text_regex: ''
     notify:
-      destinations: []                                                # destinations, empty array ([]) for all
-      original_message:                                               # original message version
-        enabled: true                                                 # enable/disable original text
-        match_regex: ''                                               # only send if this regex matches, empty string ('') for always
-      ai_summary:                                                     # ai-processed version
-        enabled: true                                                 # explicitly control sending
-        match_regex: ''                                               # only send if this regex matches, empty string ('') for always
-
+      destinations: []
+      original_message:
+        enabled: true
+        match_regex: ''
+      ai_summary:
+        enabled: true
+        match_regex: ''
   - name: 'custom-rule-1'
     enabled: true
     preprompt: 'Extract the following from this log or alert message: 1) Error type, 2) Root cause, 3) Severity, 4) Recommended action. Format as bullet points.'
@@ -37,7 +35,6 @@ rules:
       ai_summary:
         enabled: true
         match_regex: ''
-
   - name: 'custom-rule-2'
     enabled: false
     preprompt: ''
@@ -53,20 +50,16 @@ rules:
       ai_summary:
         enabled: true
         match_regex: ''
-
 notification_channels:
-  - name: 'Telegram'                    # application name
-    enabled: false                      # whether channel should be disabled (global setting, overrides custom rules)
-    url: 'tgram://{token}/{chat_id}'    # apprise compatible url with tokens e.g. for telegram refer to (https://github.com/caronc/apprise/wiki/Notify_telegram)
-
+  - name: 'Telegram'
+    enabled: false
+    url: 'tgram://{token}/{chat_id}'
   - name: 'Slack'
     enabled: false
     url: 'slack://{token}/{channel}'
-
   - name: 'ntfy'
     enabled: false
     url: 'ntfy://{topic}'
-
   - name: 'custom apprise'
     enabled: false
     url: ''
