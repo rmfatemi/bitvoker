@@ -5,7 +5,7 @@ WORKDIR /app/web
 COPY web/package*.json ./
 
 RUN npm install
-RUN npm install js-yaml --save
+RUN npm install yaml
 RUN npm install react-icons --save
 RUN npm install react-ace ace-builds
 RUN npm install @mui/material @emotion/react @emotion/styled @mui/icons-material
