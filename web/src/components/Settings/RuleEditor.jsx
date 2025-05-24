@@ -19,21 +19,21 @@ function RuleEditor({ rules, updateConfig }) {
   };
 
   const rulesReference =
-`- name: 'custom-rule-1'                                             # rule identifier
-  enabled: true                                                     # default rule is always enabled
-  preprompt: 'summarize this technical message briefly and clearly' # if not empty string ('') runs through model
+`- name: 'custom-rule-1'                                             # unique rule identifier
+  enabled: true                                                     # enable or disable this rule (true/false)
+  preprompt: 'Summarize this technical log message in 20 word: '    # if not empty string ('') runs through model
   match:                                                            # rule matching conditions
-    source: ''                                                      # source identifier, empty string ('') matches any
+    source: '192.168.20.112'                                        # sender identifier, ip, or hostname, empty string ('') to match all
     og_text_regex: ''                                               # match regex against original text, empty string ('') to match all
     ai_text_regex: ''                                               # match regex against ai-processed text, empty string ('') to match all
   notify:
-    destinations: []                                                # destinations, empty array ([]) for all
+    destinations: ["Telegram", "Slack"]                             # destinations, empty array ([]) to send to all configured and enabled channels
     original_message:                                               # original message version
-      enabled: true                                                 # enable/disable original text
-      match_regex: ''                                               # only send if this regex matches, empty string ('') for always
+      enabled: true                                                 # enable/disable including original text in the notification
+      match_regex: ''                                               # only send if this regex matches, empty string ('') to always send
     ai_summary:                                                     # ai-processed version
-      enabled: true                                                 # explicitly control sending
-      match_regex: ''                                               # only send if this regex matches, empty string ('') for always`;
+      enabled: true                                                 # enable/disable including ai summary text in the notification
+      match_regex: ''                                               # only send if this regex matches, empty string ('') to always send`;
 
   return (
     <YamlEditor

@@ -162,10 +162,10 @@ function YamlEditor({
                         }}
                     />
                     <FormHelperText sx={{mt: 0.5}}>
-                        Reference format for YAML configuration. All keys shown are required.
-                        Maintain the exact structure while customizing values for your setup.
-                        Use single quotes for regex patterns and strings containing special characters to preserve them
-                        literally.
+                        YAML configuration reference:
+                        All keys are required.
+                        Maintain the structure and customize the values.
+                        Use single quotes for strings and regex patterns with special-character.
                     </FormHelperText>
                 </div>
             </div>
