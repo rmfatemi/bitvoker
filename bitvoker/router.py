@@ -117,7 +117,7 @@ async def get_config():
 
 @api_router.get("/api/notifications")
 def get_notifications_route(
-        limit: int = Query(20), start_date: Optional[str] = Query(None), end_date: Optional[str] = Query(None)
+    limit: int = Query(20), start_date: Optional[str] = Query(None), end_date: Optional[str] = Query(None)
 ):
     try:
         notifs = get_notifications(limit, start_date or "", end_date or "")
