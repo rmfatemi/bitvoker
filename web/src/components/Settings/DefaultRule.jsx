@@ -118,7 +118,8 @@ function DefaultRule({aiEnabled, showOriginal, preprompt, updateConfig}) {
 
                 <Box sx={{ml: 4, mt: -0.5}}>
                     <Typography variant="body2" color="text.secondary">
-                        For the default rule: when AI is enabled, includes the original message with the AI processed message
+                        For the default rule: when AI is enabled, includes the original message with the AI processed
+                        message
                     </Typography>
                 </Box>
             </Box>
@@ -159,7 +160,7 @@ function DefaultRule({aiEnabled, showOriginal, preprompt, updateConfig}) {
 
                 <StyledTextField
                     multiline
-                    rows={10}
+                    rows={3.5}
                     value={preprompt}
                     onChange={handlePrepromptChange}
                     fullWidth
@@ -169,7 +170,7 @@ function DefaultRule({aiEnabled, showOriginal, preprompt, updateConfig}) {
                 />
 
                 <Typography variant="body2" color="text.secondary">
-                    Instructions that guide how the AI processes messages (max 2048 chars)
+                    Instructions that guide how the AI processes messages
                 </Typography>
             </Box>
         </StyledPaper>

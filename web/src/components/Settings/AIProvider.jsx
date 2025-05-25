@@ -26,7 +26,7 @@ const StyledTextField = styled(TextField)(() => ({
     }
 }));
 
-function AIProvider({ aiProvider, ollamaUrl, ollamaModel, updateConfig }) {
+function AIProvider({aiProvider, ollamaUrl, ollamaModel, updateConfig}) {
     const handleProviderChange = (e) => {
         const newProvider = e.target.value;
         updateConfig(prev => ({
@@ -39,7 +39,7 @@ function AIProvider({ aiProvider, ollamaUrl, ollamaModel, updateConfig }) {
     };
 
     const handleOllamaConfigChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         updateConfig(prev => ({
             ...prev,
             ai: {
@@ -54,7 +54,7 @@ function AIProvider({ aiProvider, ollamaUrl, ollamaModel, updateConfig }) {
 
     return (
         <StyledPaper>
-            <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+            <Typography variant="h6" component="h2" sx={{mb: 2}}>
                 AI Provider Configuration
             </Typography>
             <FormControl component="fieldset">
@@ -67,23 +67,22 @@ function AIProvider({ aiProvider, ollamaUrl, ollamaModel, updateConfig }) {
                 >
                     <FormControlLabel
                         value="meta_ai"
-                        control={<Radio />}
+                        control={<Radio/>}
                         label="Meta AI"
                     />
                     <FormControlLabel
                         value="ollama"
-                        control={<Radio />}
+                        control={<Radio/>}
                         label="Ollama"
                     />
                 </RadioGroup>
             </FormControl>
 
-            {/* Ollama fields always visible, but disabled when not selected */}
-            <Box sx={{ mt: 2 }}>
-                <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 'bold' }}>
+            <Box sx={{mt: 2}}>
+                <Typography variant="subtitle1" sx={{mb: 1, fontWeight: 'bold'}}>
                     Ollama Configuration
                 </Typography>
-                <Box sx={{ mb: 2 }}>
+                <Box sx={{mb: 2}}>
                     <StyledTextField
                         label="Ollama URL"
                         name="url"
@@ -92,8 +91,11 @@ function AIProvider({ aiProvider, ollamaUrl, ollamaModel, updateConfig }) {
                         fullWidth
                         margin="normal"
                         disabled={aiProvider !== 'ollama'}
-                        placeholder="http://localhost:11434"
                     />
+
+                    <Typography variant="body2" color="text.secondary">
+                        URL for the Ollama provider's API endpoint
+                    </Typography>
                 </Box>
                 <Box>
                     <StyledTextField
@@ -104,8 +106,11 @@ function AIProvider({ aiProvider, ollamaUrl, ollamaModel, updateConfig }) {
                         fullWidth
                         margin="normal"
                         disabled={aiProvider !== 'ollama'}
-                        placeholder="gemma:2b"
                     />
+
+                    <Typography variant="body2" color="text.secondary">
+                        The model to use (e.g., gemma3:1b, llama2)
+                    </Typography>
                 </Box>
             </Box>
         </StyledPaper>

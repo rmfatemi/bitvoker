@@ -1,25 +1,25 @@
-import React, { useMemo } from 'react';
+import React, {useMemo} from 'react';
 import YamlEditor from './YamlEditor';
 
-function RuleEditor({ rules, updateConfig }) {
-  const displayRules = useMemo(() => {
-    return rules.filter(rule => rule.name !== "default-rule");
-  }, [rules]);
+function RuleEditor({rules, updateConfig}) {
+    const displayRules = useMemo(() => {
+        return rules.filter(rule => rule.name !== "default-rule");
+    }, [rules]);
 
-  const handleRuleUpdate = (updatedDisplayRules) => {
-    const defaultRule = rules.find(rule => rule.name === "default-rule");
-    const newRules = defaultRule
-      ? [defaultRule, ...updatedDisplayRules]
-      : updatedDisplayRules;
+    const handleRuleUpdate = (updatedDisplayRules) => {
+        const defaultRule = rules.find(rule => rule.name === "default-rule");
+        const newRules = defaultRule
+            ? [defaultRule, ...updatedDisplayRules]
+            : updatedDisplayRules;
 
-    updateConfig(prev => ({
-      ...prev,
-      rules: newRules
-    }));
-  };
+        updateConfig(prev => ({
+            ...prev,
+            rules: newRules
+        }));
+    };
 
-  const rulesReference =
-`- name: 'custom-rule-1'                       # unique rule identifier
+    const rulesReference =
+        `- name: 'custom-rule-1'                       # unique rule identifier
   enabled: true                               # enable or disable this rule (true/false)
   preprompt: 'Summarize logs (20 words max):' # ai instructions sent to the model along with the original text; triggers the ai processing pipeline unless left empty ('')
   match:                                      # rule matching conditions; all conditions must be met to trigger (combined using an AND operator)
@@ -35,15 +35,15 @@ function RuleEditor({ rules, updateConfig }) {
       enabled: true                           # enable/disable including ai-processed text in the notification
       match_regex: ''                         # only send if this regex matches; an empty string ('') always triggers sending`;
 
-  return (
-    <YamlEditor
-      data={displayRules}
-      updateData={handleRuleUpdate}
-      referenceText={rulesReference}
-      title="Define your custom rules in YAML format:"
-      referenceTitle="Rule Format Reference"
-    />
-  );
+    return (
+        <YamlEditor
+            data={displayRules}
+            updateData={handleRuleUpdate}
+            referenceText={rulesReference}
+            title="Define your custom rules in YAML format:"
+            referenceTitle="Rule Format Reference"
+        />
+    );
 }
 
 export default RuleEditor;

@@ -1,13 +1,13 @@
 import React from 'react';
-import { Button } from '@mui/material';
+import {Button} from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import yaml from 'js-yaml';
 
-const DownloadConfig = ({ configData }) => {
+const DownloadConfig = ({configData}) => {
     const downloadConfigYaml = () => {
         try {
             const yamlContent = yaml.dump(configData);
-            const blob = new Blob([yamlContent], { type: 'text/yaml' });
+            const blob = new Blob([yamlContent], {type: 'text/yaml'});
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
@@ -25,7 +25,7 @@ const DownloadConfig = ({ configData }) => {
         <Button
             variant="outlined"
             size="large"
-            startIcon={<FileDownloadIcon />}
+            startIcon={<FileDownloadIcon/>}
             onClick={downloadConfigYaml}
         >
             Download Config
