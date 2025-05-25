@@ -35,14 +35,16 @@ class Handler(socketserver.BaseRequestHandler):
         ai_result = ""
 
         if alert_result:
-            ai_result = alert_result.ai_summary or ""
+            ai_result = alert_result.ai_processed or ""
 
             message = ""
 
             if alert_result.should_send_ai and alert_result.should_send_original:
-                message = f"[AI Summary]\n{alert_result.ai_summary}\n[Original Message]\n{alert_result.original_text}"
+                message = (
+                    f"[AI Processed]\n{alert_result.ai_processed}\n[Original Message]\n{alert_result.original_text}"
+                )
             elif alert_result.should_send_ai:
-                message = alert_result.ai_summary
+                message = alert_result.ai_processed
             elif alert_result.should_send_original:
                 message = alert_result.original_text
 

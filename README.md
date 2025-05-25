@@ -51,7 +51,7 @@
    For users who prioritize complete data privacy or wish to avoid potential external usage limits, bitvoker supports local AI processing with [Ollama](https://ollama.com/). This solution allows you to deploy a model such as `gemma3:1b`, which we recommend as a compact yet powerful option that performs well even on limited hardware.
 
 >[!WARNING]
-> If privacy or independence from third-party services is a priority, the self-hosted Ollama option is recommended. Additionally, users encountering rate limits or availability issues with Meta’s service may opt for the local AI processing solution. The AI summary feature is disabled by default, and you can choose the most suitable configuration based on your needs.
+> If privacy or independence from third-party services is a priority, the self-hosted Ollama option is recommended. Additionally, users encountering rate limits or availability issues with Meta’s service may opt for the local AI processing solution. The AI processing feature is disabled by default, and you can choose the most suitable configuration based on your needs.
 
 ## Setup
 This repository supports two ways of running **bitvoker**. For a consistent and isolated environment, using Docker is recommended.

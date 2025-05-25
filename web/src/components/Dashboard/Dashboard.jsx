@@ -153,7 +153,7 @@ function Dashboard({notifications = [], config = {}, onRefresh}) {
                             <TableCell>Timestamp</TableCell>
                             <TableCell>Client IP</TableCell>
                             <TableCell>Original Message</TableCell>
-                            <TableCell>AI Summary</TableCell>
+                            <TableCell>AI Processed</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>

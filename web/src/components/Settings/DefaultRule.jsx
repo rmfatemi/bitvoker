@@ -118,7 +118,7 @@ function DefaultRule({aiEnabled, showOriginal, preprompt, updateConfig}) {
 
                 <Box sx={{ml: 4, mt: -0.5}}>
                     <Typography variant="body2" color="text.secondary">
-                        For the default rule: when AI is enabled, appends the original message to the AI summary
+                        For the default rule: when AI is enabled, includes the original message with the AI processed message
                     </Typography>
                 </Box>
             </Box>

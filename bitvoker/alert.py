@@ -12,7 +12,7 @@ logger = setup_logger("alert")
 class AlertResult:
     def __init__(self):
         self.original_text = ""
-        self.ai_summary = ""
+        self.ai_processed = ""
         self.destinations = []
         self.should_send_original = False
         self.should_send_ai = False
@@ -51,11 +51,13 @@ class Alert:
         result.matched_rule_name = matched_rule.get("name", "unnamed")
 
         if self._should_process_with_ai(matched_rule):
-            result.ai_summary = self._get_ai_summary(text, matched_rule.get("preprompt", ""))
+            result.ai_processed = self._get_ai_processed(text, matched_rule.get("preprompt", ""))
 
         notify_config = matched_rule.get("notify", {})
         result.should_send_original = self._should_send_original(notify_config, text)
-        result.should_send_ai = result.ai_summary and self._should_send_ai_summary(notify_config, result.ai_summary)
+        result.should_send_ai = result.ai_processed and self._should_send_ai_processed(
+            notify_config, result.ai_processed
+        )
 
         result.destinations = notify_config.get("destinations", [])
 
@@ -82,11 +84,11 @@ class Alert:
             return False
 
         notify_config = rule.get("notify", {})
-        ai_summary_config = notify_config.get("ai_summary", {})
+        ai_processed_config = notify_config.get("ai_processed", {})
 
-        return ai_summary_config.get("enabled", False)
+        return ai_processed_config.get("enabled", False)
 
-    def _get_ai_summary(self, text: str, preprompt: str) -> Optional[str]:
+    def _get_ai_processed(self, text: str, preprompt: str) -> Optional[str]:
         try:
             return process_with_ai(text, preprompt, self.config.get_ai_config())
         except Exception as e:
@@ -104,8 +106,8 @@ class Alert:
 
         return True
 
-    def _should_send_ai_summary(self, notify_config: Dict[str, Any], text: str) -> bool:
-        ai_config = notify_config.get("ai_summary", {})
+    def _should_send_ai_processed(self, notify_config: Dict[str, Any], text: str) -> bool:
+        ai_config = notify_config.get("ai_processed", {})
         if not ai_config.get("enabled", False):
             return False
 
