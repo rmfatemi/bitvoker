@@ -17,7 +17,7 @@ rules:
       original_message:
         enabled: true
         match_regex: ''
-      ai_summary:
+      ai_processed:
         enabled: true
         match_regex: ''
   - name: 'example-rule-1'
@@ -32,7 +32,7 @@ rules:
       original_message:
         enabled: true
         match_regex: 'IP address: (\d{1,3}\.){3}\d{1,3}'
-      ai_summary:
+      ai_processed:
         enabled: true
         match_regex: ''
 notification_channels:
