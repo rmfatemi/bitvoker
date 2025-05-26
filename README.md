@@ -1,12 +1,13 @@
+<table>
+  <tr>
+    <td><img src="https://raw.githubusercontent.com/rmfatemi/bitvoker/master/web/src/assets/bitvoker.svg" width="500"></td>
+    <td><strong>bitvoker</strong> is an open-source, dynamic notification system designed to streamline automated alerts in both homelab setups and production environments. It operates via a dedicated TCP server that accepts messages and, if enabled, refines them using AI-generated summaries before dispatching notifications through multiple channels such as Telegram, Discord, Slack, and more.</td>
+  </tr>
+</table>
 
-<div style="display: flex; align-items: flex-start; margin-bottom: 16px;">
-  <div style="flex: 0 0 20%; /* Allocates 20% width to this container, adjust as needed */ margin-right: 24px; /* Space between logo and text */">
-    <img src="https://github.com/user-attachments/assets/f2fa251e-0038-47b8-8b2e-d693eb38106f" alt="bitvoker logo" style="width: 100px; /* Key value to TUNE: Adjust this width until the image height is visually about 4 lines of text. If your logo isn't square, you might need to adjust height too. */ height: auto; /* Maintains aspect ratio */ max-width: 100%; /* Ensures image scales down if the 20% container becomes too narrow */ display: block; /* Removes potential extra space below the image */">
-  </div>
-  <div style="flex: 1; /* Allows this container to take up the remaining space */">
-    **bitvoker** is an open-source, dynamic notification system designed to streamline automated alerts in both homelab setups and production environments. It operates via a dedicated TCP server that accepts messages and, if enabled, can refine them using AI-generated summaries before dispatching notifications through multiple channels such as Telegram, Discord, Slack, and more.
-  </div>
-</div>
+
+
+
 
 ## Features
 
