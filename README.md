@@ -138,17 +138,17 @@ Send messages to **bitvoker**’s notification endpoint using nc (netcat) or ope
 
 #### Plain text connection (Port 8083):
 
-Using `nc`: `echo "Your notification message" | nc {server_ip} 8083`
+  - Using `nc`: `echo "Your notification message" | nc {server_ip} 8083`
 
 #### Secure connection with TLS (Port 8084):
 
-Using `openssl`: `echo "Your notification message" | openssl s_client -connect {server_ip}:8084`
+  - Using `openssl`: `echo "Your notification message" | openssl s_client -connect {server_ip}:8084`
 
 
 ### Web Interface
-Access the web interface at `http://{server_ip}:8085` to:
-- View notification history
+Access the web interface at `https://{server_ip}:8085` to:
 - Configure notification channels
+- View notification history
 - Adjust AI settings
 - View system logs
 
