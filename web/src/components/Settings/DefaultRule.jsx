@@ -164,7 +164,7 @@ function DefaultRule({aiEnabled, includeOriginal, preprompt, updateConfig}) {
 
                 <StyledTextField
                     multiline
-                    rows={2.5}
+                    rows={2.6}
                     value={preprompt}
                     onChange={handlePrepromptChange}
                     fullWidth
