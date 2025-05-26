@@ -28,9 +28,7 @@ class Handler(socketserver.BaseRequestHandler):
         client_ip = self.client_address[0]
         title = f"[{ts} - Notification from {client_ip}]"
 
-        alert_result = (
-            self.server.alert.process("tcp_socket", original_message) if hasattr(self.server, "alert") else None
-        )
+        alert_result = self.server.alert.process(client_ip, original_message) if hasattr(self.server, "alert") else None
 
         ai_result = ""
 
