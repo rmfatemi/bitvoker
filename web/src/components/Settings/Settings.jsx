@@ -98,7 +98,6 @@ function Settings() {
         );
     }
 
-    // Extract values for component props
     const aiEnabled = configData?.ai?.enabled || false;
     const aiProvider = configData?.ai?.provider || 'meta_ai';
     const ollamaUrl = configData?.ai?.ollama?.url || '';
@@ -109,13 +108,9 @@ function Settings() {
 
     return (
         <Box component="form" onSubmit={handleSubmit}>
-            <Typography variant="h5" component="h1" sx={{mb: 3}}>
-                Settings
-            </Typography>
 
-            {/* Flex container for DefaultRule and AIProvider */}
             <Box sx={{display: 'flex', flexDirection: 'row', gap: '20px', marginBottom: '20px'}}>
-                <Box sx={{flex: '2 1 0%'}}> {/* DefaultRule takes 2/3 width */}
+                <Box sx={{flex: '2 1 0%'}}>
                     <DefaultRule
                         aiEnabled={aiEnabled}
                         includeOriginal={includeOriginal}
@@ -123,7 +118,7 @@ function Settings() {
                         updateConfig={updateConfig}
                     />
                 </Box>
-                <Box sx={{flex: '1 1 0%'}}> {/* AIProvider takes 1/3 width */}
+                <Box sx={{flex: '1 1 0%'}}>
                     <AIProvider
                         aiProvider={aiProvider}
                         ollamaUrl={ollamaUrl}
