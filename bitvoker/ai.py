@@ -85,21 +85,9 @@ class OllamaProvider:
         raise RuntimeError(f"failed to process message after {max_retries} retries")
 
 
-def get_provider(ai_config):
-    provider_type = ai_config.get("type", "meta_ai")
-    if provider_type == "ollama":
-        logger.info("using ollama as ai provider")
-        url = ai_config.get("url", "http://localhost:11434")
-        model = ai_config.get("model", "gemma3:1b")
-        return OllamaProvider(url=url, model=model)
-    else:
-        logger.info("using meta ai as ai provider")
-        return MetaAIProvider()
-
-
 def process_with_ai(message, preprompt, ai_config, max_retries=3):
-    if not ai_config or not ai_config.get("enabled", False):
-        logger.warning("ai processing disabled or no config provided")
+    if not ai_config:
+        logger.warning("no ai config provided")
         return None
 
     try:
@@ -114,3 +102,16 @@ def process_with_ai(message, preprompt, ai_config, max_retries=3):
     except Exception as e:
         logger.error(f"error processing message with ai: {e}")
         raise
+
+
+def get_provider(ai_config):
+    provider_type = ai_config.get("provider", "meta_ai")
+    if provider_type == "ollama":
+        logger.info("using ollama as ai provider")
+        ollama_config = ai_config.get("ollama", {})
+        url = ollama_config.get("url", "http://localhost:11434")
+        model = ollama_config.get("model", "gemma3:1b")
+        return OllamaProvider(url=url, model=model)
+    else:
+        logger.info("using meta ai as ai provider")
+        return MetaAIProvider()
