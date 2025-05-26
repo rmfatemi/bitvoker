@@ -2,7 +2,7 @@ ai:
   provider: 'meta_ai'
   meta_ai: {}
   ollama:
-    url: 'http://{server_ip}:11434'
+    url: 'http://{ollama_server_ip}:11434'
     model: 'gemma3:1b'
 rules:
   - name: 'default-rule'
