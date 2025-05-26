@@ -1,21 +1,22 @@
 <div align="justify">
+<p>
+  <img align="left" src="https://raw.githubusercontent.com/rmfatemi/bitvoker/master/web/src/assets/bitvoker.svg" width="100" />
+  <strong>bitvoker</strong> is an open-source, adaptable notification system engineered to optimize automated alerts from homelab environments to production infrastructures. It functions through a dedicated TCP server that ingests incoming messages. These messages can be refined into heavily customizable rule-based AI-generated summaries before being dispatched through various integrated channels, including Slack, Discord, and Microsoft Teams.
+</p>
 
-<table>
-  <tr>
-    <td><img src="https://raw.githubusercontent.com/rmfatemi/bitvoker/master/web/src/assets/bitvoker.svg" width="500"></td>
-    <td><strong>bitvoker</strong> is an open-source, adaptable notification system engineered to optimize automated alerts from homelab environments to production infrastructures. It functions through a dedicated TCP server that ingests incoming messages. Optionally, these messages can be refined into heavily customizable rule-based AI-generated summaries before being dispatched through various integrated channels, including Slack, Discord, and Microsoft Team.</td>
-  </tr>
-</table>
 
 ## What Does It Do?
 
-**bitvoker** transforms raw text and data into intelligent, actionable alerts. Its flexible processing and delivery workflow makes the following scenarios effortlessly achievable:
+**bitvoker** transforms raw text and data into intelligent, actionable alerts. You send it the `log`/`text`/`website`, etc, and then configure it to do what you need. Leveraging regular expressions and AI, the following scenarios represent only a portion of its capabilities:
 
-1. If the web application gateway `web-app-gateway-03` logs a `SECURITY_ALERT` indicating `Failed login attempt` for the user `admin` and the Client IP address is not within our internal `192.168.1.0/24` range, then use our local LLM model to identify the `origin country of the attack` and `recommended blocking action`. Only send the AI-processed recommendations to the SOC team's `"INCIDENT" Slack channel` alerts. The original message should never be sent for these security alerts due to sensitive information.
+1. If logs coming from `web-app-gateway-03`, include `SECURITY_ALERT` and `Failed login attempt` for the user `admin` and the Client IP address is not within our internal `192.168.1.0/24` range, then use our local LLM model to identify the `origin of the attack` and `recommended blocking action`. Only send the AI-processed recommendations to the SOC team's `"INCIDENT" Slack channel` alerts. The original message should never be sent for these security alerts due to sensitive information.
 
-2. If the production server `db-server-prod-01` logs an error where `long_query_threshold` exceeded and the duration is greater than `1000ms`, then use Meta's LLAMA4 model to summarize the `"impact on service"` in 15 words or less, we want to send both the AI-processed summary and the original message, but the original message only if it contains a Client IP address starting with `10.0.0..` All notifications should be sent to the `DBA` team's `Microsoft Teams channel` and the team's `email alerts inbox`.
+2. If this downloaded BestBuy page contains a product-listing for `Sony WH-1000XM5 Headphones` then feed it into this AI model to see if the discount-badge shows a SAVE percentage greater than 15% and extracts the `current price`, `original price`, and the `direct buy URL`. Only send the AI-processed deal details to this dedicated `Telegram` chat.
 
-3. If this downloaded BestBuy page text contains a product-listing for `Sony WH-1000XM5 Headphones` then use feed it into this AI model to see if the discount-badge shows a SAVE percentage greater than 15% and extracts the `current price`, `original price`, and the `direct buy URL`. Only send the AI-processed deal details to this dedicated `Telegram` chat.
+3. If logs coming from the `db-server-prod-01` include an error where `long_query_threshold` exceeded and the duration is greater than `1000ms`, then use Meta's LLAMA4 model to summarize the `"impact on service in 15 words or less"`, we want to send both the AI-processed summary and the original message, but the original message only if it contains a Client IP address starting with `10.0.0..`. All notifications should be sent to the `DBA` team's `Microsoft Teams channel` and the team's `email alerts inbox`.
+
+
+</div>
 
 ## Features
 
@@ -44,12 +45,9 @@
 - ⚙️ **Dynamic Configuration**: Update settings without restarting the server
 - 📊 **Detailed Logging**: Logging system accessible via web interface
 
-</div>
-<div align="justify">
-
 ## AI Processing
 
-**bitvoker** offers advanced AI-powered notification processing with fully customizable rules. This feature enables you to refine, summarize, and tailor notifications to your specific requirements by applying detailed matching conditions.
+**bitvoker** offers AI-powered notification processing with fully customizable rules. This feature enables you to refine, summarize, and tailor notifications to your specific requirements by applying detailed matching conditions.
 
 You can enable AI processing through unauthenticated interactions with [Meta's LLAMA4](https://www.meta.ai/) model or by self-hosting with [Ollama](https://ollama.com/). Define **pre-prompts** to dynamically guide AI behavior, and use the new rule system for granular control over how and when AI processing occurs.
 
@@ -60,12 +58,11 @@ You can enable AI processing through unauthenticated interactions with [Meta's L
 1.  **Meta's LLAMA4**:
     By default, **bitvoker** can connect to [Meta's LLAMA4](https://www.meta.ai/) model via unauthenticated API calls. This offers straightforward setup and immediate integration, though it is subject to API rate limits and regional availability.
 
-</div>
 
 >[!TIP]
 > Users experiencing rate limits or availability issues with Meta’s service can either switch to Ollama or reduce/disable AI queries.
 
-<div align="justify">
+
 
 2.  **Self-Hosted Ollama**:
     **bitvoker** supports local AI processing with [Ollama](https://ollama.com/). Users prioritizing data privacy, stricter control, or seeking to bypass external usage limits are advised to opt for the self-hosted Ollama configuration. We recommend deploying a compact yet powerful model like `gemma3:1b` for optimal performance, even on systems with limited hardware.
@@ -134,22 +131,45 @@ docker-compose up -d
 
 ## 📝 Usage
 
-Send messages to **bitvoker**’s notification endpoint using nc (netcat) or openssl for secure connections.
+You can send messages to **bitvoker**'s endpoint using `netcat` (port `8083`) for plaintext delivery, `openssl` (port `8084`) for secure connections, or by integrating it directly into your code via a `TCP socket`.
 
-#### Plain text connection (Port 8083):
+#### Plain text connection with netcat
 
-  - Using `nc`: `echo "Your notification message" | nc {server_ip} 8083`
+`echo "Your notification message" | nc {server_ip} 8083`
 
-#### Secure connection with TLS (Port 8084):
+#### Secure TLS connection with openssl
 
-  - Using `openssl`: `echo "Your notification message" | openssl s_client -connect {server_ip}:8084`
+`cat {your_server_logs}.log | openssl s_client -connect {server_ip}:8084`
+
+#### Plain text using a shell script
+  ```shell
+  #!/bin/bash
+  echo "Your notification message" | nc {server_ip} 8083
+  
+  ```
+
+#### Secure connection using in a Python script
+  ```python
+  import! socket, ssl
+  
+  server_ip = "{server_ip}"
+  port = 8084
+  message = "Your notification message"
+  
+  context = ssl.create_default_context()
+  
+  with socket.create_connection((server_ip, port)) as sock:
+      with context.wrap_socket(sock, server_hostname=server_ip) as s:
+          s.sendall(message.encode())
+  ```
+
 
 
 ### Web Interface
 Access the web interface at `https://{server_ip}:8085` to:
 - Configure notification channels
+- Adjust rules and AI settings
 - View notification history
-- Adjust AI settings
 - View system logs
 
 ### Main dashboard
@@ -166,4 +186,3 @@ Access the web interface at `https://{server_ip}:8085` to:
 
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/rmfatemi/bitvoker/blob/master/LICENSE) file for details.
 
-</div>
