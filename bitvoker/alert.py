@@ -64,6 +64,8 @@ class Alert:
         return result
 
     def _find_matching_rule(self, source: str, text: str) -> Optional[Dict[str, Any]]:
+        matching_rules = []
+
         for rule in self.config.get_enabled_rules():
             match_config = rule.get("match", {})
 
@@ -74,19 +76,32 @@ class Alert:
             if og_regex and not re.search(og_regex, text, re.DOTALL | re.IGNORECASE):
                 continue
 
-            return rule
+            specificity = 0
+            if match_config.get("source"):
+                specificity += 1
+            if match_config.get("og_text_regex"):
+                specificity += 2
+            if match_config.get("ai_text_regex"):
+                specificity += 1
 
-        return None
+            matching_rules.append((rule, specificity))
+
+        matching_rules.sort(key=lambda x: x[1], reverse=True)
+
+        return matching_rules[0][0] if matching_rules else None
 
     def _should_process_with_ai(self, rule: Dict[str, Any]) -> bool:
         ai_config = self.config.get_ai_config()
-        if not ai_config.get("enabled", False):
+        if not ai_config:
+            logger.warning(f"ai processing disabled - ai_config is empty or None: {ai_config}")
             return False
 
         notify_config = rule.get("notify", {})
         ai_processed_config = notify_config.get("ai_processed", {})
 
-        return ai_processed_config.get("enabled", False)
+        ai_enabled = ai_processed_config.get("enabled", False)
+        logger.debug(f"ai processing enabled: {ai_enabled} for rule: {rule.get('name')}")
+        return ai_enabled
 
     def _get_ai_processed(self, text: str, preprompt: str) -> Optional[str]:
         try:
