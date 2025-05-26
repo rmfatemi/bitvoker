@@ -9,7 +9,7 @@
 
 ## What Does It Do?
 
-**bitvoker** transforms raw text and data into intelligent, actionable alerts. Its flexible processing and delivery workflow make the following scenarios effortlessly achievable:
+**bitvoker** transforms raw text and data into intelligent, actionable alerts. Its flexible processing and delivery workflow makes the following scenarios effortlessly achievable:
 
 1. If the web application gateway `web-app-gateway-03` logs a `SECURITY_ALERT` indicating `Failed login attempt` for the user `admin` and the Client IP address is not within our internal `192.168.1.0/24` range, then use our local LLM model to identify the `origin country of the attack` and `recommended blocking action`. Only send the AI-processed recommendations to the SOC team's `"INCIDENT" Slack channel` alerts. The original message should never be sent for these security alerts due to sensitive information.
 
