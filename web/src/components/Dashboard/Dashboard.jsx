@@ -64,10 +64,6 @@ function Dashboard({notifications = [], config = {}, onRefresh}) {
 
     return (
         <Box>
-            <Typography variant="h5" component="h2" gutterBottom>
-                Recent Notifications
-            </Typography>
-
             <Stack
                 direction="row"
                 spacing={2}
