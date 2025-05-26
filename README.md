@@ -36,8 +36,8 @@
    and many more thanks to Apprise integration.
 </p>
 
-- 🤖 **Customizable AI Processing**: Refine messages by summarizing notifications using customizable pre-prompts.
-- ☁️ **Cloud and Self-Hostable AI**: Choose between Meta’s LLAMA4 for cloud-based processing or Ollama for privacy
+- 🤖 **Customizable AI Processing**: Refine messages by summarizing them using customizable pre-prompts
+- ☁️ **Cloud and Self-Hostable AI**: Use Meta’s LLAMA4 for cloud-based processing or Ollama for privacy
 - 📜 **Notification History**: Store and browse past notifications with timestamps and source information
 - 🖥️ **Web Dashboard**: Modern interface for configuration and notification management
 - 🔄 **Real-time Updates**: Instantly receive notifications across all configured channels
