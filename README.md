@@ -1,59 +1,66 @@
 <table>
   <tr>
     <td><img src="https://raw.githubusercontent.com/rmfatemi/bitvoker/master/web/src/assets/bitvoker.svg" width="500"></td>
-    <td><strong>bitvoker</strong> is an open-source, dynamic notification system designed to streamline automated alerts in both homelab setups and production environments. It operates via a dedicated TCP server that accepts messages and, if enabled, refines them using AI-generated summaries before dispatching notifications through multiple channels such as Telegram, Discord, Slack, and more.</td>
+    <td><strong>bitvoker</strong> is an open-source, adaptable notification system engineered to optimize automated alerts from homelab environments to production infrastructures. It functions through a dedicated TCP server that ingests incoming messages. Optionally, these messages can be refined into heavily customizable rule-based AI-generated summaries before being dispatched through various integrated channels, including Slack, Discord, and Microsoft Team.</td>
   </tr>
 </table>
 
 
-
-
-
 ## Features
 
-- 🌐 **Multi-Channel Support**: Send notifications to:
-    <ul>
-      <li>
-        <span style="background-color: #039be5; color: white; padding: 2px; border-radius: 5px;">
-          <img src="https://github.com/rmfatemi/bitvoker/blob/d9e4136baf0ddfeb3ec06e79c7888005d6a39fc3/web/src/assets/telegram.svg" width="15" style="vertical-align: middle;"> Telegram
-        </span>
-      </li>
-      <li>
-        <span style="background-color: #7289da; color: white; padding: 2px; border-radius: 5px;">
-          <img src="https://github.com/rmfatemi/bitvoker/blob/d9e4136baf0ddfeb3ec06e79c7888005d6a39fc3/web/src/assets/discord.svg" width="15" style="vertical-align: middle;"> Discord
-        </span>
-      </li>
-      <li>
-        <span style="background-color: #4a154b; color: white; padding: 2px; border-radius: 5px;">
-          <img src="https://github.com/rmfatemi/bitvoker/blob/d9e4136baf0ddfeb3ec06e79c7888005d6a39fc3/web/src/assets/slack.svg" width="15" style="vertical-align: middle;"> Slack
-        </span>
-      </li>
-      <li>
-        <span style="background-color: #3498db; color: white; padding: 2px; border-radius: 5px;">
-          <img src="https://github.com/rmfatemi/bitvoker/blob/d9e4136baf0ddfeb3ec06e79c7888005d6a39fc3/web/src/assets/gotify.svg" width="15" style="vertical-align: middle;"> Gotify
-        </span>
-      </li>
-    </ul>
+- 📢 **Multi-platform support**:
+  <p>
+  <span>
+    <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/telegram.svg" width="20">
+    <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/slack.svg" width="20">
+    <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/microsoft-teams.svg" width="20">
+    <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/gmail.svg" width="20">
+    <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/discord.svg" width="20">
+    <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/whatsapp.svg" width="20">
+    <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/gotify.svg" width="20">
+    <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/ntfy.svg" width="20">
+    <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/pushover.svg" width="20">
+    <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/home-assistant.svg" width="20">
+  </span> 
+   for seamless notifications and many more thanks to Apprise integration.
+</p>
 
-- 🤖 **Optional AI Processing**: Enhance messages by summarizing notifications using customizable pre-prompts.
+- 🤖 **Customizable AI Processing**: Refine messages by summarizing notifications using customizable pre-prompts.
+- ☁️ **Cloud and Self-Hostable AI**: Choose between Meta’s LLAMA4 for cloud-based processing or Ollama for privacy
 - 📜 **Notification History**: Store and browse past notifications with timestamps and source information
-- 🖥️ **Web Dashboard**: User-friendly interface for configuration and notification management
+- 🖥️ **Web Dashboard**: Modern interface for configuration and notification management
 - 🔄 **Real-time Updates**: Instantly receive notifications across all configured channels
 - ⚙️ **Dynamic Configuration**: Update settings without restarting the server
 - 📊 **Detailed Logging**: Logging system accessible via web interface
 
-## AI Summaries
+## AI Processing
 
-**bitvoker** offers an optional AI-powered enhancement to refine and summarize notifications. You can tailor the alert content to your exact needs. Not only can you enable this feature through unauthenticated interactions with Meta's LLAMA4 model or through local self-hosting with Ollama, but you can also customize the pre-prompts that guide the AI's summarization process. This lets you define specific instructions and contextual cues for how notifications should be summarized. There are two supported configurations:
+**bitvoker** offers advanced AI-powered notification processing with fully customizable rules. This feature enables you to refine, summarize, and tailor notifications to your specific requirements by applying detailed matching conditions.
 
-1. **Unauthenticated Access to Meta's LLAMA4**:
-   By default, bitvoker can connect to [Meta's LLAMA4](https://www.meta.ai/) model via unauthenticated API calls. This method simplifies setup and provides out-of-the-box enhancements, though it is subject to API rate limits and regional availability.
+You can enable AI processing through unauthenticated interactions with Meta's LLAMA4 model or by self-hosting with Ollama. Define **pre-prompts** to dynamically guide AI behavior, and use the new rule system for granular control over how and when AI processing occurs.
 
-2. **Self-Hosted AI Processing with Ollama**:
-   For users who prioritize complete data privacy or wish to avoid potential external usage limits, bitvoker supports local AI processing with [Ollama](https://ollama.com/). This solution allows you to deploy a model such as `gemma3:1b`, which we recommend as a compact yet powerful option that performs well even on limited hardware.
+---
 
->[!WARNING]
-> If privacy or independence from third-party services is a priority, the self-hosted Ollama option is recommended. Additionally, users encountering rate limits or availability issues with Meta’s service may opt for the local AI processing solution. The AI processing feature is disabled by default, and you can choose the most suitable configuration based on your needs.
+### Flexible AI Processing Deployment
+
+1.  **Unauthenticated Access to Meta's LLAMA4**:
+    By default, **bitvoker** can connect to <a href="https://www.meta.ai/">Meta's LLAMA4</a> model via unauthenticated API calls. This offers straightforward setup and immediate integration, though it is subject to API rate limits and regional availability.
+    
+>[!TIP]
+> Users experiencing rate limits or availability issues with Meta’s service can either switch to the local AI processing or reduce/disable AI queries as needed.
+
+2.  **Self-Hosted AI Processing with Ollama**:
+    For users prioritizing data privacy or looking to bypass external usage limits, **bitvoker** supports local AI processing with <a href="https://ollama.com/">Ollama</a>. We recommend deploying a compact yet powerful model like `gemma3:1b` for optimal performance, even on systems with limited hardware. Users requiring enhanced privacy, stricter control, or wishing to avoid external rate limits are advised to opt for the self-hosted Ollama configuration
+---
+
+### Advanced Notification Rule System
+
+**bitvoker**'s rule system provides complete control over notification processing and delivery:
+
+* **Customizable Behavior**: Define rules to cutomize alerts based on source of alert, original content, AI prcessed content and more
+* **Dynamic Notification Delivery**: Complete control over notification destinations, including when, where, and what to send
+* **Granular Control**: Maintain full control over sources, destinations, and AI behavior while preserving adaptable automation workflows.
+---
 
 ## Setup
 This repository supports two ways of running **bitvoker**. For a consistent and isolated environment, using Docker is recommended.
