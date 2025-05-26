@@ -33,22 +33,20 @@ function DefaultRule({aiEnabled, includeOriginal, preprompt, updateConfig}) {
 
             return {
                 ...prev,
-                ai: {
-                    ...prev.ai,
-                    enabled: enabled
-                },
                 rules: prev.rules.map(rule =>
                     rule.name === "default-rule"
                         ? {
-                            ...rule, // Preserve current state of includeOriginal
-                            // AI enabling/disabling doesn't directly change the 'includeOriginal' flag here,
-                            // it just determines the overall 'rule.enabled' state.
-                            // The 'includeOriginal' state is managed by its own handler.
+                            ...rule,
+                            enabled: ruleEnabled,
                             notify: {
                                 ...rule.notify,
                                 original_message: {
                                     ...rule.notify.original_message,
-                                    enabled: currentIncludeOriginalState // Preserve current state of includeOriginal
+                                    enabled: currentIncludeOriginalState
+                                },
+                                ai_processed: {
+                                    ...rule.notify.ai_processed,
+                                    enabled: enabled
                                 }
                             }
                         }
@@ -61,8 +59,10 @@ function DefaultRule({aiEnabled, includeOriginal, preprompt, updateConfig}) {
     const handleIncludeOriginalChange = (e) => {
         const show = e.target.checked;
         updateConfig(prev => {
-            const currentAiEnabledState = prev.ai?.enabled || false;
+            const defaultRule = prev.rules.find(rule => rule.name === "default-rule");
+            const currentAiEnabledState = defaultRule?.notify?.ai_processed?.enabled || false;
             const ruleEnabled = currentAiEnabledState || show;
+
             return {
                 ...prev,
                 rules: prev.rules.map(rule =>
@@ -74,7 +74,7 @@ function DefaultRule({aiEnabled, includeOriginal, preprompt, updateConfig}) {
                                 ...rule.notify,
                                 original_message: {
                                     ...rule.notify.original_message,
-                                    enabled: show // Update includeOriginal state
+                                    enabled: show
                                 }
                             }
                         }

@@ -98,11 +98,11 @@ function Settings() {
         );
     }
 
-    const aiEnabled = configData?.ai?.enabled || false;
+    const defaultRule = configData?.rules?.find(r => r.name === "default-rule") || {};
+    const aiEnabled = defaultRule?.notify?.ai_processed?.enabled || false;
     const aiProvider = configData?.ai?.provider || 'meta_ai';
     const ollamaUrl = configData?.ai?.ollama?.url || '';
     const ollamaModel = configData?.ai?.ollama?.model || '';
-    const defaultRule = configData?.rules?.find(r => r.name === "default-rule") || {};
     const preprompt = defaultRule?.preprompt || '';
     const includeOriginal = defaultRule?.notify?.original_message?.enabled || false;
 
