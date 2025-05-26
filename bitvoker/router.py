@@ -16,7 +16,6 @@ from bitvoker.refresher import refresh_components
 
 logger = setup_logger("router")
 
-
 api_router = APIRouter()
 
 
@@ -30,21 +29,11 @@ async def update_config(request: Request):
     try:
         form_data = await request.json()
         config_obj = Config()
-
-        required_keys = ["ai", "rules", "notification_channels"]
-        config_is_valid = all(key in form_data for key in required_keys)
-        if not config_is_valid:
+        if config_obj.update_config(form_data):
+            refresh_components(request.app)
+            return {"success": True}
+        else:
             return JSONResponse(content={"error": "Invalid configuration format"}, status_code=400)
-
-        default_rule_exists = any(rule.get("name") == "default-rule" for rule in form_data.get("rules", []))
-        if not default_rule_exists:
-            return JSONResponse(content={"error": "Default rule must be present"}, status_code=400)
-
-        config_obj.config_data = form_data
-        config_obj.save()
-
-        refresh_components(request.app)
-        return {"success": True}
     except Exception as e:
         logger.error(f"failed to update configuration: {e}")
         return JSONResponse(content={"error": f"failed to update config: {str(e)}"}, status_code=500)
@@ -68,7 +57,7 @@ async def get_config():
 
 @api_router.get("/api/notifications")
 def get_notifications_route(
-    limit: int = Query(20), start_date: Optional[str] = Query(None), end_date: Optional[str] = Query(None)
+    limit: int = Query(100, le=1000), start_date: Optional[str] = Query(None), end_date: Optional[str] = Query(None)
 ):
     try:
         notifs = get_notifications(limit, start_date or "", end_date or "")
@@ -84,7 +73,7 @@ def get_notifications_route(
 
 
 class MemoryLogHandler(logging.Handler):
-    def __init__(self, max_entries: int = 200):
+    def __init__(self, max_entries: int = 1000):
         super().__init__()
         self.log_entries: List[Dict[str, str]] = []
         self.max_entries = max_entries
