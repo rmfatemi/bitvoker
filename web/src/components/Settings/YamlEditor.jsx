@@ -166,6 +166,7 @@ function YamlEditor({
                         All keys are required.
                         Maintain the structure and customize the values.
                         Use single quotes for strings and regex patterns with special-character.
+                        Add as many unique entries as needed.
                     </FormHelperText>
                 </div>
             </div>

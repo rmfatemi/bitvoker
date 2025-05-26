@@ -7,7 +7,7 @@ ai:
 rules:
   - name: 'default-rule'
     enabled: true
-    preprompt: 'summarize this technical message briefly and clearly'
+    preprompt: 'You are an AI specialized in analyzing technical documents and logs. Extract and present only the useful details in a clear, concise format. Provide the answer directly without any additional text, greetings, or commentary.'
     match:
       source: ''
       og_text_regex: ''
@@ -20,33 +20,18 @@ rules:
       ai_summary:
         enabled: true
         match_regex: ''
-  - name: 'custom-rule-1'
+  - name: 'example-rule-1'
     enabled: true
-    preprompt: 'Extract the following from this log or alert message: 1) Error type, 2) Root cause, 3) Severity, 4) Recommended action. Format as bullet points.'
+    preprompt: 'Find 1) Error type, 2) Severity, 3) Root cause. Format as bullet points.'
     match:
       source: '192.168.20.201'
-      og_text_regex: '(error|warning|critical|exception|failed).*?(timeout|connection refused|memory allocation|disk space)'
+      og_text_regex: '(error|warning|critical|exception|failed).*?'
       ai_text_regex: '(high|critical) severity'
     notify:
       destinations: ['Telegram', 'Slack']
       original_message:
         enabled: true
         match_regex: 'IP address: (\d{1,3}\.){3}\d{1,3}'
-      ai_summary:
-        enabled: true
-        match_regex: ''
-  - name: 'custom-rule-2'
-    enabled: false
-    preprompt: ''
-    match:
-      source: ''
-      og_text_regex: ''
-      ai_text_regex: ''
-    notify:
-      destinations: []
-      original_message:
-        enabled: true
-        match_regex: ''
       ai_summary:
         enabled: true
         match_regex: ''
@@ -59,7 +44,7 @@ notification_channels:
     url: 'slack://{token}/{channel}'
   - name: 'ntfy'
     enabled: false
-    url: 'ntfy://{topic}'
+    url: 'ntfys://{user}:{password}@{host}:{port}/{topics}'
   - name: 'custom apprise'
     enabled: false
     url: ''

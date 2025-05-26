@@ -23,13 +23,13 @@ const StyledTextField = styled(TextField)(() => ({
     }
 }));
 
-function DefaultRule({aiEnabled, showOriginal, preprompt, updateConfig}) {
+function DefaultRule({aiEnabled, includeOriginal, preprompt, updateConfig}) {
     const handleAIEnabledChange = (e) => {
         const enabled = e.target.checked;
         updateConfig(prev => {
             const defaultRule = prev.rules.find(rule => rule.name === "default-rule");
-            const showOriginal = defaultRule?.notify?.original_message?.enabled || false;
-            const ruleEnabled = enabled || showOriginal;
+            const currentIncludeOriginalState = defaultRule?.notify?.original_message?.enabled || false;
+            const ruleEnabled = enabled || currentIncludeOriginalState;
 
             return {
                 ...prev,
@@ -40,13 +40,15 @@ function DefaultRule({aiEnabled, showOriginal, preprompt, updateConfig}) {
                 rules: prev.rules.map(rule =>
                     rule.name === "default-rule"
                         ? {
-                            ...rule,
-                            enabled: ruleEnabled,
+                            ...rule, // Preserve current state of includeOriginal
+                            // AI enabling/disabling doesn't directly change the 'includeOriginal' flag here,
+                            // it just determines the overall 'rule.enabled' state.
+                            // The 'includeOriginal' state is managed by its own handler.
                             notify: {
                                 ...rule.notify,
                                 original_message: {
                                     ...rule.notify.original_message,
-                                    enabled: showOriginal // preserve current value
+                                    enabled: currentIncludeOriginalState // Preserve current state of includeOriginal
                                 }
                             }
                         }
@@ -56,11 +58,11 @@ function DefaultRule({aiEnabled, showOriginal, preprompt, updateConfig}) {
         });
     };
 
-    const handleShowOriginalChange = (e) => {
+    const handleIncludeOriginalChange = (e) => {
         const show = e.target.checked;
         updateConfig(prev => {
-            const aiEnabled = prev.ai?.enabled || false;
-            const ruleEnabled = aiEnabled || show;
+            const currentAiEnabledState = prev.ai?.enabled || false;
+            const ruleEnabled = currentAiEnabledState || show;
             return {
                 ...prev,
                 rules: prev.rules.map(rule =>
@@ -72,7 +74,7 @@ function DefaultRule({aiEnabled, showOriginal, preprompt, updateConfig}) {
                                 ...rule.notify,
                                 original_message: {
                                     ...rule.notify.original_message,
-                                    enabled: show
+                                    enabled: show // Update includeOriginal state
                                 }
                             }
                         }
@@ -97,52 +99,54 @@ function DefaultRule({aiEnabled, showOriginal, preprompt, updateConfig}) {
     return (
         <StyledPaper>
             <Typography variant="h6" component="h2" sx={{mb: 2}}>
-                Default AI Processing
+                Default Processing Rule
+                <Typography variant="body2" color="text.secondary">
+                    This rule is used if no other rule matches. To disable it, uncheck both options below
+                </Typography>
             </Typography>
 
             <Box sx={{mb: 2}}>
                 <FormControlLabel
                     control={
                         <Checkbox
-                            checked={showOriginal}
-                            onChange={handleShowOriginalChange}
+                            checked={includeOriginal}
+                            onChange={handleIncludeOriginalChange}
                         />
                     }
-                    label="Show Original Message (Default Rule)"
+                    label="Include Original Message"
                     sx={{
                         '& .MuiFormControlLabel-label': {
                             fontWeight: 'bold',
                         }
                     }}
                 />
-
                 <Box sx={{ml: 4, mt: -0.5}}>
                     <Typography variant="body2" color="text.secondary">
-                        For the default rule: when AI is enabled, includes the original message with the AI processed
-                        message
+                        Includes the original message in notifications when this rule is triggered
                     </Typography>
                 </Box>
             </Box>
 
-            <FormControlLabel
-                control={
-                    <Checkbox
-                        checked={aiEnabled}
-                        onChange={handleAIEnabledChange}
-                    />
-                }
-                label="Enable AI Processing (Default Rule)"
-                sx={{
-                    '& .MuiFormControlLabel-label': {
-                        fontWeight: 'bold',
+            <Box sx={{mb: 2}}>
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={aiEnabled}
+                            onChange={handleAIEnabledChange}
+                        />
                     }
-                }}
-            />
-
-            <Box sx={{ml: 4, mt: -0.5, mb: 2}}>
-                <Typography variant="body2" color="text.secondary">
-                    Enables AI processing for the default rule, which applies when no other rules match
-                </Typography>
+                    label="Enable AI Processing"
+                    sx={{
+                        '& .MuiFormControlLabel-label': {
+                            fontWeight: 'bold',
+                        }
+                    }}
+                />
+                <Box sx={{ml: 4, mt: -0.5}}>
+                    <Typography variant="body2" color="text.secondary">
+                        Processes the message with AI, including its output in notifications when this rule is triggered
+                    </Typography>
+                </Box>
             </Box>
 
             <Box sx={{mt: 4}}>
@@ -160,17 +164,16 @@ function DefaultRule({aiEnabled, showOriginal, preprompt, updateConfig}) {
 
                 <StyledTextField
                     multiline
-                    rows={3.5}
+                    rows={2.5}
                     value={preprompt}
                     onChange={handlePrepromptChange}
                     fullWidth
                     disabled={!aiEnabled}
                     placeholder="Instructions for the AI model"
-                    inputProps={{maxLength: 2048}}
                 />
 
                 <Typography variant="body2" color="text.secondary">
-                    Instructions that guide how the AI processes messages
+                    Provides instructions to the AI on how to process messages when this rule is triggered
                 </Typography>
             </Box>
         </StyledPaper>

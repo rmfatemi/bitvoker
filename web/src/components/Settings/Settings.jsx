@@ -105,7 +105,7 @@ function Settings() {
     const ollamaModel = configData?.ai?.ollama?.model || '';
     const defaultRule = configData?.rules?.find(r => r.name === "default-rule") || {};
     const preprompt = defaultRule?.preprompt || '';
-    const showOriginal = defaultRule?.notify?.original_message?.enabled || false;
+    const includeOriginal = defaultRule?.notify?.original_message?.enabled || false;
 
     return (
         <Box component="form" onSubmit={handleSubmit}>
@@ -118,7 +118,7 @@ function Settings() {
                 <Box sx={{flex: '2 1 0%'}}> {/* DefaultRule takes 2/3 width */}
                     <DefaultRule
                         aiEnabled={aiEnabled}
-                        showOriginal={showOriginal}
+                        includeOriginal={includeOriginal}
                         preprompt={preprompt}
                         updateConfig={updateConfig}
                     />

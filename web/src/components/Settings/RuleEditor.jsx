@@ -19,7 +19,7 @@ function RuleEditor({rules, updateConfig}) {
     };
 
     const rulesReference =
-        `- name: 'custom-rule-1'                       # unique rule identifier
+        `- name: 'example-rule-1'                      # unique rule identifier
   enabled: true                               # enable or disable this rule (true/false)
   preprompt: 'Summarize logs (20 words max):' # ai instructions sent to the model along with the original text; triggers the ai processing pipeline unless left empty ('')
   match:                                      # rule matching conditions; all conditions must be met to trigger (combined using an AND operator)
