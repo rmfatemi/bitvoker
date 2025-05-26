@@ -53,16 +53,16 @@ You can enable AI processing through unauthenticated interactions with Meta's LL
     For users prioritizing data privacy or looking to bypass external usage limits, **bitvoker** supports local AI processing with <a href="https://ollama.com/">Ollama</a>. We recommend deploying a compact yet powerful model like `gemma3:1b` for optimal performance, even on systems with limited hardware. Users requiring enhanced privacy, stricter control, or wishing to avoid external rate limits are advised to opt for the self-hosted Ollama configuration
 ---
 
-### Advanced Notification Rule System
+### Customizable Notification Rule System
 
 **bitvoker**'s rule system provides complete control over notification processing and delivery:
 
 * **Customizable Behavior**: Define rules to cutomize alerts based on source of alert, original content, AI prcessed content and more
 * **Dynamic Notification Delivery**: Complete control over notification destinations, including when, where, and what to send
-* **Granular Control**: Maintain full control over sources, destinations, and AI behavior while preserving adaptable automation workflows.
+* **Granular Control**: Maintain full control over sources, destinations, and AI behavior while preserving adaptable automation workflows
 ---
 
-## Setup
+## 🏗️ Setup
 This repository supports two ways of running **bitvoker**. For a consistent and isolated environment, using Docker is recommended.
 
 ### Docker
@@ -114,8 +114,7 @@ docker-compose up -d
     poetry run bitvoker
     ```
 
-
-## 📖 Usage
+## 📝 Usage
 
 Send messages to **bitvoker**’s notification endpoint using nc (netcat) or openssl for secure connections.
 
@@ -127,75 +126,6 @@ Using `nc`: `echo "Your notification message" | nc <server-ip> 8083`
 
 Using `openssl`: `echo "Your notification message" | openssl s_client -connect <server-ip>:8084`
 
-**bitvoker** is designed for both automated recurring notifications and one-time alerts. Below are some creative usage scenarios:
-
-1. **Daily Automated Rsync Backup Notification (Cron Job):**
-    ```bash
-    0 2 * * * rsync -avh /path/to/source /path/to/backup && echo "Backup complete at $(date)" | openssl s_client -connect <server-ip>:8084
-    ```
-
-2. **Aggregated System Health Check:**
-    Combine multiple system metrics into one comprehensive update:
-    ```bash
-    */5 * * * * (echo "System Health at $(date):" && \
-    echo "CPU: $(top -bn1 | grep 'Cpu(s)' | awk '{print $2 + $4 \"%\"}')" && \
-    echo "Memory Usage:" && free -h && \
-    echo "Disk Usage:" && df -h) | openssl s_client -connect <server-ip>:8084
-    ```
-
-3. **Log Monitoring Alert (Event-Driven):**
-    Monitor a log file for errors and trigger notifications when issues occur:
-    ```bash
-    tail -F /var/log/application.log | grep --line-buffered "error" | while read -r line; do
-      echo "Alert: $line (detected at $(date))" | openssl s_client -connect <server-ip>:8084
-    done
-    ```
-
-4. **Docker Event Notification:**
-    Pipe Docker events directly to **bitvoker**:
-    ```bash
-    docker events --filter 'event=start' --filter 'event=stop' | while read event; do
-      echo "Docker Event: $event" | openssl s_client -connect <server-ip>:8084
-    done
-    ```
-
-5. **Custom Aggregated Alert Script:**
-    Create a custom script that aggregates several checks and sends a notification only if issues are detected. Save the following as `healthcheck.sh` and schedule it via cron:
-    ```bash
-    #!/bin/bash
-    LAST_IP_FILE="/tmp/last_ip.txt"
-    CURRENT_IP=$(curl -s https://api.ipify.org)
-    LAST_IP=$(cat "$LAST_IP_FILE" 2>/dev/null)
-
-    if [ "$CURRENT_IP" != "$LAST_IP" ]; then
-        echo "External IP updated to: $CURRENT_IP at $(date)" | openssl s_client -connect <server-ip>:8084
-        echo "$CURRENT_IP" > "$LAST_IP_FILE"
-    fi
-    ```
-    And add to cron:
-    ```bash
-    */15 * * * * /path/to/healthcheck.sh
-    ```
-
-6. **Website Content Monitoring:**
- Monitor a webpage for specific content (e.g., a deal or release) and trigger an alert through **bitvoker**. For example, use this minimal Bash script:
-    ```bash
-    #!/bin/bash
-    # /usr/local/bin/bitvoker-cron.sh
-    # This script fetches Microcenter's Specials page, prepends an AI pre-prompt,
-    # and sends it to Bitvoker.
-    URL="https://www.microcenter.com/site/specials.aspx"
-    SERVER_IP="your.server.ip"      # Replace with your Bitvoker server IP
-    PORT="8083"                     # Use 8084 for TLS
-
-    PREPROMPT="Summarize and extract any notable computer component deals from the text below:"
-    PAGE_CONTENT=$(curl -s "$URL")
-    MESSAGE="${PREPROMPT}\n\n${PAGE_CONTENT}"
-    echo -e "$MESSAGE" | nc $SERVER_IP $PORT
-    ```
-Then make it executable `chmod +x /usr/local/bin/bitvoker-cron.sh` and add your cronjob `*/10 * * * * /usr/local/bin/bitvoker-cron.sh`
-
-These examples illustrate just a portion of the creative ways you can integrate **bitvoker** into your environment. By chaining and piping various system commands, you can engineer powerful, automated notifications tailored to your specific homelab or production needs.
 
 ### Web Interface
 Access the web interface at `http://<server-ip>:8085` to:
@@ -209,17 +139,11 @@ Access the web interface at `http://<server-ip>:8085` to:
 <img src="https://github.com/user-attachments/assets/402b1394-6d29-4d6e-8720-095fc123a7bd">
 
 
-
 ### Settings and configurations
 
 <img src="https://github.com/user-attachments/assets/b8d01264-4eb8-4cfb-afca-f86e1eae7d1a">
 
 
-
-
-
-
-
-## 📄 License
+## 🔑 License
 
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/rmfatemi/bitvoker/blob/master/LICENSE) file for details.
