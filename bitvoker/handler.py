@@ -28,13 +28,12 @@ class Handler(socketserver.BaseRequestHandler):
         match_result = self.server.match.process(client_ip, original_message) if hasattr(self.server, "match") else None
 
         ai_result = ""
-
         if match_result:
             ai_result = match_result.ai_processed or ""
 
             message = ""
-
             if match_result.should_send_ai and match_result.should_send_original:
+                # TODO: maybe let the user decide what it should look like
                 message = (
                     f"\n************[AI Processed]************\n{match_result.ai_processed}\n**********[Original"
                     f" Message]**********\n{match_result.original_text}"
@@ -54,6 +53,6 @@ class Handler(socketserver.BaseRequestHandler):
                     else:
                         self.server.notifier.send_message(message, title=title)
                 except Exception as e:
-                    logger.exception(f"Error during notification dispatch: {e}")
+                    logger.exception(f"error during notification dispatch: {e}")
 
         insert_notification(ts, original_message, ai_result, client_ip)
