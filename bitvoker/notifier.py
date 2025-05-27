@@ -1,4 +1,5 @@
 import apprise
+
 from typing import List, Dict, Any, Optional
 
 from bitvoker.utils import truncate
@@ -34,17 +35,29 @@ class Notifier:
             try:
                 url = destination_conf.get("url")
                 if url:
-                    self.apprise.add(url)
+                    if isinstance(url, list):
+                        logger.debug(f"url is a list for {destination_conf.get('name')}, processing each url")
+                        first_url = url[0] if url else None
 
-                    if "name" in destination_conf:
-                        destination_apprise = apprise.Apprise()
-                        destination_apprise.add(url)
-                        self.destination_instances[destination_conf["name"]] = destination_apprise
+                        for single_url in url:
+                            self.apprise.add(single_url)
+
+                        if "name" in destination_conf and first_url:
+                            destination_apprise = apprise.Apprise()
+                            destination_apprise.add(first_url)
+                            self.destination_instances[destination_conf["name"]] = destination_apprise
+                    else:
+                        self.apprise.add(url)
+
+                        if "name" in destination_conf:
+                            destination_apprise = apprise.Apprise()
+                            destination_apprise.add(url)
+                            self.destination_instances[destination_conf["name"]] = destination_apprise
 
                     logger.debug(f"added notification destination: {destination_conf.get('name')}")
                 else:
                     logger.warning(
-                        f"missing URL for destination: {destination_conf.get('name', 'unnamed destination')}"
+                        f"missing url for destination: {destination_conf.get('name', 'unnamed destination')}"
                     )
             except Exception as e:
                 logger.error(f"failed to add destination {destination_conf.get('name', 'unknown')}: {str(e)}")
