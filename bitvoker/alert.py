@@ -1,40 +1,42 @@
 import re
 import apprise
+
 from typing import Dict, Any, Optional, List
 
 from bitvoker.config import Config
 from bitvoker.logger import setup_logger
 from bitvoker.ai import process_with_ai
 
+
 logger = setup_logger("alert")
 
 
 class AlertResult:
     def __init__(self):
-        self.original_text = ""
-        self.ai_processed = ""
-        self.destinations = []
-        self.should_send_original = False
-        self.should_send_ai = False
         self.source = ""
+        self.destinations = []
+        self.ai_processed = ""
+        self.original_text = ""
         self.matched_rule_name = ""
+        self.should_send_ai = False
+        self.should_send_original = False
 
 
 class Alert:
     def __init__(self, config: Config):
         self.config = config
         self.apprise = apprise.Apprise()
-        self._setup_notification_channels()
+        self._setup_destinations()
 
-    def _setup_notification_channels(self):
+    def _setup_destinations(self):
         self.apprise.clear()
-        for channel in self.config.get_enabled_channels():
+        for destination in self.config.get_enabled_destinations():
             try:
-                if channel.get("url"):
-                    self.apprise.add(channel["url"])
-                    logger.debug(f"added notification channel: {channel['name']}")
+                if destination.get("url"):
+                    self.apprise.add(destination["url"])
+                    logger.debug(f"added notification destination: {destination['name']}")
             except Exception as e:
-                logger.error(f"failed to add channel {channel.get('name', 'unknown')}: {str(e)}")
+                logger.error(f"failed to add destination {destination.get('name', 'unknown')}: {str(e)}")
 
     def process(self, source: str, text: str) -> Optional[AlertResult]:
         if not text or not source:
@@ -132,9 +134,9 @@ class Alert:
 
         return True
 
-    def get_enabled_channels_by_names(self, channel_names: List[str]) -> Dict[str, Dict[str, Any]]:
-        channels = {}
-        for channel in self.config.get_enabled_channels():
-            if channel["name"] in channel_names:
-                channels[channel["name"]] = channel
-        return channels
+    def get_enabled_destinations_by_names(self, destination_names: List[str]) -> Dict[str, Dict[str, Any]]:
+        destinations = {}
+        for destination in self.config.get_enabled_destinations():
+            if destination["name"] in destination_names:
+                destinations[destination["name"]] = destination
+        return destinations

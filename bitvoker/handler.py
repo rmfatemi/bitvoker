@@ -49,8 +49,10 @@ class Handler(socketserver.BaseRequestHandler):
             if message:
                 try:
                     if alert_result.destinations:
-                        self.server.alert.get_enabled_channels_by_names(alert_result.destinations)
-                        self.server.notifier.send_message(message, title=title, channel_names=alert_result.destinations)
+                        self.server.alert.get_enabled_destinations_by_names(alert_result.destinations)
+                        self.server.notifier.send_message(
+                            message, title=title, destination_names=alert_result.destinations
+                        )
                     else:
                         self.server.notifier.send_message(message, title=title)
                 except Exception as e:

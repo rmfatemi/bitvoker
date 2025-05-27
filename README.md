@@ -1,7 +1,7 @@
 <div align="justify">
 <p>
   <img align="left" src="https://raw.githubusercontent.com/rmfatemi/bitvoker/master/web/src/assets/bitvoker.svg" width="100" />
-  <strong>bitvoker</strong> is an open-source, adaptable notification system engineered to optimize automated alerts from homelab environments to production infrastructures. It functions through a dedicated TCP server that ingests incoming messages. These messages can be refined into heavily customizable rule-based AI-generated summaries before being dispatched through various integrated channels, including Slack, Discord, and Microsoft Teams.
+  <strong>bitvoker</strong> is an open-source, adaptable notification system engineered to optimize automated alerts from homelab environments to production infrastructures. It functions through a dedicated TCP server that ingests incoming messages. These messages can be refined into heavily customizable rule-based AI-generated summaries before being dispatched through various integrated destinations, including Slack, Discord, and Microsoft Teams.
 </p>
 
 
@@ -33,7 +33,7 @@
     <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/ntfy.svg" width="20">
     <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/pushover.svg" width="20">
     <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/home-assistant.svg" width="20">
-  </span> 
+  </span>
    and many more thanks to Apprise integration.
 </p>
 
@@ -41,7 +41,7 @@
 - ☁️ **Cloud and Self-Hostable AI**: Use Meta’s LLAMA4 for cloud-based processing or Ollama for privacy
 - 📜 **Notification History**: Store and browse past notifications with timestamps and source information
 - 🖥️ **Web Dashboard**: Modern interface for configuration and notification management
-- 🔄 **Real-time Updates**: Instantly receive notifications across all configured channels
+- 🔄 **Real-time Updates**: Instantly receive notifications across all configured destinations
 - ⚙️ **Dynamic Configuration**: Update settings without restarting the server
 - 📊 **Detailed Logging**: Logging system accessible via web interface
 
@@ -145,19 +145,19 @@ You can send messages to **bitvoker**'s endpoint using `netcat` (port `8083`) fo
   ```shell
   #!/bin/bash
   echo "Your notification message" | nc {server_ip} 8083
-  
+
   ```
 
 #### Secure connection using in a Python script
   ```python
-  import! socket, ssl
-  
+  import socket, ssl
+
   server_ip = "{server_ip}"
   port = 8084
   message = "Your notification message"
-  
+
   context = ssl.create_default_context()
-  
+
   with socket.create_connection((server_ip, port)) as sock:
       with context.wrap_socket(sock, server_hostname=server_ip) as s:
           s.sendall(message.encode())
@@ -167,7 +167,7 @@ You can send messages to **bitvoker**'s endpoint using `netcat` (port `8083`) fo
 
 ### Web Interface
 Access the web interface at `https://{server_ip}:8085` to:
-- Configure notification channels
+- Configure notification destinations
 - Adjust rules and AI settings
 - View notification history
 - View system logs
@@ -186,4 +186,3 @@ Access the web interface at `https://{server_ip}:8085` to:
 ## 🔑 License
 
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/rmfatemi/bitvoker/blob/master/LICENSE) file for details.
-

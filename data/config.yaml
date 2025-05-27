@@ -35,7 +35,7 @@ rules:
       ai_processed:
         enabled: true
         match_regex: ''
-notification_channels:
+destinations:
   - name: 'Telegram'
     enabled: false
     url: 'tgram://{token}/{chat_id}'

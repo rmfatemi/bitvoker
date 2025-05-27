@@ -45,13 +45,13 @@ def _refresh_server_components(server: Any, app: Any, config: Optional[Config] =
 
         server.config = config
         try:
-            channels = config.get_enabled_channels()
+            destinations = config.get_enabled_destinations()
             if hasattr(server, "notifier") and server.notifier is not None:
-                logger.debug("updating existing notifier with new channels")
-                server.notifier.update_channels(channels)
+                logger.debug("updating existing notifier with new destinations")
+                server.notifier.update_destinations(destinations)
             else:
                 logger.info("creating new notifier")
-                server.notifier = Notifier(channels)
+                server.notifier = Notifier(destinations)
         except Exception as e:
             logger.error(f"failed to update notifier: {str(e)}")
             server.notifier = Notifier([])

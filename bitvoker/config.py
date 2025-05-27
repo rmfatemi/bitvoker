@@ -43,11 +43,11 @@ class Config:
     def get_rules(self) -> List[Dict[str, Any]]:
         return self.config_data.get("rules", [])
 
-    def get_channels(self) -> List[Dict[str, Any]]:
-        return self.config_data.get("notification_channels", [])
+    def get_destinations(self) -> List[Dict[str, Any]]:
+        return self.config_data.get("destinations", [])
 
-    def get_enabled_channels(self) -> List[Dict[str, Any]]:
-        return [c for c in self.get_channels() if c.get("enabled", False)]
+    def get_enabled_destinations(self) -> List[Dict[str, Any]]:
+        return [c for c in self.get_destinations() if c.get("enabled", False)]
 
     def get_enabled_rules(self) -> List[Dict[str, Any]]:
         return [r for r in self.get_rules() if r.get("enabled", False)]
@@ -135,18 +135,18 @@ class Config:
                     logger.error(f"invalid config: {msg_type} must contain enabled and match_regex")
                     return False
 
-        channels = config.get("notification_channels", [])
-        if not isinstance(channels, list):
-            logger.error("invalid config: notification_channels section must be a list")
+        destinations = config.get("destinations", [])
+        if not isinstance(destinations, list):
+            logger.error("invalid config: destinations section must be a list")
             return False
 
-        for channel in channels:
-            if not isinstance(channel, dict):
-                logger.error("invalid config: each channel must be a dictionary")
+        for destination in destinations:
+            if not isinstance(destination, dict):
+                logger.error("invalid config: each destination must be a dictionary")
                 return False
 
-            if "name" not in channel or "url" not in channel or "enabled" not in channel:
-                logger.error("invalid config: each channel must have a name, url, and enabled field")
+            if "name" not in destination or "url" not in destination or "enabled" not in destination:
+                logger.error("invalid config: each destination must have a name, url, and enabled field")
                 return False
 
         return True

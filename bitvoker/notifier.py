@@ -9,66 +9,70 @@ logger = setup_logger("notifier")
 
 
 class Notifier:
-    def __init__(self, channels_config: Optional[List[Dict[str, Any]]] = None):
-        self.channels_config = channels_config if channels_config else []
+    def __init__(self, destinations_config: Optional[List[Dict[str, Any]]] = None):
+        self.destinations_config = destinations_config if destinations_config else []
         self.apprise = apprise.Apprise()
-        self.channel_instances: Dict[str, apprise.Apprise] = {}
-        self._setup_notification_channels()
+        self.destination_instances: Dict[str, apprise.Apprise] = {}
+        self._setup_destinations()
 
-    def update_channels(self, channels_config: Optional[List[Dict[str, Any]]] = None):
-        logger.debug(f"updating notification channels: {len(channels_config) if channels_config else 0} channels")
-        self.channels_config = channels_config if channels_config else []
-        self._setup_notification_channels()
+    def update_destinations(self, destinations_config: Optional[List[Dict[str, Any]]] = None):
+        logger.debug(
+            f"updating notification destinations: {len(destinations_config) if destinations_config else 0} destinations"
+        )
+        self.destinations_config = destinations_config if destinations_config else []
+        self._setup_destinations()
 
-    def _setup_notification_channels(self):
+    def _setup_destinations(self):
         self.apprise.clear()
-        self.channel_instances = {}
+        self.destination_instances = {}
 
-        for channel_conf in self.channels_config:
-            if not channel_conf.get("enabled", False):
-                logger.debug(f"skipping disabled channel: {channel_conf.get('name', 'unnamed channel')}")
+        for destination_conf in self.destinations_config:
+            if not destination_conf.get("enabled", False):
+                logger.debug(f"skipping disabled destination: {destination_conf.get('name', 'unnamed destination')}")
                 continue
 
             try:
-                url = channel_conf.get("url")
+                url = destination_conf.get("url")
                 if url:
                     self.apprise.add(url)
 
-                    if "name" in channel_conf:
-                        channel_apprise = apprise.Apprise()
-                        channel_apprise.add(url)
-                        self.channel_instances[channel_conf["name"]] = channel_apprise
+                    if "name" in destination_conf:
+                        destination_apprise = apprise.Apprise()
+                        destination_apprise.add(url)
+                        self.destination_instances[destination_conf["name"]] = destination_apprise
 
-                    logger.debug(f"added notification channel: {channel_conf.get('name')}")
+                    logger.debug(f"added notification destination: {destination_conf.get('name')}")
                 else:
-                    logger.warning(f"missing URL for channel: {channel_conf.get('name', 'unnamed channel')}")
+                    logger.warning(
+                        f"missing URL for destination: {destination_conf.get('name', 'unnamed destination')}"
+                    )
             except Exception as e:
-                logger.error(f"failed to add channel {channel_conf.get('name', 'unknown')}: {str(e)}")
+                logger.error(f"failed to add destination {destination_conf.get('name', 'unknown')}: {str(e)}")
 
     def send_message(
-        self, message_body: str, title: str = "bitvoker notification", channel_names: Optional[List[str]] = None
+        self, message_body: str, title: str = "bitvoker notification", destination_names: Optional[List[str]] = None
     ) -> None:
-        if not self.channels_config:
-            logger.warning("no notification channels configured")
+        if not self.destinations_config:
+            logger.warning("no notification destinations configured")
             return
 
         message_body = truncate(message_body, 4000, preserve_newlines=True, suffix="\n[TRUNCATED]")
 
         try:
-            if channel_names:
+            if destination_names:
                 success_count = 0
-                for name in channel_names:
-                    if name in self.channel_instances:
-                        if self.channel_instances[name].notify(body=message_body, title=title):
+                for name in destination_names:
+                    if name in self.destination_instances:
+                        if self.destination_instances[name].notify(body=message_body, title=title):
                             success_count += 1
                         else:
-                            logger.warning(f"failed to send notification to channel: {name}")
+                            logger.warning(f"failed to send notification to destination: {name}")
 
-                logger.info(f"sent notifications to {success_count}/{len(channel_names)} specified channels")
+                logger.info(f"sent notifications to {success_count}/{len(destination_names)} specified destinations")
 
             else:
                 if self.apprise.notify(body=message_body, title=title):
-                    logger.info(f"successfully sent notifications to {len(self.apprise.servers())} channels")
+                    logger.info(f"successfully sent notifications to {len(self.apprise.servers())} destinations")
                 else:
                     logger.warning("some or all notifications failed to send")
 
