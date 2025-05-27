@@ -12,17 +12,18 @@ logger = setup_logger("config")
 
 class Config:
     def __init__(self):
+        self.config_path = CONFIG_FILENAME
         self.config_data = {}
         self.load_config()
 
     def load_config(self):
         try:
-            if os.path.exists(CONFIG_FILENAME):
-                with open(CONFIG_FILENAME, "r", encoding="utf-8") as f:
+            if os.path.exists(self.config_path):
+                with open(self.config_path, "r", encoding="utf-8") as f:
                     self.config_data = yaml.safe_load(f) or {}
-                logger.info(f"configuration loaded from {CONFIG_FILENAME}")
+                logger.info(f"configuration loaded from {self.config_path}")
             else:
-                logger.warning(f"config file {CONFIG_FILENAME} not found, using empty configuration")
+                logger.warning(f"config file {self.config_path} not found, using empty configuration")
                 self.config_data = {}
         except Exception as e:
             logger.error(f"failed to load configuration: {str(e)}")
@@ -30,12 +31,17 @@ class Config:
 
     def save(self):
         try:
-            os.makedirs(os.path.dirname(CONFIG_FILENAME), exist_ok=True)
-            with open(CONFIG_FILENAME, "w", encoding="utf-8") as f:
+            os.makedirs(os.path.dirname(self.config_path), exist_ok=True)
+            with open(self.config_path, "w", encoding="utf-8") as f:
                 yaml.safe_dump(self.config_data, f, sort_keys=False)
             logger.info("configuration saved")
         except Exception as e:
             logger.error(f"failed to save configuration: {str(e)}")
+
+    def _normalize_to_list(self, value):
+        if isinstance(value, str):
+            return [value]
+        return value or []
 
     def get_ai_config(self) -> Dict[str, Any]:
         return self.config_data.get("ai", {})
@@ -108,14 +114,26 @@ class Config:
                     return False
 
             match = rule.get("match", {})
-            if (
-                not isinstance(match, dict)
-                or "source" not in match
-                or "og_text_regex" not in match
-                or "ai_text_regex" not in match
-            ):
+            if not isinstance(match, dict):
+                logger.error("invalid config: rule match must be a dictionary")
+                return False
+
+            if "source" not in match or "og_text_regex" not in match or "ai_text_regex" not in match:
                 logger.error("invalid config: rule match must contain source, og_text_regex, and ai_text_regex")
                 return False
+
+            source = match.get("source")
+            if source and not (isinstance(source, str) or isinstance(source, list)):
+                logger.error("invalid config: source must be a string or a list of strings")
+                return False
+
+            if isinstance(source, list):
+                if not all(isinstance(item, str) for item in source):
+                    logger.error("invalid config: all items in source list must be strings")
+                    return False
+
+            if isinstance(source, str):
+                match["source"] = [source]
 
             notify = rule.get("notify", {})
             if (
@@ -128,6 +146,10 @@ class Config:
                     "invalid config: rule notify must contain destinations, original_message, and ai_processed"
                 )
                 return False
+
+            destinations = notify.get("destinations")
+            if isinstance(destinations, str):
+                notify["destinations"] = [destinations]
 
             for msg_type in ["original_message", "ai_processed"]:
                 msg_config = notify.get(msg_type, {})

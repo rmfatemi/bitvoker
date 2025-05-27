@@ -1,4 +1,5 @@
 import re
+import socket
 import apprise
 
 from typing import Dict, Any, Optional, List
@@ -38,32 +39,25 @@ class Alert:
             except Exception as e:
                 logger.error(f"failed to add destination {destination.get('name', 'unknown')}: {str(e)}")
 
-    def process(self, source: str, text: str) -> Optional[AlertResult]:
-        if not text or not source:
-            return None
+    def _is_source_match(self, client_source: str, rule_source_list: List[str]) -> bool:
+        if not rule_source_list:
+            return True
 
-        matched_rule = self._find_matching_rule(source, text)
-        if not matched_rule:
-            logger.debug(f"no matching rule found for source: {source}")
-            return None
+        if client_source in rule_source_list:
+            return True
 
-        result = AlertResult()
-        result.original_text = text
-        result.source = source
-        result.matched_rule_name = matched_rule.get("name", "unnamed")
-
-        if self._should_process_with_ai(matched_rule):
-            result.ai_processed = self._get_ai_processed(text, matched_rule.get("preprompt", ""))
-
-        notify_config = matched_rule.get("notify", {})
-        result.should_send_original = self._should_send_original(notify_config, text)
-        result.should_send_ai = result.ai_processed and self._should_send_ai_processed(
-            notify_config, result.ai_processed
-        )
-
-        result.destinations = notify_config.get("destinations", [])
-
-        return result
+        for src in rule_source_list:
+            try:
+                ips = socket.gethostbyname_ex(src)[2]
+                if client_source in ips:
+                    logger.debug(
+                        f"hostname translation successful: '{src}' resolved to {ips}, matched client ip {client_source}"
+                    )
+                    return True
+            except (socket.gaierror, socket.herror):
+                logger.debug(f"hostname translation failed: could not resolve '{src}' to ip address, skipping")
+                continue
+        return False
 
     def _find_matching_rule(self, source: str, text: str) -> Optional[Dict[str, Any]]:
         matching_rules = []
@@ -71,7 +65,8 @@ class Alert:
         for rule in self.config.get_enabled_rules():
             match_config = rule.get("match", {})
 
-            if match_config.get("source") and match_config["source"] != source:
+            source_list = match_config.get("source", [])
+            if not self._is_source_match(source, source_list):
                 continue
 
             og_regex = match_config.get("og_text_regex", "")
@@ -140,3 +135,30 @@ class Alert:
             if destination["name"] in destination_names:
                 destinations[destination["name"]] = destination
         return destinations
+
+    def process(self, source: str, text: str) -> Optional[AlertResult]:
+        if not text or not source:
+            return None
+
+        matched_rule = self._find_matching_rule(source, text)
+        if not matched_rule:
+            logger.debug(f"no matching rule found for source: {source}")
+            return None
+
+        result = AlertResult()
+        result.original_text = text
+        result.source = source
+        result.matched_rule_name = matched_rule.get("name", "unnamed")
+
+        if self._should_process_with_ai(matched_rule):
+            result.ai_processed = self._get_ai_processed(text, matched_rule.get("preprompt", ""))
+
+        notify_config = matched_rule.get("notify", {})
+        result.should_send_original = self._should_send_original(notify_config, text)
+        result.should_send_ai = result.ai_processed and self._should_send_ai_processed(
+            notify_config, result.ai_processed
+        )
+
+        result.destinations = notify_config.get("destinations", [])
+
+        return result

@@ -23,7 +23,7 @@ function RuleEditor({rules, updateConfig}) {
   enabled: true                               # enable or disable this rule (true/false)
   preprompt: 'Summarize logs (20 words max):' # ai instructions sent to the model along with the original text; triggers the ai processing pipeline unless left empty ('')
   match:                                      # rule matching conditions; all conditions must be met to trigger (combined using an AND operator)
-    source: ['192.168.20.112', 'pve.home']    # sender identifier; provide an ips, or hostnames, an empty array ([]) will match all senders
+    source: ['192.168.20.112', 'pve.home']    # sender identifier; triggers if sender matches any of the listed ips or hostnames. an empty array ([]) matches all senders
     og_text_regex: ''                         # regex to apply to the original received text; an empty string ('') means it will match all text
     ai_text_regex: ''                         # regex to apply to the ai-processed text; an empty string ('') means it will match all text
   notify:                                     # conditions and destinations for sending notifications
