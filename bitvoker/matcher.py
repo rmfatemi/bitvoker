@@ -132,6 +132,8 @@ class Match:
             logger.debug(f"no matching rule found for source: {source}")
             return None
 
+        logger.info(f"rule '{matched_rule.get('name')}' matched for source: {source}")
+
         result = MatchResults()
         result.original_text = text
         result.source = source
@@ -146,6 +148,18 @@ class Match:
             notify_config, result.ai_processed
         )
 
-        result.destinations = notify_config.get("destinations", [])
+        dest_list = notify_config.get("destinations", [])
+
+        if not dest_list:
+            logger.debug("empty destinations array - will send to all enabled destinations")
+            dest_list = [d["name"] for d in self.config.get_enabled_destinations()]
+
+        result.destinations = dest_list
+
+        logger.debug(f"rule {result.matched_rule_name}: using destinations: {result.destinations}")
+        logger.debug(
+            f"rule {result.matched_rule_name}: should_send_original={result.should_send_original},"
+            f" should_send_ai={result.should_send_ai}"
+        )
 
         return result
