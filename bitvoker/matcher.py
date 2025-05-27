@@ -80,12 +80,15 @@ class Match:
             logger.warning(f"ai processing disabled - ai_config is empty or None: {ai_config}")
             return False
 
+        match_config = rule.get("match", {})
+        ai_text_regex = match_config.get("ai_text_regex", "")
         notify_config = rule.get("notify", {})
         ai_processed_config = notify_config.get("ai_processed", {})
+        ai_notif_enabled = ai_processed_config.get("enabled", False)
 
-        ai_enabled = ai_processed_config.get("enabled", False)
-        logger.debug(f"ai processing enabled: {ai_enabled} for rule: {rule.get('name')}")
-        return ai_enabled
+        should_process_ai = bool(ai_text_regex) or ai_notif_enabled
+        logger.debug(f"ai processing enabled: {should_process_ai} for rule: {rule.get('name')}")
+        return should_process_ai
 
     def _get_ai_processed(self, text: str, preprompt: str) -> Optional[str]:
         try:
