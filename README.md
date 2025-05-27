@@ -172,16 +172,12 @@ Access the web interface at `https://{server_ip}:8085` to:
 - View notification history
 - View system logs
 
-### Main dashboard
+### Screenshots
 
 <img src="https://github.com/user-attachments/assets/368f4842-59dd-4c38-a91d-a4478ca3efdb">
-
-### Settings and configurations
-
 <img src="https://github.com/user-attachments/assets/04040c01-77bb-4bfd-9fa5-bf4c489f22ca">
-<img src="https://github.com/user-attachments/assets/07dee5c2-51d4-4e53-b8ad-f232bd3fdbf5">
-<img src="https://github.com/user-attachments/assets/05945f1e-4567-419a-a604-d5bd3efb5044">
-
+<img src="https://github.com/user-attachments/assets/0b2c7e80-cd0a-48c5-a58c-48e2da972387">
+<img src="https://github.com/user-attachments/assets/b7d278b5-03ad-4949-b230-1a32cf63b250">
 
 ## 🔑 License
 
