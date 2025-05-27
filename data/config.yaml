@@ -9,7 +9,7 @@ rules:
     enabled: true
     preprompt: 'You are an AI specialized in analyzing technical documents and logs. Extract and present only the useful details in a clear, concise format. Provide the answer directly without any additional text, greetings, or commentary.'
     match:
-      source: ''
+      source: []
       og_text_regex: ''
       ai_text_regex: ''
     notify:
