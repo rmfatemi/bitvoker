@@ -2,7 +2,7 @@ from typing import Optional, Any
 
 from bitvoker.config import Config
 from bitvoker.notifier import Notifier
-from bitvoker.alert import Alert
+from bitvoker.matcher import Match
 from bitvoker.logger import setup_logger
 
 
@@ -57,10 +57,10 @@ def _refresh_server_components(server: Any, app: Any, config: Optional[Config] =
             server.notifier = Notifier([])
 
         try:
-            server.alert = Alert(config)
-            logger.debug("alert system updated")
+            server.Match = Match(config)
+            logger.debug("match system updated")
         except Exception as e:
-            logger.error(f"failed to update alert system: {str(e)}")
+            logger.error(f"failed to update match system: {str(e)}")
 
         return server
     except Exception as e:

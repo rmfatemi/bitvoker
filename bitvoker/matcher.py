@@ -1,6 +1,5 @@
 import re
 import socket
-import apprise
 
 from typing import Dict, Any, Optional, List
 
@@ -9,10 +8,10 @@ from bitvoker.logger import setup_logger
 from bitvoker.ai import process_with_ai
 
 
-logger = setup_logger("alert")
+logger = setup_logger("matcher")
 
 
-class AlertResult:
+class MatchResults:
     def __init__(self):
         self.source = ""
         self.destinations = []
@@ -23,21 +22,9 @@ class AlertResult:
         self.should_send_original = False
 
 
-class Alert:
+class Match:
     def __init__(self, config: Config):
         self.config = config
-        self.apprise = apprise.Apprise()
-        self._setup_destinations()
-
-    def _setup_destinations(self):
-        self.apprise.clear()
-        for destination in self.config.get_enabled_destinations():
-            try:
-                if destination.get("url"):
-                    self.apprise.add(destination["url"])
-                    logger.debug(f"added notification destination: {destination['name']}")
-            except Exception as e:
-                logger.error(f"failed to add destination {destination.get('name', 'unknown')}: {str(e)}")
 
     def _is_source_match(self, client_source: str, rule_source_list: List[str]) -> bool:
         if not rule_source_list:
@@ -136,7 +123,7 @@ class Alert:
                 destinations[destination["name"]] = destination
         return destinations
 
-    def process(self, source: str, text: str) -> Optional[AlertResult]:
+    def process(self, source: str, text: str) -> Optional[MatchResults]:
         if not text or not source:
             return None
 
@@ -145,7 +132,7 @@ class Alert:
             logger.debug(f"no matching rule found for source: {source}")
             return None
 
-        result = AlertResult()
+        result = MatchResults()
         result.original_text = text
         result.source = source
         result.matched_rule_name = matched_rule.get("name", "unnamed")
