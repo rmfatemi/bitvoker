@@ -75,19 +75,38 @@ class Notifier:
             if destination_names:
                 success_count = 0
                 for name in destination_names:
-                    if name in self.destination_instances:
-                        if self.destination_instances[name].notify(body=message_body, title=title):
+                    if name not in self.destination_instances:
+                        logger.warning(f"destination not found: {name}")
+                        continue
+
+                    dest = self.destination_instances[name]
+                    if isinstance(dest, list):
+                        logger.error(f"Destination {name} is unexpectedly a list: {dest}")
+                        continue
+                    elif not hasattr(dest, "notify") or not callable(dest.notify):
+                        logger.error(f"Destination {name} has no callable notify method. Type: {type(dest)}")
+                        continue
+
+                    try:
+                        if dest.notify(body=message_body, title=title):
                             success_count += 1
                         else:
                             logger.warning(f"failed to send notification to destination: {name}")
+                    except Exception as e:
+                        logger.error(f"Error calling notify on {name}: {str(e)}")
 
                 logger.info(f"sent notifications to {success_count}/{len(destination_names)} specified destinations")
-
             else:
+                if isinstance(self.apprise, list):
+                    logger.error(f"Main apprise object is unexpectedly a list: {self.apprise}")
+                    return
+                elif not hasattr(self.apprise, "notify") or not callable(self.apprise.notify):
+                    logger.error(f"Main apprise object has no callable notify method. Type: {type(self.apprise)}")
+                    return
+
                 if self.apprise.notify(body=message_body, title=title):
                     logger.info(f"successfully sent notifications to {len(self.apprise.servers())} destinations")
                 else:
                     logger.warning("some or all notifications failed to send")
-
         except Exception as e:
             logger.error(f"failed to send notifications: {str(e)}")
