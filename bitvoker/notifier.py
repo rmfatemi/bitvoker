@@ -69,7 +69,7 @@ class Notifier:
             logger.warning("no notification destinations configured")
             return
 
-        message_body = truncate(message_body, 4000, preserve_newlines=True, suffix="\n[TRUNCATED]")
+        message_body = truncate(message_body, 4000, preserve_newlines=True, suffix="\n[truncated]")
 
         try:
             if destination_names:
@@ -81,10 +81,10 @@ class Notifier:
 
                     dest = self.destination_instances[name]
                     if isinstance(dest, list):
-                        logger.error(f"Destination {name} is unexpectedly a list: {dest}")
+                        logger.error(f"destination {name} is unexpectedly a list: {dest}")
                         continue
                     elif not hasattr(dest, "notify") or not callable(dest.notify):
-                        logger.error(f"Destination {name} has no callable notify method. Type: {type(dest)}")
+                        logger.error(f"destination {name} has no callable notify method. type: {type(dest)}")
                         continue
 
                     try:
@@ -93,15 +93,15 @@ class Notifier:
                         else:
                             logger.warning(f"failed to send notification to destination: {name}")
                     except Exception as e:
-                        logger.error(f"Error calling notify on {name}: {str(e)}")
+                        logger.error(f"error calling notify on {name}: {str(e)}")
 
                 logger.info(f"sent notifications to {success_count}/{len(destination_names)} specified destinations")
             else:
                 if isinstance(self.apprise, list):
-                    logger.error(f"Main apprise object is unexpectedly a list: {self.apprise}")
+                    logger.error(f"main apprise object is unexpectedly a list: {self.apprise}")
                     return
                 elif not hasattr(self.apprise, "notify") or not callable(self.apprise.notify):
-                    logger.error(f"Main apprise object has no callable notify method. Type: {type(self.apprise)}")
+                    logger.error(f"main apprise object has no callable notify method. type: {type(self.apprise)}")
                     return
 
                 if self.apprise.notify(body=message_body, title=title):
