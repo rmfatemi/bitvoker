@@ -18,16 +18,16 @@ class MetaAIProvider:
             try:
                 response = self.bot.prompt(prompt)
                 result = response["message"]
-                logger.debug(f"meta ai processed message: {truncate(result, 80)}")
+                logger.debug(f"meta-ai processed message: {truncate(result, 80)}")
                 return result
             except Exception as e:
-                logger.warning(f"meta ai processing attempt {retry_count + 1} failed: {e}")
+                logger.warning(f"meta-ai processing attempt {retry_count + 1} failed: {e}")
                 try:
                     self.bot = MetaAI()
                 except Exception as init_error:
-                    logger.error(f"failed to recreate meta ai connection: {init_error}")
+                    logger.error(f"failed to recreate meta-ai connection: {init_error}")
 
-        logger.error("all meta ai processing attempts failed")
+        logger.error("all meta-ai processing attempts failed")
         raise RuntimeError(f"failed to process message after {max_retries} retries")
 
 
@@ -113,5 +113,5 @@ def get_provider(ai_config):
         model = ollama_config.get("model", "gemma3:1b")
         return OllamaProvider(url=url, model=model)
     else:
-        logger.info("using meta ai as ai provider")
+        logger.info("using meta-ai as ai provider")
         return MetaAIProvider()
