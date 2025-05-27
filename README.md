@@ -174,12 +174,13 @@ Access the web interface at `https://{server_ip}:8085` to:
 
 ### Main dashboard
 
-<img src="https://github.com/user-attachments/assets/402b1394-6d29-4d6e-8720-095fc123a7bd">
-
+<img src="https://github.com/user-attachments/assets/368f4842-59dd-4c38-a91d-a4478ca3efdb">
 
 ### Settings and configurations
 
-<img src="https://github.com/user-attachments/assets/b8d01264-4eb8-4cfb-afca-f86e1eae7d1a">
+<img src="https://github.com/user-attachments/assets/04040c01-77bb-4bfd-9fa5-bf4c489f22ca">
+<img src="https://github.com/user-attachments/assets/07dee5c2-51d4-4e53-b8ad-f232bd3fdbf5">
+<img src="https://github.com/user-attachments/assets/05945f1e-4567-419a-a604-d5bd3efb5044">
 
 
 ## 🔑 License
