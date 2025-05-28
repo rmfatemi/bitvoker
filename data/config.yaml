@@ -1,50 +1,58 @@
 ai:
-  provider: 'meta_ai'
+  provider: meta_ai
   meta_ai: {}
   ollama:
-    url: 'http://{ollama_server_ip}:11434'
-    model: 'gemma3:1b'
+    url: http://{ollama_server_ip}:11434
+    model: gemma3:1b
 rules:
-  - name: 'default-rule'
-    enabled: true
-    preprompt: 'You are an AI specialized in analyzing technical documents and logs. Extract and present only the useful details in a clear, concise format. Provide the answer directly without any additional text, greetings, or commentary.'
-    match:
-      source: []
-      og_text_regex: ''
-      ai_text_regex: ''
-    notify:
-      destinations: []
-      original_message:
-        enabled: true
-        match_regex: ''
-      ai_processed:
-        enabled: true
-        match_regex: ''
-  - name: 'example-rule-1'
-    enabled: true
-    preprompt: 'Find 1) Error type, 2) Severity, 3) Root cause. Format as bullet points.'
-    match:
-      source: '192.168.20.201'
-      og_text_regex: '(error|warning|critical|exception|failed).*?'
-      ai_text_regex: '(high|critical) severity'
-    notify:
-      destinations: ['Telegram', 'Slack']
-      original_message:
-        enabled: true
-        match_regex: 'IP address: (\d{1,3}\.){3}\d{1,3}'
-      ai_processed:
-        enabled: true
-        match_regex: ''
+- name: default-rule
+  enabled: true
+  preprompt: You are an AI specialized in analyzing technical documents and logs. Extract and present only the useful details in a clear, concise format. Provide the answer directly without any additional text, greetings, or commentary.
+  match:
+    sources: []
+    og_text_regex: null
+    ai_text_regex: null
+  notify:
+    destinations: []
+    send_og_text:
+      enabled: true
+      og_text_regex: null
+      ai_text_regex: null
+    send_ai_text:
+      enabled: true
+      og_text_regex: null
+      ai_text_regex: null
+    original_message:
+      enabled: true
+    ai_processed:
+      enabled: true
+- name: example-rule-1
+  enabled: false
+  preprompt: null
+  match:
+    sources: null
+    og_text_regex: null
+    ai_text_regex: null
+  notify:
+    destinations: null
+    send_og_text:
+      enabled: false
+      og_text_regex: null
+      ai_text_regex: null
+    send_ai_text:
+      enabled: false
+      og_text_regex: null
+      ai_text_regex: null
 destinations:
-  - name: 'Telegram'
-    enabled: false
-    url: 'tgram://{token}/{chat_id}'
-  - name: 'Slack'
-    enabled: false
-    url: 'slack://{token}/{channel}'
-  - name: 'ntfy'
-    enabled: false
-    url: 'ntfys://{user}:{password}@{host}:{port}/{topics}'
-  - name: 'custom apprise'
-    enabled: false
-    url: ''
+- name: Telegram
+  enabled: false
+  url: tgram://{token}/{chat_id}
+- name: Slack
+  enabled: false
+  url: slack://{token}/{channel}
+- name: ntfy
+  enabled: false
+  url: ntfys://{user}:{password}@{host}:{port}/{topics}
+- name: custom apprise
+  enabled: false
+  url: ''
