@@ -12,7 +12,7 @@ function YamlEditor({
                         referenceText,
                         title = "Define in YAML format:",
                         referenceTitle = "Format Reference",
-                        editorHeight = "40vh"
+                        editorHeight = "52vh"
                     }) {
     const [yamlContent, setYamlContent] = useState(() => {
         try {
@@ -79,7 +79,7 @@ function YamlEditor({
                         value={yamlContent}
                         name="yaml-editor"
                         editorProps={{$blockScrolling: true}}
-                        fontSize={14}
+                        fontSize={12}
                         width="100%"
                         height={editorHeight}
                         showPrintMargin={false}
@@ -165,7 +165,7 @@ function YamlEditor({
                         YAML configuration reference:
                         All keys are required.
                         Maintain the structure and customize the values.
-                        Use single quotes for strings and regex patterns with special-character.
+                        Use single quotes for regex patterns with special-character.
                         Add as many unique entries as needed.
                     </FormHelperText>
                 </div>
