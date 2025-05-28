@@ -1,5 +1,6 @@
 import os
 import yaml
+
 from typing import Dict, Any, List, Optional
 
 from bitvoker.logger import setup_logger
@@ -43,11 +44,6 @@ class Config:
             logger.error(f"failed to save configuration: {str(e)}")
             return False
 
-    def _normalize_to_list(self, value):
-        if isinstance(value, str):
-            return [value]
-        return value or []
-
     def get_ai_config(self) -> Dict[str, Any]:
         return self.config_data.get("ai", {})
 
@@ -88,57 +84,99 @@ class Config:
         return self.save()
 
     def validate_rule(self, rule: Dict[str, Any]) -> bool:
+        rule_name_for_log = rule.get("name", "unnamed_rule")
         if not isinstance(rule, dict):
-            logger.error("invalid rule: must be a dictionary")
+            logger.error(f"invalid rule '{rule_name_for_log}': must be a dictionary")
             return False
 
         required_fields = ["name", "enabled", "preprompt", "match", "notify"]
         for field in required_fields:
             if field not in rule:
-                logger.error(f"invalid rule: must have {field} field")
+                logger.error(f"invalid rule '{rule_name_for_log}': must have {field} field")
                 return False
 
-        match = rule.get("match", {})
-        if not isinstance(match, dict):
-            logger.error("invalid rule: match must be a dictionary")
+        match_config = rule.get("match", {})
+        if not isinstance(match_config, dict):
+            logger.error(f"invalid rule '{rule_name_for_log}': match must be a dictionary")
             return False
 
-        if "source" not in match or "og_text_regex" not in match or "ai_text_regex" not in match:
-            logger.error("invalid rule: match must contain source, og_text_regex, and ai_text_regex")
+        if "sources" not in match_config or "og_text_regex" not in match_config or "ai_text_regex" not in match_config:
+            logger.error(
+                f"invalid rule '{rule_name_for_log}': match must contain sources, og_text_regex, and ai_text_regex"
+            )
             return False
 
-        source = match.get("source")
-        if source and not (isinstance(source, str) or isinstance(source, list)):
-            logger.error("invalid rule: source must be a string or a list of strings")
-            return False
-
-        if isinstance(source, list):
-            if not all(isinstance(item, str) for item in source):
-                logger.error("invalid rule: all items in source list must be strings")
+        sources = match_config.get("sources")
+        if sources is None:
+            match_config["sources"] = []
+        elif isinstance(sources, str):
+            match_config["sources"] = [] if not sources else [sources]
+        elif isinstance(sources, list):
+            if not all(isinstance(item, str) for item in sources):
+                logger.error(f"invalid rule '{rule_name_for_log}': all items in sources list must be strings")
                 return False
-        elif isinstance(source, str):
-            match["source"] = [source]
+        else:
+            logger.error(
+                f"invalid rule '{rule_name_for_log}': sources must be empty (null), a string, or a list of strings"
+            )
+            return False
 
-        notify = rule.get("notify", {})
+        og_text_regex_match = match_config.get("og_text_regex")
+        if not (og_text_regex_match is None or isinstance(og_text_regex_match, str)):
+            logger.error(f"invalid rule '{rule_name_for_log}': match.og_text_regex must be a string or empty (null)")
+            return False
+
+        ai_text_regex_match = match_config.get("ai_text_regex")
+        if not (ai_text_regex_match is None or isinstance(ai_text_regex_match, str)):
+            logger.error(f"invalid rule '{rule_name_for_log}': match.ai_text_regex must be a string or empty (null)")
+            return False
+
+        notify_config = rule.get("notify", {})
         if (
-            not isinstance(notify, dict)
-            or "destinations" not in notify
-            or "original_message" not in notify
-            or "ai_processed" not in notify
+            not isinstance(notify_config, dict)
+            or "destinations" not in notify_config
+            or "send_og_text" not in notify_config
+            or "send_ai_text" not in notify_config
         ):
-            logger.error("invalid rule: notify must contain destinations, original_message, and ai_processed")
+            logger.error(
+                f"invalid rule '{rule_name_for_log}': notify must contain destinations, send_og_text, and send_ai_text"
+            )
             return False
 
-        destinations = notify.get("destinations")
-        if isinstance(destinations, str):
-            notify["destinations"] = [destinations]
+        destinations = notify_config.get("destinations")
+        if destinations is None:
+            notify_config["destinations"] = []
+        elif isinstance(destinations, str):
+            notify_config["destinations"] = [] if not destinations else [destinations]
+        elif isinstance(destinations, list):
+            if not all(isinstance(item, str) for item in destinations):
+                logger.error(f"invalid rule '{rule_name_for_log}': all items in destinations list must be strings")
+                return False
+        else:
+            logger.error(
+                f"invalid rule '{rule_name_for_log}': destinations must be empty (null), a string, or a list of strings"
+            )
+            return False
 
-        for msg_type in ["original_message", "ai_processed"]:
-            msg_config = notify.get(msg_type, {})
-            if not isinstance(msg_config, dict) or "enabled" not in msg_config or "match_regex" not in msg_config:
-                logger.error(f"invalid rule: {msg_type} must contain enabled and match_regex")
+        for msg_type in ["send_og_text", "send_ai_text"]:
+            msg_config = notify_config.get(msg_type, {})
+            if not isinstance(msg_config, dict) or "enabled" not in msg_config:
+                logger.error(
+                    f"invalid rule '{rule_name_for_log}': {msg_type} must be a dictionary and contain enabled field"
+                )
                 return False
 
+            for field_name in ["og_text_regex", "ai_text_regex"]:
+                if field_name not in msg_config:
+                    logger.error(f"invalid rule '{rule_name_for_log}': {msg_type} must contain {field_name} field")
+                    return False
+                field_value = msg_config.get(field_name)
+                if not (field_value is None or isinstance(field_value, str)):
+                    logger.error(
+                        f"invalid rule '{rule_name_for_log}': {msg_type}.{field_name} must be a string or empty (null)."
+                        f" found type: {type(field_value)}"
+                    )
+                    return False
         return True
 
     def validate_config(self, config: Dict[str, Any]) -> bool:
@@ -155,15 +193,11 @@ class Config:
             logger.error("invalid config: ai section must have provider field")
             return False
 
-        if "meta_ai" not in ai or "ollama" not in ai:
-            logger.error("invalid config: ai section must have meta_ai and ollama sections")
-            return False
-
-        if not isinstance(ai.get("ollama", {}), dict):
+        if "ollama" in ai and not isinstance(ai.get("ollama", {}), dict):
             logger.error("invalid config: ollama section must be a dictionary")
             return False
 
-        if "url" not in ai.get("ollama", {}) or "model" not in ai.get("ollama", {}):
+        if "ollama" in ai and ("url" not in ai.get("ollama", {}) or "model" not in ai.get("ollama", {})):
             logger.error("invalid config: ollama section must have url and model fields")
             return False
 
@@ -172,24 +206,45 @@ class Config:
             logger.error("invalid config: rules section must be a list")
             return False
 
-        for rule in rules:
+        rule_names = set()
+        for rule_idx, rule in enumerate(rules):
+            rule_name = rule.get("name")
+            if rule_name in rule_names:
+                logger.error(f"invalid config: duplicate rule name '{rule_name}' found")
+                return False
+            rule_names.add(rule_name)
+
             if not self.validate_rule(rule):
+                logger.error(
+                    f"invalid config: validation failed for rule index {rule_idx} (name: {rule.get('name', 'unnamed')})"
+                )
                 return False
 
-        destinations = config.get("destinations", [])
-        if not isinstance(destinations, list):
+        destinations_config = config.get("destinations", [])
+        if not isinstance(destinations_config, list):
             logger.error("invalid config: destinations section must be a list")
             return False
 
-        for destination in destinations:
+        dest_names = set()
+        for dest_idx, destination in enumerate(destinations_config):
             if not isinstance(destination, dict):
-                logger.error("invalid config: each destination must be a dictionary")
+                logger.error(f"invalid config: destination at index {dest_idx} must be a dictionary")
                 return False
 
-            if "name" not in destination or "url" not in destination or "enabled" not in destination:
-                logger.error("invalid config: each destination must have a name, url, and enabled field")
+            dest_name = destination.get("name")
+            if dest_name in dest_names:
+                logger.error(f"invalid config: duplicate destination name '{dest_name}' found")
                 return False
+            dest_names.add(dest_name)
 
+            required_dest_fields = ["name", "url", "enabled"]
+            for field in required_dest_fields:
+                if field not in destination:
+                    logger.error(
+                        f"invalid config: destination at index {dest_idx} (name: {destination.get('name', 'unnamed')})"
+                        f" must have {field} field"
+                    )
+                    return False
         return True
 
     def update_config(self, new_config: Dict[str, Any]) -> bool:
