@@ -12,7 +12,8 @@ function YamlEditor({
                         referenceText,
                         title = "Define in YAML format:",
                         referenceTitle = "Format Reference",
-                        editorHeight = "52vh"
+                        maxLines = 22,
+                        minLines = 22
                     }) {
     const [yamlContent, setYamlContent] = useState(() => {
         try {
@@ -81,7 +82,9 @@ function YamlEditor({
                         editorProps={{$blockScrolling: true}}
                         fontSize={12}
                         width="100%"
-                        height={editorHeight}
+                        height="auto"
+                        maxLines={maxLines}
+                        minLines={minLines}
                         showPrintMargin={false}
                         showGutter={true}
                         highlightActiveLine={true}
