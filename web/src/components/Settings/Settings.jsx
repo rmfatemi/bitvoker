@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {
     Box, Typography, Button, CircularProgress,
-    Snackbar, Alert, styled, Paper
+    Snackbar, Alert, styled, Paper, Grid
 } from '@mui/material';
 import DefaultRule from './DefaultRule';
 import AIProvider from './AIProvider';
@@ -109,24 +109,26 @@ function Settings() {
     return (
         <Box component="form" onSubmit={handleSubmit}>
 
-            <Box sx={{display: 'flex', flexDirection: 'row', gap: '20px', marginBottom: '20px'}}>
-                <Box sx={{flex: '2 1 0%'}}>
+            <Grid container spacing={2} sx={{mb: 3}}>
+                <Grid item xs={12} md={8} sx={{height: '100%'}}>
                     <DefaultRule
                         aiEnabled={aiEnabled}
                         includeOriginal={includeOriginal}
                         preprompt={preprompt}
                         updateConfig={updateConfig}
+                        sx={{height: '100%'}}
                     />
-                </Box>
-                <Box sx={{flex: '1 1 0%'}}>
+                </Grid>
+                <Grid item xs={12} md={4} sx={{height: '100%'}}>
                     <AIProvider
                         aiProvider={aiProvider}
                         ollamaUrl={ollamaUrl}
                         ollamaModel={ollamaModel}
                         updateConfig={updateConfig}
+                        sx={{height: '100%'}}
                     />
-                </Box>
-            </Box>
+                </Grid>
+            </Grid>
 
             <StyledPaper>
                 <Typography variant="h6" component="h2" sx={{mb: 2}}>
