@@ -69,8 +69,6 @@ class Notifier:
             logger.warning("no notification destinations configured")
             return
 
-        message_body = truncate(message_body, 4000, preserve_newlines=True, suffix="\n[truncated]")
-
         try:
             if destination_names:
                 success_count = 0
