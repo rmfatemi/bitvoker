@@ -2,7 +2,6 @@ import apprise
 
 from typing import List, Dict, Any, Optional
 
-from bitvoker.utils import truncate
 from bitvoker.logger import setup_logger
 
 
