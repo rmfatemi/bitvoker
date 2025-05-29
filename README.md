@@ -75,6 +75,11 @@ You can enable AI processing through unauthenticated interactions with [Meta's L
 * **Dynamic Notification Delivery**: Complete control over notification destinations, including when, where, and what to send
 * **Customizable Behavior**: Define rules to cutomize alerts based on source of alert, original content, AI prcessed content and more
 * **Granular Control**: Maintain full control over sources, destinations, and AI behavior while preserving adaptable automation workflows
+
+For a complete guide on how to define and use rules, refer to bitvoker's [wiki page](https://github.com/rmfatemi/bitvoker/wiki). Rules are defined in `YAML` format. You can use the provided reference to customize your own rule.
+
+> [!TIP]
+> If you are not comfortable working with `YAML` and regular expressions, any decent AI model can help you create your rules if you provide it with the reference and your requirements.
 ---
 
 ## 🏗️ Setup
@@ -84,15 +89,19 @@ This repository supports two ways of running **bitvoker**. For a consistent and 
 
 Create a `docker-compose.yaml` file copy the following inside it:
 
-```
+```yaml
 services:
   bitvoker:
     image: ghcr.io/rmfatemi/bitvoker:latest
     container_name: bitvoker
-    ports:
-      - "8083:8083"    # plain text tcp server
-      - "8084:8084"    # secure tcp server
-      - "8085:8085"    # web ui
+    # --- Network Configuration ---
+    # it is recommended to use host mode (refer to wiki for why)
+    network_mode: host
+    # for bridge mode comment the line above and uncomment ports
+    # ports:
+    #   - "8083:8083" # TCP server
+    #   - "8084:8084" # TLS server
+    #   - "8085:8085" # Web UI
     volumes:
       - bitvoker_data:/app/data
       - /etc/localtime:/etc/localtime:ro
@@ -176,7 +185,7 @@ Access the web interface at `https://{server_ip}:8085` to:
 <img src="https://github.com/user-attachments/assets/368f4842-59dd-4c38-a91d-a4478ca3efdb">
 <img src="https://github.com/user-attachments/assets/04040c01-77bb-4bfd-9fa5-bf4c489f22ca">
 <img src="https://github.com/user-attachments/assets/e3b79e6b-3482-411f-9179-fde5c0587227">
-<img src="https://github.com/user-attachments/assets/1bc987b6-01ce-40d9-bdd1-928ce1aba832">
+<img src="https://github.com/user-attachments/assets/ced0b8ae-25cd-4d51-addd-ba38f7b65e1a">
 
 ## 🔑 License
 
