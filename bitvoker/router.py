@@ -26,38 +26,14 @@ api_router = APIRouter()
 
 @api_router.post("/api/config")
 async def update_config(request: Request):
-    form_data = await request.json()
-    config_obj = Config()
     try:
-        if "preprompt" in form_data:
-            config_obj.set_preprompt(form_data.get("preprompt", ""))
-        if "enable_ai" in form_data:
-            config_obj.set_enable_ai(form_data.get("enable_ai", False))
-        if "show_original" in form_data:
-            config_obj.set_show_original(form_data.get("show_original", True))
-        if "gui_theme" in form_data:
-            config_obj.set_gui_theme(form_data.get("gui_theme", "dark"))
-
-        channel_configs = {
-            "telegram": ["chat_id", "token"],
-            "discord": ["webhook_id", "token"],
-            "slack": ["webhook_id", "token"],
-            "gotify": ["server_url", "token"],
-        }
-        for channel, fields in channel_configs.items():
-            if channel in form_data:
-                channel_data = form_data.get(channel, {})
-                kwargs = {field: channel_data.get(field, "") for field in fields}
-                config_obj.update_channel_config(channel, enabled=channel_data.get("enabled", False), **kwargs)
-
-        if "ai_provider" in form_data:
-            ai_provider_config = form_data.get(
-                "ai_provider", {"type": "meta_ai", "url": "http://<server-ip>:11434", "model": "gemma3:1b"}
-            )
-            config_obj.set_ai_provider_config(ai_provider_config)
-
-        refresh_components(request.app)
-        return {"success": True}
+        form_data = await request.json()
+        config_obj = Config()
+        if config_obj.update_config(form_data):
+            refresh_components(request.app)
+            return {"success": True}
+        else:
+            return JSONResponse(content={"error": "Invalid configuration format"}, status_code=400)
     except Exception as e:
         logger.error(f"failed to update configuration: {e}")
         return JSONResponse(content={"error": f"failed to update config: {str(e)}"}, status_code=500)
@@ -67,6 +43,7 @@ async def update_config(request: Request):
 async def get_config():
     try:
         config_obj = Config()
+        config_obj.get_default_rule()
         return config_obj.config_data
     except Exception as e:
         logger.error(f"failed to retrieve configuration: {e}")
@@ -80,7 +57,7 @@ async def get_config():
 
 @api_router.get("/api/notifications")
 def get_notifications_route(
-    limit: int = Query(20), start_date: Optional[str] = Query(None), end_date: Optional[str] = Query(None)
+    limit: int = Query(100, le=1000), start_date: Optional[str] = Query(None), end_date: Optional[str] = Query(None)
 ):
     try:
         notifs = get_notifications(limit, start_date or "", end_date or "")
@@ -96,7 +73,7 @@ def get_notifications_route(
 
 
 class MemoryLogHandler(logging.Handler):
-    def __init__(self, max_entries: int = 200):
+    def __init__(self, max_entries: int = 1000):
         super().__init__()
         self.log_entries: List[Dict[str, str]] = []
         self.max_entries = max_entries

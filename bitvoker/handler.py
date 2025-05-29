@@ -5,7 +5,6 @@ from time import strftime, localtime
 from bitvoker.utils import truncate
 from bitvoker.logger import setup_logger
 from bitvoker.database import insert_notification
-from bitvoker.refresher import refresh_components
 
 
 logger = setup_logger("handler")
@@ -13,9 +12,6 @@ logger = setup_logger("handler")
 
 class Handler(socketserver.BaseRequestHandler):
     def handle(self):
-        app = self.server.app
-        refresh_components(app)
-
         data = self.request.recv(1024).strip()
         original_message = data.decode("utf-8")
 
@@ -25,40 +21,38 @@ class Handler(socketserver.BaseRequestHandler):
 
         logger.debug(f"received: {truncate(original_message, 120)}")
 
-        ai_result = ""
-        message_body = ""
-        config = self.server.config_manager
-
-        if config.get_enable_ai() and self.server.ai is not None:
-            try:
-                ai_result = self.server.ai.process_message(original_message)
-            except Exception as e:
-                logger.error(f"ai processing failed after all retries, disabling ai: {e}")
-                config.set_enable_ai(False)
-                self.server.ai = None
-
-            if ai_result:
-                if config.get_show_original():
-                    message_body = f"[AI Summary]\n{ai_result}\n[Original Message]\n{original_message}"
-                else:
-                    message_body = ai_result
-            elif config.get_show_original():
-                message_body = original_message
-            else:
-                message_body = "error processing with ai. original message not shown as per config"
-        else:
-            if config.get_show_original():
-                message_body = original_message
-            else:
-                message_body = ""
-
         ts = strftime("%Y-%m-%d %H:%M:%S", localtime())
         client_ip = self.client_address[0]
         title = f"[{ts} - Notification from {client_ip}]"
-        if message_body:
-            try:
-                self.server.notifier.send_message(message_body, title=title)
-            except Exception as e:
-                logger.exception(f"overall error during notification dispatch: {e}")
 
-        insert_notification(ts, original_message, ai_result if config.get_enable_ai() else "", client_ip)
+        match_result = self.server.match.process(client_ip, original_message) if hasattr(self.server, "match") else None
+
+        ai_result = ""
+        if match_result:
+            ai_result = match_result.ai_processed or ""
+
+            message = ""
+            if match_result.should_send_ai and match_result.should_send_original:
+                # TODO: maybe let the user decide what it should look like
+                message = (
+                    f"\n************[AI Processed]************\n{match_result.ai_processed}\n**********[Original"
+                    f" Message]**********\n{match_result.original_text}"
+                )
+            elif match_result.should_send_ai:
+                message = match_result.ai_processed
+            elif match_result.should_send_original:
+                message = match_result.original_text
+
+            if message:
+                try:
+                    if match_result.destinations:
+                        self.server.match.get_enabled_destinations_by_names(match_result.destinations)
+                        self.server.notifier.send_message(
+                            message, title=title, destination_names=match_result.destinations
+                        )
+                    else:
+                        self.server.notifier.send_message(message, title=title)
+                except Exception as e:
+                    logger.exception(f"error during notification dispatch: {e}")
+
+        insert_notification(ts, original_message, ai_result, client_ip)

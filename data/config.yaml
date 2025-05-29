@@ -1,24 +1,58 @@
-preprompt: You are an assistant that summarizes technical logs and alerts. Be concise but informative. Use up to 20 Words.
-enable_ai: false
-show_original: true
-gui_theme: dark
-ai_provider:
-  type: "meta_ai"
-  url: "http://<server-ip>:11434"
-  model: "gemma3:1b"
-telegram:
+ai:
+  provider: meta_ai
+  meta_ai: {}
+  ollama:
+    url: http://{ollama_server_ip}:11434
+    model: gemma3:1b
+rules:
+- name: default-rule
+  enabled: true
+  preprompt: You are an AI specialized in analyzing technical documents and logs. Extract and present only the useful details in a clear, concise format. Provide the answer directly without any additional text, greetings, or commentary.
+  match:
+    sources: []
+    og_text_regex: null
+    ai_text_regex: null
+  notify:
+    destinations: []
+    send_og_text:
+      enabled: true
+      og_text_regex: null
+      ai_text_regex: null
+    send_ai_text:
+      enabled: true
+      og_text_regex: null
+      ai_text_regex: null
+    original_message:
+      enabled: true
+    ai_processed:
+      enabled: true
+- name: example-rule-1
   enabled: false
-  chat_id: ''
-  token: ''
-discord:
+  preprompt: null
+  match:
+    sources: null
+    og_text_regex: null
+    ai_text_regex: null
+  notify:
+    destinations: null
+    send_og_text:
+      enabled: false
+      og_text_regex: null
+      ai_text_regex: null
+    send_ai_text:
+      enabled: false
+      og_text_regex: null
+      ai_text_regex: null
+destinations:
+- name: Telegram
   enabled: false
-  webhook_id: ''
-  token: ''
-slack:
+  url: tgram://{token}/{chat_id}
+- name: Slack
   enabled: false
-  webhook_id: ''
-  token: ''
-gotify:
+  url: slack://{token}/{channel}
+- name: ntfy
   enabled: false
-  server_url: ''
-  token: ''
+  url: ntfys://{user}:{password}@{host}:{port}/{topics}
+- name: custom apprise
+  enabled: false
+  url: ''

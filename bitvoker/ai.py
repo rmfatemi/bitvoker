@@ -1,5 +1,3 @@
-import abc
-import json
 import requests
 
 from meta_ai_api import MetaAI
@@ -11,18 +9,7 @@ from bitvoker.logger import setup_logger
 logger = setup_logger("ai")
 
 
-class AIProvider(abc.ABC):
-    @abc.abstractmethod
-    def process_message(self, prompt, max_retries=3):
-        pass
-
-    @classmethod
-    @abc.abstractmethod
-    def from_config(cls, config):
-        pass
-
-
-class MetaAIProvider(AIProvider):
+class MetaAIProvider:
     def __init__(self):
         self.bot = MetaAI()
 
@@ -31,24 +18,20 @@ class MetaAIProvider(AIProvider):
             try:
                 response = self.bot.prompt(prompt)
                 result = response["message"]
-                logger.debug(f"meta ai processed message: {truncate(result, 80)}")
+                logger.debug(f"meta-ai processed message: {truncate(result, 80)}")
                 return result
             except Exception as e:
-                logger.warning(f"meta ai processing attempt {retry_count + 1} failed: {e}")
+                logger.warning(f"meta-ai processing attempt {retry_count + 1} failed: {e}")
                 try:
                     self.bot = MetaAI()
                 except Exception as init_error:
-                    logger.error(f"failed to recreate meta ai connection: {init_error}")
+                    logger.error(f"failed to recreate meta-ai connection: {init_error}")
 
-        logger.error("all meta ai processing attempts failed")
+        logger.error("all meta-ai processing attempts failed")
         raise RuntimeError(f"failed to process message after {max_retries} retries")
 
-    @classmethod
-    def from_config(cls, config):
-        return cls()
 
-
-class OllamaProvider(AIProvider):
+class OllamaProvider:
     def __init__(self, url, model="gemma3:1b"):
         self.url = url
         self.model = model
@@ -101,99 +84,34 @@ class OllamaProvider(AIProvider):
         logger.error("all ollama processing attempts failed")
         raise RuntimeError(f"failed to process message after {max_retries} retries")
 
-    @classmethod
-    def from_config(cls, config):
-        url = config.get("url", "http://<server-ip>:11434")
-        model = config.get("model", "gemma3:1b")
-        return cls(url=url, model=model)
+
+def process_with_ai(message, preprompt, ai_config, max_retries=3):
+    if not ai_config:
+        logger.warning("no ai config provided")
+        return None
+
+    try:
+        provider = get_provider(ai_config)
+        prompt = f"{preprompt}: {message}"
+        result = provider.process_message(prompt, max_retries)
+
+        if isinstance(provider, OllamaProvider) and hasattr(provider, "session"):
+            provider.session.close()
+
+        return result
+    except Exception as e:
+        logger.error(f"error processing message with ai: {e}")
+        raise
 
 
-class AI:
-    def __init__(self, preprompt, provider_config=None, config_manager=None):
-        self.preprompt = preprompt
-        self.provider_config = provider_config or {}
-        self.config_manager = config_manager
-        self.provider = None
-        try:
-            self.provider = self._initialize_provider()
-        except Exception as e:
-            logger.error(f"failed to initialize ai provider: {e}")
-            self.provider_config = {"type": "none", "enabled": False}
-            if self.config_manager:
-                logger.info("updating config manager to disable ai")
-                self.config_manager.set_enable_ai(False)
-
-    def _initialize_provider(self):
-        provider_type = self.provider_config.get("type", "meta_ai")
-
-        if provider_type == "ollama":
-            logger.info("using ollama as ai provider")
-            return OllamaProvider.from_config(self.provider_config)
-        else:
-            logger.info("using meta ai as ai provider")
-            return MetaAIProvider.from_config(self.provider_config)
-
-    def update_config(self, new_config):
-        if not new_config:
-            logger.warning("received empty config, ignoring update")
-            return
-
-        if self.provider_config == new_config:
-            logger.debug("ai config unchanged, skipping update")
-            return
-
-        logger.info(f"updating ai config from type '{self.provider_config.get('type')}' to '{new_config.get('type')}'")
-        previous_provider = self.provider
-        previous_config = self.provider_config
-        try:
-            self.provider_config = json.loads(json.dumps(new_config))
-            logger.info(f"initializing provider with type: {self.provider_config.get('type')}")
-            self.provider = self._initialize_provider()
-            logger.info(f"provider successfully initialized: {type(self.provider).__name__}")
-            test_result = self.provider.process_message("test connection", max_retries=1)
-            if test_result:
-                logger.info("new provider successfully processed test message")
-
-        except Exception as e:
-            logger.error(f"failed to initialize or test provider: {str(e)}", exc_info=True)
-            if previous_provider:
-                logger.warning(f"reverting to previous provider: {type(previous_provider).__name__}")
-                self.provider = previous_provider
-                self.provider_config = previous_config
-            else:
-                logger.warning("ai initialization failed, disabling ai completely")
-                self.provider_config = {"type": "none", "enabled": False}
-                self.provider = None
-
-    def process_message(self, message, max_retries=3):
-        if not self.provider:
-            logger.warning("no ai provider available, skipping message processing")
-            return None
-
-        prompt = f"{self.preprompt}: {message}"
-        try:
-            return self.provider.process_message(prompt, max_retries)
-        except Exception as e:
-            logger.error(f"error processing message: {e}")
-            raise
-
-    def needs_update(self, new_config):
-        return self.provider_config != new_config
-
-    def cleanup(self):
-        try:
-            if self.provider:
-                if isinstance(self.provider, OllamaProvider):
-                    logger.debug("closing ollama provider session")
-                    if hasattr(self.provider, "session"):
-                        self.provider.session.close()
-
-                if isinstance(self.provider, MetaAIProvider):
-                    if hasattr(self.provider, "bot"):
-                        self.provider.bot = None
-
-            logger.debug("ai instance cleanup completed")
-        except Exception as e:
-            logger.error(f"error during ai cleanup: {e}", exc_info=True)
-
-        self.provider = None
+def get_provider(ai_config):
+    provider_type = ai_config.get("provider", "meta_ai")
+    if provider_type == "ollama":
+        logger.info("using ollama as ai provider")
+        ollama_config = ai_config.get("ollama", {})
+        url = ollama_config.get("url", "http://localhost:11434")
+        model = ollama_config.get("model", "gemma3:1b")
+        return OllamaProvider(url=url, model=model)
+    else:
+        logger.info("using meta-ai as ai provider")
+        return MetaAIProvider()
