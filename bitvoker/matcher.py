@@ -140,7 +140,7 @@ class Match:
 
     def _should_send_ai_processed(
         self, notify_config: Dict[str, Any], text: str, ai_text: str
-    ) -> bool:  # ai_text is not Optional here
+    ) -> bool:
         return self._should_send_message(notify_config.get("send_ai_text", {}), text, ai_text)
 
     def get_enabled_destinations_by_names(self, destination_names: List[str]) -> Dict[str, Dict[str, Any]]:
@@ -182,7 +182,7 @@ class Match:
             match_config = matched_rule.get("match", {})
             ai_text_regex_in_match = match_config.get("ai_text_regex", "")
             if ai_text_regex_in_match:
-                if result.ai_processed is None:  # AI processing failed or returned None
+                if result.ai_processed is None:
                     logger.debug(
                         f"rule '{rule_name}' rejected: ai_text_regex ('{ai_text_regex_in_match}') set in match"
                         " conditions, but ai_processed text is not available"
