@@ -86,6 +86,7 @@ function Dashboard({notifications = [], config = {}, onRefresh}) {
                     slots={{
                         toolbar: GridToolbar,
                     }}
+                    density="compact"
                     sx={{
                         '&.MuiDataGrid-root': {
                             border: 'none',
@@ -97,17 +98,18 @@ function Dashboard({notifications = [], config = {}, onRefresh}) {
                             borderRight: 'none',
                         },
                         '& .MuiDataGrid-cell': {
+                            backgroundColor: (theme) => theme.palette.background.default,
                             borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
-                            backgroundColor: (theme) => theme.palette.background.paper,
                             display: 'flex',
                             alignItems: 'flex-start',
                             py: 1,
                         },
                         '& .MuiDataGrid-columnHeaders': {
-                            backgroundColor: (theme) => theme.palette.background.default,
+                            backgroundColor: (theme) => theme.palette.background.paper,
                             borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
                         },
                         '& .MuiDataGrid-toolbarContainer': {
+                            backgroundColor: (theme) => theme.palette.background.default,
                             borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
                         },
                         '& .MuiDataGrid-virtualScroller': {

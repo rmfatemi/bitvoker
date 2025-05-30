@@ -44,7 +44,7 @@ function Logs({logs = [], onRefresh}) {
         {
             field: 'timestamp',
             headerName: 'Timestamp',
-            width: 180,
+            width: 200,
             type: 'dateTime',
             valueGetter: (params) => {
                 if (typeof params.value === 'string' && params.value) {
@@ -95,6 +95,7 @@ function Logs({logs = [], onRefresh}) {
                     slots={{
                         toolbar: GridToolbar,
                     }}
+                    density="compact"
                     initialState={{
                         sorting: {
                             sortModel: [{field: 'timestamp', sort: 'desc'}],
@@ -112,16 +113,17 @@ function Logs({logs = [], onRefresh}) {
                         },
                         '& .MuiDataGrid-cell': {
                             borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
-                            backgroundColor: (theme) => theme.palette.background.paper,
+                            backgroundColor: (theme) => theme.palette.background.default,
                             display: 'flex',
                             alignItems: 'center',
                             py: 1,
                         },
                         '& .MuiDataGrid-columnHeaders': {
-                            backgroundColor: (theme) => theme.palette.background.default,
+                            backgroundColor: (theme) => theme.palette.background.paper,
                             borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
                         },
                         '& .MuiDataGrid-toolbarContainer': {
+                            backgroundColor: (theme) => theme.palette.background.default,
                             borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
                         },
                         '& .MuiDataGrid-virtualScroller': {
