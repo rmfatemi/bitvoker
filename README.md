@@ -1,21 +1,19 @@
 
 <p>
   <img align="left" src="https://raw.githubusercontent.com/rmfatemi/bitvoker/master/web/src/assets/bitvoker.svg" width="100" />
-  <strong>bitvoker</strong> is a notification system designed to facilitate alert management in any environment. It operates through a dedicated TCP server that receives incoming raw messages, which are then filtered and processed using highly customizable rules and, optionally, can be processed using AI before being delivered to integrated destinations such as Slack, Discord, and Microsoft Teams and many more.
+  <strong>bitvoker</strong> is a notification system designed to facilitate alert management in any environment. It operates through a dedicated TCP server that receives incoming raw messages, which are then filtered and processed using highly customizable rules and, optionally, can be processed using AI before being delivered to over 100 integrated destinations such as Slack, Discord, Telegram, Microsoft Teams, Email, and many more.
 </p>
-
+<br>
 
 ## What Does It Do?
 
-<div align="justify">
-**bitvoker** transforms raw text and data into intelligent, actionable alerts. You send it the `log`/`text`/`website`, etc, and then configure it to do what you need. Leveraging regular expressions and AI, the following scenarios represent only a portion of its capabilities:
+<strong>bitvoker</strong> transforms raw text and data into intelligent, actionable alerts. You send it the `log`, `text`, `website`, etc, and then configure it to do what you need. Leveraging regular expressions and AI, the following scenarios represent only a portion of its capabilities:
 
 1. If logs coming from `web-app-gateway-03`, include `SECURITY_ALERT` and `Failed login attempt` for the user `admin` and the Client IP address is not within our internal `192.168.1.0/24` range, then use our local LLM model to identify the `origin of the attack` and `recommended blocking action`. Only send the AI-processed recommendations to the SOC team's `"INCIDENT" Slack channel` alerts. Never send the original security alerts (sensitive information).
 
 2. If this downloaded BestBuy page contains a product-listing for `Sony WH-1000XM5 Headphones` then feed it into this AI model to see if the discount-badge shows a SAVE percentage greater than 15% and extracts the `current price`, `original price`, and the `direct buy URL`. Only send the AI-processed deal details to this dedicated `Telegram` chat.
 
 3. If logs coming from the `db-server-prod-01` include an error where `long_query_threshold` exceeded and the duration is greater than `1000ms`, then use Meta's LLAMA4 model to summarize the `"impact on service in 15 words or less"`, send both the AI-processed summary and the original message, but the original message only if it contains a Client IP starting with `10.0.0..`. Send all notifications to the `DBA` team's `Microsoft Teams channel` and the team's `email alerts inbox`.
-</div>
 
 ## Features
 
@@ -33,7 +31,7 @@
     <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/pushover.svg" width="20">
     <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/home-assistant.svg" width="20">
   </span>
-   and many more thanks to Apprise integration.
+   and many more Thanks to <a href="https://github.com/caronc/apprise">Apprise</a> integration.
 </p>
 
 - 🤖 **Customizable AI Processing**: Refine messages by processing them using customizable pre-prompts
@@ -181,9 +179,9 @@ Access the web interface at `https://{server_ip}:8085` to:
 - View system logs
 
 ### Screenshots
-<img src="https://github.com/user-attachments/assets/368f4842-59dd-4c38-a91d-a4478ca3efdb">
-<img src="https://github.com/user-attachments/assets/04040c01-77bb-4bfd-9fa5-bf4c489f22ca">
-<img src="https://github.com/user-attachments/assets/e3b79e6b-3482-411f-9179-fde5c0587227">
+<img src="https://github.com/user-attachments/assets/7d168752-ad8a-4230-b627-00cc7c7bb601">
+<img src="https://github.com/user-attachments/assets/4e64c12b-5db5-4ae7-ba7d-344bd427c318">
+<img src="https://github.com/user-attachments/assets/4576d1d9-7f9b-4be3-9be5-69774ab980f1">
 <img src="https://github.com/user-attachments/assets/ced0b8ae-25cd-4d51-addd-ba38f7b65e1a">
 
 ## 🔑 License
