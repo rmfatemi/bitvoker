@@ -29,7 +29,7 @@ function Dashboard({notifications = [], config = {}, onRefresh}) {
         {
             field: 'timestamp',
             headerName: 'Timestamp',
-            width: 180,
+            width: 195,
             type: 'dateTime',
             valueGetter: (params) => {
                 if (typeof params.value === 'string' && params.value) {
