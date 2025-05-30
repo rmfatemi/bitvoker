@@ -21,7 +21,7 @@ class Handler(socketserver.BaseRequestHandler):
                 chunks.append(chunk)
                 if len(chunk) < 4096:
                     break
-                data = b"".join(chunks).strip()
+            data = b"".join(chunks).strip()
         except Exception as e:
             logger.exception(f"error reading socket data: {e}")
             return
