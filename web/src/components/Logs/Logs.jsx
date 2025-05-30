@@ -1,46 +1,27 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, {useEffect} from 'react';
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
     Box,
-    Paper
+    Paper,
+    styled,
+    Typography
 } from '@mui/material';
+import {DataGrid, GridToolbar} from '@mui/x-data-grid';
+
+const WrappedCell = styled('div')({
+    whiteSpace: 'pre-wrap',
+    wordBreak: 'break-word',
+    lineHeight: 1,
+    padding: '2px 0',
+});
 
 function Logs({logs = [], onRefresh}) {
-    const [logEntries, setLogEntries] = useState(logs);
-    const logsContainerRef = useRef(null);
-
-    useEffect(() => {
-        setLogEntries(logs);
-    }, [logs]);
 
     useEffect(() => {
         const intervalId = setInterval(() => {
             if (onRefresh) onRefresh();
         }, 20000);
-
         return () => clearInterval(intervalId);
     }, [onRefresh]);
-
-    useEffect(() => {
-        if (logsContainerRef.current) {
-            logsContainerRef.current.scrollTop = logsContainerRef.current.scrollHeight;
-        }
-    }, [logEntries]);
-
-    const escapeHtml = (unsafe) => {
-        if (unsafe === null || unsafe === undefined) return '';
-        return unsafe.toString()
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    };
 
     const getLogLevelStyle = (level, theme) => {
         switch (level) {
@@ -59,78 +40,110 @@ function Logs({logs = [], onRefresh}) {
         }
     };
 
-    return (
-        <TableContainer
-            component={Paper}
-            ref={logsContainerRef}
-            sx={(theme) => ({
-                maxHeight: '75vh',
-                overflowY: 'auto',
-                border: `1px solid ${theme.palette.divider}`,
-                boxShadow: theme.shadows[1],
-                '& .MuiTableCell-root': {
-                    fontSize: '0.9em',
-                    padding: '2px 10px',
-                    borderBottom: `1px solid ${theme.palette.divider}`,
-                    borderRight: `1px solid ${theme.palette.divider}`
-                },
-                '& .MuiTableCell-root:last-child': {
-                    borderRight: 'none'
-                },
-                '& .MuiTableHead-root .MuiTableRow-root': {
-                    backgroundColor: theme.palette.background.header,
-                    '& .MuiTableCell-root': {
-                        fontWeight: 'bold',
-                        borderBottom: `2px solid ${theme.palette.divider}`
-                    }
+    const columns = [
+        {
+            field: 'timestamp',
+            headerName: 'Timestamp',
+            width: 180,
+            type: 'dateTime',
+            valueGetter: (params) => {
+                if (typeof params.value === 'string' && params.value) {
+                    const isoString = params.value.replace(' ', 'T');
+                    const date = new Date(isoString);
+                    return !isNaN(date.getTime()) ? date : null;
                 }
-            })}
-        >
-            <Table stickyHeader size="small" id="logsTable">
-                <TableHead>
-                    <TableRow>
-                        <TableCell sx={{width: '1%', whiteSpace: 'nowrap'}}>Timestamp</TableCell>
-                        <TableCell sx={{width: '1%', whiteSpace: 'nowrap'}}>Level</TableCell>
-                        <TableCell>Message</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {logEntries.map((log, index) => (
-                        <TableRow key={index}>
-                            <TableCell sx={{width: '1%', whiteSpace: 'nowrap'}}>
-                                {log.timestamp}
-                            </TableCell>
-                            <TableCell
-                                sx={(theme) => ({
-                                    width: '1%',
-                                    whiteSpace: 'nowrap',
-                                    ...getLogLevelStyle(log.level, theme)
-                                })}
-                            >
-                                {log.level}
-                            </TableCell>
-                            <TableCell>
-                                <Box
-                                    component="pre"
-                                    sx={{
-                                        m: 0,
-                                        p: '5px',
-                                        whiteSpace: 'pre-wrap',
-                                        wordBreak: 'break-word',
-                                        maxHeight: '200px',
-                                        overflowY: 'auto',
-                                        background: 'transparent',
-                                        borderRadius: 0,
-                                        fontSize: '1em'
-                                    }}
-                                    dangerouslySetInnerHTML={{__html: escapeHtml(log.message)}}
-                                />
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </TableContainer>
+                return null;
+            },
+        },
+        {
+            field: 'level',
+            headerName: 'Level',
+            width: 120,
+            renderCell: (params) => (
+                <Typography variant="body2" sx={(theme) => getLogLevelStyle(params.value, theme)}>
+                    {params.value}
+                </Typography>
+            )
+        },
+        {
+            field: 'message',
+            headerName: 'Message',
+            flex: 1,
+            renderCell: (params) => (
+                <WrappedCell>{params.value}</WrappedCell>
+            )
+        },
+    ];
+
+    const rows = logs.map((log, index) => ({
+        id: index,
+        ...log
+    }));
+
+    return (
+        <Box>
+            <Paper sx={{
+                height: '75vh',
+                width: '100%',
+                border: (theme) => `1px solid ${theme.palette.divider}`
+            }}>
+                <DataGrid
+                    rows={rows}
+                    columns={columns}
+                    getRowHeight={() => 'auto'}
+                    disableRowSelectionOnClick
+                    slots={{
+                        toolbar: GridToolbar,
+                    }}
+                    initialState={{
+                        sorting: {
+                            sortModel: [{field: 'timestamp', sort: 'desc'}],
+                        },
+                    }}
+                    sx={{
+                        '&.MuiDataGrid-root': {
+                            border: 'none',
+                        },
+                        '& .MuiDataGrid-columnHeader, & .MuiDataGrid-cell': {
+                            borderRight: (theme) => `1px solid ${theme.palette.divider}`,
+                        },
+                        '& .MuiDataGrid-columnHeader:last-of-type, & .MuiDataGrid-cell:last-of-type': {
+                            borderRight: 'none',
+                        },
+                        '& .MuiDataGrid-cell': {
+                            borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+                            backgroundColor: (theme) => theme.palette.background.paper,
+                            display: 'flex',
+                            alignItems: 'center',
+                            py: 1,
+                        },
+                        '& .MuiDataGrid-columnHeaders': {
+                            backgroundColor: (theme) => theme.palette.background.default,
+                            borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+                        },
+                        '& .MuiDataGrid-toolbarContainer': {
+                            borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+                        },
+                        '& .MuiDataGrid-virtualScroller': {
+                            '&::-webkit-scrollbar': {
+                                width: '0.4em',
+                                height: '0.4em',
+                            },
+                            '&::-webkit-scrollbar-track': {
+                                background: (theme) => theme.palette.background.paper,
+                            },
+                            '&::-webkit-scrollbar-thumb': {
+                                backgroundColor: (theme) => theme.palette.divider,
+                                borderRadius: '2px',
+                            },
+                            '&::-webkit-scrollbar-thumb:hover': {
+                                background: (theme) => theme.palette.secondary.main,
+                            },
+                        },
+                    }}
+                />
+            </Paper>
+        </Box>
     );
 }
 

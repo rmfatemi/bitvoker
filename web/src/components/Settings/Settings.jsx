@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useMemo} from 'react';
 import {
     Box, Typography, Button, CircularProgress,
     Snackbar, Alert, styled, Paper, Grid
@@ -9,10 +9,10 @@ import RuleEditor from './RuleEditor';
 import DestinationEditor from './DestinationEditor';
 import DownloadConfig from './DownloadConfig';
 
-const StyledPaper = styled(Paper)(() => ({
+const StyledPaper = styled(Paper)(({ theme }) => ({
     padding: '20px',
-    border: '1px solid var(--border-color)',
-    backgroundColor: 'var(--card-bg)',
+    border: `1px solid ${theme.palette.divider}`,
+    backgroundColor: theme.palette.background.default,
     marginBottom: '20px'
 }));
 
@@ -64,7 +64,6 @@ function Settings() {
             }
 
             await fetchConfig();
-
             setSnackbar({
                 open: true,
                 message: 'Settings saved successfully',
@@ -90,6 +89,25 @@ function Settings() {
         setSnackbar({...snackbar, open: false});
     };
 
+    const {
+        aiEnabled,
+        includeOriginal,
+        preprompt,
+        aiProvider,
+        ollamaUrl,
+        ollamaModel
+    } = useMemo(() => {
+        const defaultRule = configData?.rules?.find(r => r.name === "default-rule") || {};
+        return {
+            aiEnabled: defaultRule.notify?.send_ai_text?.enabled || false,
+            includeOriginal: defaultRule.notify?.send_og_text?.enabled || false,
+            preprompt: defaultRule.preprompt || '',
+            aiProvider: configData?.ai?.provider || 'meta_ai',
+            ollamaUrl: configData?.ai?.ollama?.url || '',
+            ollamaModel: configData?.ai?.ollama?.model || ''
+        };
+    }, [configData]);
+
     if (loading) {
         return (
             <Box sx={{display: 'flex', justifyContent: 'center', p: 4}}>
@@ -98,34 +116,25 @@ function Settings() {
         );
     }
 
-    const defaultRule = configData?.rules?.find(r => r.name === "default-rule") || {};
-    const aiEnabled = defaultRule?.notify?.ai_processed?.enabled || false;
-    const aiProvider = configData?.ai?.provider || 'meta_ai';
-    const ollamaUrl = configData?.ai?.ollama?.url || '';
-    const ollamaModel = configData?.ai?.ollama?.model || '';
-    const preprompt = defaultRule?.preprompt || '';
-    const includeOriginal = defaultRule?.notify?.original_message?.enabled || false;
-
     return (
         <Box component="form" onSubmit={handleSubmit}>
-
             <Grid container spacing={2} sx={{mb: 3}}>
-                <Grid item xs={12} md={8} sx={{height: '100%'}}>
+                <Grid item xs={12} md={8} sx={{display: 'flex', flexDirection: 'column'}}>
                     <DefaultRule
                         aiEnabled={aiEnabled}
                         includeOriginal={includeOriginal}
                         preprompt={preprompt}
                         updateConfig={updateConfig}
-                        sx={{height: '100%'}}
+                        sx={{flexGrow: 1}}
                     />
                 </Grid>
-                <Grid item xs={12} md={4} sx={{height: '100%'}}>
+                <Grid item xs={12} md={4} sx={{display: 'flex', flexDirection: 'column'}}>
                     <AIProvider
                         aiProvider={aiProvider}
                         ollamaUrl={ollamaUrl}
                         ollamaModel={ollamaModel}
                         updateConfig={updateConfig}
-                        sx={{height: '100%'}}
+                        sx={{flexGrow: 1}}
                     />
                 </Grid>
             </Grid>
