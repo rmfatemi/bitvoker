@@ -1,7 +1,7 @@
 
 <p>
   <img align="left" src="https://raw.githubusercontent.com/rmfatemi/bitvoker/master/web/src/assets/bitvoker.svg" width="100" />
-  <strong>bitvoker</strong> is a notification system designed to facilitate alert management in any environment. It operates through a dedicated TCP server that receives incoming raw messages, which are then filtered and processed using highly customizable rules and, optionally, can be processed using AI before being delivered to over 100 integrated destinations such as Slack, Discord, Telegram, Microsoft Teams, Email, and many more.
+  <strong>bitvoker</strong> is a notification system designed to facilitate alert management in any environment. It operates through a dedicated TCP server that receives incoming raw messages, which are then filtered and processed through highly customizable rules and, optionally, can be processed using AI before being delivered to over 100 integrated destinations such as Slack, Discord, Telegram, Microsoft Teams, Email, and many more.
 </p>
 <br>
 
