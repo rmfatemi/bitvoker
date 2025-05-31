@@ -91,10 +91,9 @@ services:
   bitvoker:
     image: ghcr.io/rmfatemi/bitvoker:latest
     container_name: bitvoker
-    # --- Network Configuration ---
-    # it is recommended to use host mode (refer to wiki for more info)
+    # it is recommended to use host mode for networking (see the wiki for details)
     network_mode: host
-    # for bridge mode comment the line above and uncomment ports
+    # for bridge mode, comment out the line above and uncomment the section below
     # ports:
     #   - "8083:8083" # TCP server
     #   - "8084:8084" # TLS server
@@ -109,7 +108,7 @@ volumes:
     name: bitvoker_data
 ```
 Then start the service with:
-```
+```shell
 docker-compose up -d
 ```
 ### Standalone Installation
@@ -158,13 +157,13 @@ You can send messages to **bitvoker**'s endpoint using `netcat` (port `8083`) fo
   ```python
   import socket, ssl
 
+  server_port = 8084
   server_ip = "{server_ip}"
-  port = 8084
   message = "Your notification message"
 
   context = ssl.create_default_context()
 
-  with socket.create_connection((server_ip, port)) as sock:
+  with socket.create_connection((server_ip, server_port)) as sock:
       with context.wrap_socket(sock, server_hostname=server_ip) as s:
           s.sendall(message.encode())
   ```
