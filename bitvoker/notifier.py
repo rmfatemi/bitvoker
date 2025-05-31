@@ -2,7 +2,6 @@ import apprise
 
 from typing import List, Dict, Any, Optional
 
-from bitvoker.utils import truncate
 from bitvoker.logger import setup_logger
 
 
@@ -68,8 +67,6 @@ class Notifier:
         if not self.destinations_config:
             logger.warning("no notification destinations configured")
             return
-
-        message_body = truncate(message_body, 4000, preserve_newlines=True, suffix="\n[truncated]")
 
         try:
             if destination_names:

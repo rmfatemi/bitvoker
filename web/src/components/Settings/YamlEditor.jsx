@@ -1,20 +1,21 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import yaml from 'js-yaml';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-yaml';
 import 'ace-builds/src-noconflict/theme-merbivore_soft';
 import 'ace-builds/src-noconflict/ext-language_tools';
-import {TextField, FormHelperText} from '@mui/material';
+import { TextField, FormHelperText } from '@mui/material';
 
 function YamlEditor({
-                        data,
-                        updateData,
-                        referenceText,
-                        title = "Define in YAML format:",
-                        referenceTitle = "Format Reference",
-                        maxLines = 22,
-                        minLines = 22
-                    }) {
+    data,
+    updateData,
+    validateData,
+    referenceText,
+    title = "Define in YAML format:",
+    referenceTitle = "Format Reference",
+    maxLines = 22,
+    minLines = 22
+}) {
     const [yamlContent, setYamlContent] = useState(() => {
         try {
             return yaml.dump(data || []);
@@ -24,13 +25,13 @@ function YamlEditor({
     });
 
     const [yamlError, setYamlError] = useState('');
+    const [semanticError, setSemanticError] = useState('');
     const [isPressed, setIsPressed] = useState(false);
     const [isEditorHovered, setIsEditorHovered] = useState(false);
     const yamlReferenceRef = useRef(null);
 
     const handleYamlChange = (newValue) => {
         setYamlContent(newValue);
-
         try {
             yaml.load(newValue);
             setYamlError('');
@@ -48,15 +49,25 @@ function YamlEditor({
     };
 
     useEffect(() => {
+        setSemanticError('');
         try {
             const parsedData = yaml.load(yamlContent);
-            if (!yamlError && (yamlContent.trim() === '' || parsedData)) {
-                updateData(parsedData || []);
+            if (!yamlError) {
+                if (validateData) {
+                    const error = validateData(parsedData);
+                    if (error) {
+                        setSemanticError(error);
+                        return;
+                    }
+                }
+                if (yamlContent.trim() === '' || parsedData !== undefined) {
+                    updateData(parsedData || []);
+                }
             }
         } catch (error) {
-            // will be caught by input validation
+            // This is already handled by the validation in handleYamlChange
         }
-    }, [yamlContent, yamlError, updateData]);
+    }, [yamlContent, yamlError, updateData, validateData]);
 
     return (
         <div className="yaml-editor-container">
@@ -69,7 +80,7 @@ function YamlEditor({
 
                 <div style={{
                     borderRadius: '4px',
-                    border: `1px solid ${isEditorHovered ? 'rgba(255, 255, 255, 0.23)' : 'rgba(255, 255, 255, 0.23)'}`,
+                    border: `1px solid`,
                     borderColor: isEditorHovered ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0.23)',
                     transition: 'border-color 0.2s'
                 }}>
@@ -79,7 +90,7 @@ function YamlEditor({
                         onChange={handleYamlChange}
                         value={yamlContent}
                         name="yaml-editor"
-                        editorProps={{$blockScrolling: true}}
+                        editorProps={{ $blockScrolling: true }}
                         fontSize={12}
                         width="100%"
                         height="auto"
@@ -99,7 +110,10 @@ function YamlEditor({
                     />
                 </div>
 
-                {yamlError && <div className="error-message">{yamlError}</div>}
+                <FormHelperText error={!!yamlError || !!semanticError} sx={{ ml: 1.5, mt: 1, minHeight: '1.25em' }}>
+                    {yamlError || semanticError || 'YAML content and structure are valid.'}
+                </FormHelperText>
+
             </div>
 
             <div className="yaml-format-guide" style={{
@@ -108,11 +122,11 @@ function YamlEditor({
                 border: '1px solid var(--border-color)',
                 borderRadius: '4px'
             }}>
-                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <h4>{referenceTitle}</h4>
                 </div>
 
-                <div style={{position: 'relative'}}>
+                <div style={{ position: 'relative' }}>
                     <button
                         type="button"
                         className="action-button"
@@ -139,7 +153,7 @@ function YamlEditor({
                     >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
                             <path
-                                d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z"/>
+                                d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z" />
                         </svg>
                     </button>
 
@@ -164,7 +178,7 @@ function YamlEditor({
                             }
                         }}
                     />
-                    <FormHelperText sx={{mt: 0.5}}>
+                    <FormHelperText sx={{ mt: 0.5 }}>
                         YAML configuration reference:
                         All keys are required.
                         Maintain the structure and customize the values.

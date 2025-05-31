@@ -19,13 +19,9 @@ rules:
       og_text_regex: null
       ai_text_regex: null
     send_ai_text:
-      enabled: true
+      enabled: false
       og_text_regex: null
       ai_text_regex: null
-    original_message:
-      enabled: true
-    ai_processed:
-      enabled: true
 - name: example-rule-1
   enabled: false
   preprompt: null
@@ -53,6 +49,3 @@ destinations:
 - name: ntfy
   enabled: false
   url: ntfys://{user}:{password}@{host}:{port}/{topics}
-- name: custom apprise
-  enabled: false
-  url: ''

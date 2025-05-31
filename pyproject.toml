@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "bitvoker"
-version = "1.2.0"
+version = "1.2.1"
 description = "bitvoker notification system"
 authors = ["Rasool Fatemi <rmfatemi@gmail.com>"]
 readme = "README.md"

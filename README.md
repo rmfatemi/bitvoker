@@ -1,22 +1,19 @@
-<div align="justify">
+
 <p>
   <img align="left" src="https://raw.githubusercontent.com/rmfatemi/bitvoker/master/web/src/assets/bitvoker.svg" width="100" />
-  <strong>bitvoker</strong> is an open-source, adaptable notification system engineered to optimize automated alerts from homelab environments to production infrastructures. It functions through a dedicated TCP server that ingests incoming messages. These messages can be refined into heavily customizable rule-based AI-generated summaries before being dispatched through various integrated destinations, including Slack, Discord, and Microsoft Teams.
+  <strong>bitvoker</strong> is a notification system designed to facilitate alert management in any environment. It operates through a dedicated TCP server that receives incoming raw messages, which are then filtered and processed through highly customizable rules and, optionally, can be processed using AI before being delivered to over 100 integrated destinations such as Slack, Discord, Telegram, Microsoft Teams, Email, and many more.
 </p>
-
+<br>
 
 ## What Does It Do?
 
-**bitvoker** transforms raw text and data into intelligent, actionable alerts. You send it the `log`/`text`/`website`, etc, and then configure it to do what you need. Leveraging regular expressions and AI, the following scenarios represent only a portion of its capabilities:
+<strong>bitvoker</strong> transforms raw text and data into intelligent, actionable alerts. You send it the `log`, `text`, `website`, etc, and then configure it to do what you need. Leveraging regular expressions and AI, the following scenarios represent only a portion of its capabilities:
 
 1. If logs coming from `web-app-gateway-03`, include `SECURITY_ALERT` and `Failed login attempt` for the user `admin` and the Client IP address is not within our internal `192.168.1.0/24` range, then use our local LLM model to identify the `origin of the attack` and `recommended blocking action`. Only send the AI-processed recommendations to the SOC team's `"INCIDENT" Slack channel` alerts. Never send the original security alerts (sensitive information).
 
 2. If this downloaded BestBuy page contains a product-listing for `Sony WH-1000XM5 Headphones` then feed it into this AI model to see if the discount-badge shows a SAVE percentage greater than 15% and extracts the `current price`, `original price`, and the `direct buy URL`. Only send the AI-processed deal details to this dedicated `Telegram` chat.
 
 3. If logs coming from the `db-server-prod-01` include an error where `long_query_threshold` exceeded and the duration is greater than `1000ms`, then use Meta's LLAMA4 model to summarize the `"impact on service in 15 words or less"`, send both the AI-processed summary and the original message, but the original message only if it contains a Client IP starting with `10.0.0..`. Send all notifications to the `DBA` team's `Microsoft Teams channel` and the team's `email alerts inbox`.
-
-
-</div>
 
 ## Features
 
@@ -34,20 +31,20 @@
     <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/pushover.svg" width="20">
     <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/home-assistant.svg" width="20">
   </span>
-   and many more thanks to Apprise integration.
+   and many more Thanks to <a href="https://github.com/caronc/apprise">Apprise</a> integration.
 </p>
 
-- 🤖 **Customizable AI Processing**: Refine messages by summarizing them using customizable pre-prompts
-- ☁️ **Cloud and Self-Hostable AI**: Use Meta’s LLAMA4 for cloud-based processing or Ollama for privacy
-- 📜 **Notification History**: Store and browse past notifications with timestamps and source information
-- 🖥️ **Web Dashboard**: Modern interface for configuration and notification management
+- 🤖 **Customizable AI Processing**: Refine messages by processing them using customizable pre-prompts
+- ☁️ **Cloud and Self-Hostable AI**: Use Ollama for local processing or Meta’s LLAMA4 as a free cloud solution
+- 📜 **Notification History**: Store and browse and filter past notifications with timestamps and source information
+- 🖥️ **Web Dashboard**: Modern interface for configuration and notification and rule management
 - 🔄 **Real-time Updates**: Instantly receive notifications across all configured destinations
-- ⚙️ **Dynamic Configuration**: Update settings without restarting the server
+- ⚙️ **Dynamic Configuration**: Update settings and ruels without restarting the server
 - 📊 **Detailed Logging**: Logging system accessible via web interface
 
 ## AI Processing
 
-**bitvoker** offers AI-powered notification processing with fully customizable rules. This feature enables you to refine, summarize, and tailor notifications to your specific requirements by applying detailed matching conditions.
+**bitvoker** offers AI-processed alerts with fully customizable rules and pre-prompts. This feature enables you to refine, summarize, and tailor notifications to your specific requirements by applying detailed matching conditions.
 
 You can enable AI processing through unauthenticated interactions with [Meta's LLAMA4](https://www.meta.ai/) model or by self-hosting with [Ollama](https://ollama.com/). Define **pre-prompts** to dynamically guide AI behavior, and use the new rule system for granular control over how and when AI processing occurs.
 
@@ -94,10 +91,9 @@ services:
   bitvoker:
     image: ghcr.io/rmfatemi/bitvoker:latest
     container_name: bitvoker
-    # --- Network Configuration ---
-    # it is recommended to use host mode (refer to wiki for why)
+    # it is recommended to use host mode for networking (see the wiki for details)
     network_mode: host
-    # for bridge mode comment the line above and uncomment ports
+    # for bridge mode, comment out the line above and uncomment the section below
     # ports:
     #   - "8083:8083" # TCP server
     #   - "8084:8084" # TLS server
@@ -112,7 +108,7 @@ volumes:
     name: bitvoker_data
 ```
 Then start the service with:
-```
+```shell
 docker-compose up -d
 ```
 ### Standalone Installation
@@ -161,13 +157,13 @@ You can send messages to **bitvoker**'s endpoint using `netcat` (port `8083`) fo
   ```python
   import socket, ssl
 
+  server_port = 8084
   server_ip = "{server_ip}"
-  port = 8084
   message = "Your notification message"
 
   context = ssl.create_default_context()
 
-  with socket.create_connection((server_ip, port)) as sock:
+  with socket.create_connection((server_ip, server_port)) as sock:
       with context.wrap_socket(sock, server_hostname=server_ip) as s:
           s.sendall(message.encode())
   ```
@@ -182,9 +178,9 @@ Access the web interface at `https://{server_ip}:8085` to:
 - View system logs
 
 ### Screenshots
-<img src="https://github.com/user-attachments/assets/368f4842-59dd-4c38-a91d-a4478ca3efdb">
-<img src="https://github.com/user-attachments/assets/04040c01-77bb-4bfd-9fa5-bf4c489f22ca">
-<img src="https://github.com/user-attachments/assets/e3b79e6b-3482-411f-9179-fde5c0587227">
+<img src="https://github.com/user-attachments/assets/7d168752-ad8a-4230-b627-00cc7c7bb601">
+<img src="https://github.com/user-attachments/assets/4e64c12b-5db5-4ae7-ba7d-344bd427c318">
+<img src="https://github.com/user-attachments/assets/4576d1d9-7f9b-4be3-9be5-69774ab980f1">
 <img src="https://github.com/user-attachments/assets/ced0b8ae-25cd-4d51-addd-ba38f7b65e1a">
 
 ## 🔑 License

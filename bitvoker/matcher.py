@@ -138,9 +138,7 @@ class Match:
     def _should_send_original(self, notify_config: Dict[str, Any], text: str, ai_text: Optional[str] = None) -> bool:
         return self._should_send_message(notify_config.get("send_og_text", {}), text, ai_text)
 
-    def _should_send_ai_processed(
-        self, notify_config: Dict[str, Any], text: str, ai_text: str
-    ) -> bool:
+    def _should_send_ai_processed(self, notify_config: Dict[str, Any], text: str, ai_text: str) -> bool:
         return self._should_send_message(notify_config.get("send_ai_text", {}), text, ai_text)
 
     def get_enabled_destinations_by_names(self, destination_names: List[str]) -> Dict[str, Dict[str, Any]]:

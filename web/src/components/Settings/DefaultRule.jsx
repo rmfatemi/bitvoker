@@ -24,63 +24,62 @@ const StyledTextField = styled(TextField)(() => ({
 }));
 
 function DefaultRule({aiEnabled, includeOriginal, preprompt, updateConfig}) {
-    const handleAIEnabledChange = (e) => {
-        const enabled = e.target.checked;
-        updateConfig(prev => {
-            const defaultRule = prev.rules.find(rule => rule.name === "default-rule");
-            const currentIncludeOriginalState = defaultRule?.notify?.original_message?.enabled || false;
-            const ruleEnabled = enabled || currentIncludeOriginalState;
 
-            return {
-                ...prev,
-                rules: prev.rules.map(rule =>
-                    rule.name === "default-rule"
-                        ? {
-                            ...rule,
-                            enabled: ruleEnabled,
-                            notify: {
-                                ...rule.notify,
-                                original_message: {
-                                    ...rule.notify.original_message,
-                                    enabled: currentIncludeOriginalState
-                                },
-                                ai_processed: {
-                                    ...rule.notify.ai_processed,
-                                    enabled: enabled
-                                }
-                            }
+    const handleIncludeOriginalChange = (e) => {
+        const newOgEnabled = e.target.checked;
+        updateConfig(prev => {
+            const defaultRule = prev.rules.find(rule => rule.name === 'default-rule');
+            if (!defaultRule) return prev;
+
+            const currentAiEnabled = defaultRule.notify?.send_ai_text?.enabled || false;
+            const newMasterEnabled = newOgEnabled || currentAiEnabled;
+
+            const newRules = prev.rules.map(rule => {
+                if (rule.name !== 'default-rule') return rule;
+
+                return {
+                    ...rule,
+                    enabled: newMasterEnabled,
+                    notify: {
+                        ...rule.notify,
+                        send_og_text: {
+                            ...rule.notify.send_og_text,
+                            enabled: newOgEnabled
                         }
-                        : rule
-                )
-            };
+                    }
+                };
+            });
+
+            return { ...prev, rules: newRules };
         });
     };
 
-    const handleIncludeOriginalChange = (e) => {
-        const show = e.target.checked;
+    const handleAIEnabledChange = (e) => {
+        const newAiEnabled = e.target.checked;
         updateConfig(prev => {
-            const defaultRule = prev.rules.find(rule => rule.name === "default-rule");
-            const currentAiEnabledState = defaultRule?.notify?.ai_processed?.enabled || false;
-            const ruleEnabled = currentAiEnabledState || show;
+            const defaultRule = prev.rules.find(rule => rule.name === 'default-rule');
+            if (!defaultRule) return prev;
 
-            return {
-                ...prev,
-                rules: prev.rules.map(rule =>
-                    rule.name === "default-rule"
-                        ? {
-                            ...rule,
-                            enabled: ruleEnabled,
-                            notify: {
-                                ...rule.notify,
-                                original_message: {
-                                    ...rule.notify.original_message,
-                                    enabled: show
-                                }
-                            }
+            const currentOgEnabled = defaultRule.notify?.send_og_text?.enabled || false;
+            const newMasterEnabled = newAiEnabled || currentOgEnabled;
+
+            const newRules = prev.rules.map(rule => {
+                if (rule.name !== 'default-rule') return rule;
+
+                return {
+                    ...rule,
+                    enabled: newMasterEnabled,
+                    notify: {
+                        ...rule.notify,
+                        send_ai_text: {
+                            ...rule.notify.send_ai_text,
+                            enabled: newAiEnabled
                         }
-                        : rule
-                )
-            };
+                    }
+                };
+            });
+
+            return { ...prev, rules: newRules };
         });
     };
 
@@ -90,7 +89,7 @@ function DefaultRule({aiEnabled, includeOriginal, preprompt, updateConfig}) {
             ...prev,
             rules: prev.rules.map(rule =>
                 rule.name === "default-rule"
-                    ? {...rule, preprompt: text}
+                    ? { ...rule, preprompt: text }
                     : rule
             )
         }));

@@ -1,25 +1,69 @@
-import React, {useMemo} from 'react';
+import React, {useMemo, useCallback} from 'react';
 import YamlEditor from './YamlEditor';
 
 function RuleEditor({rules, updateConfig}) {
     const displayRules = useMemo(() => {
-        return rules.filter(rule => rule.name !== "default-rule");
+        return rules.filter(rule => rule && rule.name !== "default-rule");
     }, [rules]);
 
+    const defaultRule = useMemo(() => rules.find(rule => rule.name === "default-rule"), [rules]);
+
     const handleRuleUpdate = (updatedDisplayRules) => {
-        const defaultRule = rules.find(rule => rule.name === "default-rule");
         const newRules = defaultRule
             ? [defaultRule, ...updatedDisplayRules]
             : updatedDisplayRules;
-
         updateConfig(prev => ({
             ...prev,
             rules: newRules
         }));
     };
 
+    const validateRules = useCallback((data) => {
+        if (!defaultRule) {
+            return "Validation Error: Default rule schema not found. Cannot validate.";
+        }
+        if (data === null || data === undefined) {
+            return "YAML content cannot be empty.";
+        }
+        if (!Array.isArray(data)) {
+            return "Invalid format: The root element must be a YAML list (array).";
+        }
+
+        const compareKeysRecursively = (objectToTest, schemaObject, path) => {
+            if (typeof objectToTest !== 'object' || objectToTest === null) {
+                return `Invalid structure: '${path}' must be an object.`;
+            }
+            for (const key in schemaObject) {
+                if (!(key in objectToTest)) {
+                    return `Missing key '${key}' in ${path}`;
+                }
+                const schemaValue = schemaObject[key];
+                const testValue = objectToTest[key];
+                if (typeof schemaValue === 'object' && schemaValue !== null && !Array.isArray(schemaValue)) {
+                    const nestedError = compareKeysRecursively(testValue, schemaValue, `${path}.${key}`);
+                    if (nestedError) {
+                        return nestedError;
+                    }
+                }
+            }
+            return null;
+        };
+
+        for (const [index, rule] of data.entries()) {
+            const rulePath = `rule[${index}]`;
+            if (rule === null) {
+                return `Invalid structure: Entry at ${rulePath} is null.`;
+            }
+            const error = compareKeysRecursively(rule, defaultRule, rulePath);
+            if (error) {
+                return error;
+            }
+        }
+        return '';
+    }, [defaultRule]);
+
     const rulesReference =
-  `- name: example-rule-1              # unique rule identifier
+        `- name: example-rule-1              # unique rule identifier
   enabled: true                     # enable or disable this rule (true/false - overrides all conditions below)
   preprompt: briefly summarize logs # instructions prompt sent to the ai model along with the original received text
   match:                            # rule matching conditions; all conditions must be met to trigger (combined using an AND operator)
@@ -45,6 +89,7 @@ function RuleEditor({rules, updateConfig}) {
         <YamlEditor
             data={displayRules}
             updateData={handleRuleUpdate}
+            validateData={validateRules}
             referenceText={rulesReference}
             title="Define your custom rules in YAML format:"
             referenceTitle="Rule Format Reference"
