@@ -2,8 +2,9 @@ import requests
 
 from meta_ai_api import MetaAI
 
-from bitvoker.logger import setup_logger
 from bitvoker.utils import truncate
+from bitvoker.logger import setup_logger
+from bitvoker.constants import MAX_META_PROMPT_LENGTH
 
 
 logger = setup_logger(__name__)
@@ -14,6 +15,12 @@ class MetaAIProvider:
         self.bot = MetaAI()
 
     def process_message(self, prompt, max_retries=3):
+        if len(prompt) > MAX_META_PROMPT_LENGTH:
+            logger.warning(
+                f"meta ai prompt is too long ({len(prompt)} chars), truncating to {MAX_META_PROMPT_LENGTH} characters"
+            )
+            prompt = prompt[:MAX_META_PROMPT_LENGTH]
+
         for retry_count in range(max_retries):
             try:
                 response = self.bot.prompt(prompt)

@@ -17,3 +17,5 @@ DB_FILENAME = DATA_DIR / "database.db"
 CONFIG_FILENAME = DATA_DIR / "config.yaml"
 
 REACT_BUILD_DIR = PROJECT_ROOT / "web" / "build"
+
+MAX_META_PROMPT_LENGTH = 20000
