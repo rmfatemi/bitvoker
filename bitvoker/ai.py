@@ -6,6 +6,9 @@ from bitvoker.logger import logger
 from bitvoker.utils import truncate
 
 
+logger = logger(__name__)
+
+
 class MetaAIProvider:
     def __init__(self):
         self.bot = MetaAI()

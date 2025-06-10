@@ -48,8 +48,8 @@ class Handler(socketserver.BaseRequestHandler):
             if match_result.should_send_ai and match_result.should_send_original:
                 # TODO: maybe let the user decide what it should look like
                 message = (
-                    f"\n~~~~~~~~~~~~[AI Processed]~~~~~~~~~~~~\n{match_result.ai_processed}\n~~~~~~~~~~[Original"
-                    f" Message]~~~~~~~~~~\n{match_result.original_text}"
+                    f"\n~~~~~~~~~[AI Processed]~~~~~~~~~\n{match_result.ai_processed}\n~~~~~~~[Original"
+                    f" Message]~~~~~~~\n{match_result.original_text}"
                 )
             elif match_result.should_send_ai:
                 message = match_result.ai_processed
