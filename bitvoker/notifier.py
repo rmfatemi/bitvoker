@@ -2,10 +2,10 @@ import apprise
 
 from typing import List, Dict, Any, Optional
 
-from bitvoker.logger import logger
+from bitvoker.logger import setup_logger
 
 
-logger = logger(__name__)
+logger = setup_logger(__name__)
 
 
 class Notifier:
@@ -34,7 +34,7 @@ class Notifier:
                 logger.error(f"failed to add destination {destination_conf.get('name', 'unknown')}: {str(e)}")
 
     def send_message(
-            self, message_body: str, title: str = "bitvoker notification", destination_names: Optional[List[str]] = None
+        self, message_body: str, title: str = "bitvoker notification", destination_names: Optional[List[str]] = None
     ) -> None:
         if not self.apprise.servers:
             logger.warning("no notification destinations configured or loaded")
@@ -71,8 +71,7 @@ class Notifier:
                         continue
 
                     chunks = [
-                        message_body[i: i + content_per_chunk]
-                        for i in range(0, len(message_body), content_per_chunk)
+                        message_body[i : i + content_per_chunk] for i in range(0, len(message_body), content_per_chunk)
                     ]
                     total_chunks = len(chunks)
 

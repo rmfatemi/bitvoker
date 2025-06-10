@@ -3,11 +3,11 @@ import yaml
 
 from typing import Dict, Any, List, Optional
 
-from bitvoker.logger import logger
+from bitvoker.logger import setup_logger
 from bitvoker.constants import CONFIG_FILENAME
 
 
-logger = logger(__name__)
+logger = setup_logger(__name__)
 
 
 class Config:

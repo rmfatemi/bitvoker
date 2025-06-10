@@ -2,12 +2,12 @@ import socketserver
 
 from time import strftime, localtime
 
-from bitvoker.logger import logger
+from bitvoker.logger import setup_logger
 from bitvoker.utils import truncate
 from bitvoker.database import insert_notification
 
 
-logger = logger(__name__)
+logger = setup_logger(__name__)
 
 
 class Handler(socketserver.BaseRequestHandler):

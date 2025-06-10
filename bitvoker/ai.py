@@ -2,11 +2,11 @@ import requests
 
 from meta_ai_api import MetaAI
 
-from bitvoker.logger import logger
+from bitvoker.logger import setup_logger
 from bitvoker.utils import truncate
 
 
-logger = logger(__name__)
+logger = setup_logger(__name__)
 
 
 class MetaAIProvider:

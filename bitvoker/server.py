@@ -7,13 +7,13 @@ import socketserver
 import bitvoker.constants as constants
 
 from bitvoker.api import app
-from bitvoker.logger import logger
 from bitvoker.handler import Handler
+from bitvoker.logger import setup_logger
 from bitvoker.utils import generate_ssl_cert
 from bitvoker.refresher import refresh_components
 
 
-logger = logger(__name__)
+logger = setup_logger(__name__)
 
 
 def run_plain_tcp_server():
@@ -22,7 +22,8 @@ def run_plain_tcp_server():
         server.app = app
         app.state.plain_tcp_server = server
         logger.info(
-            f'plain tcp server listening on {constants.SERVER_HOST}:{constants.PLAIN_TCP_SERVER_PORT} ... e.g., echo "message" | nc {constants.SERVER_HOST} {constants.PLAIN_TCP_SERVER_PORT}'
+            f"plain tcp server listening on {constants.SERVER_HOST}:{constants.PLAIN_TCP_SERVER_PORT} ... e.g., echo"
+            f' "message" | nc {constants.SERVER_HOST} {constants.PLAIN_TCP_SERVER_PORT}'
         )
         server.serve_forever()
 
@@ -36,15 +37,14 @@ def run_secure_tcp_server():
         app.state.secure_tcp_server = server
         server.socket = ssl_context.wrap_socket(server.socket, server_side=True)
         logger.info(
-            f"secure tcp server listening on {constants.SERVER_HOST}:{constants.SECURE_TCP_SERVER_PORT} ... e.g., echo 'message' | openssl s_client -connect {constants.SERVER_HOST}:{constants.SECURE_TCP_SERVER_PORT}"
+            f"secure tcp server listening on {constants.SERVER_HOST}:{constants.SECURE_TCP_SERVER_PORT} ... e.g., echo"
+            f" 'message' | openssl s_client -connect {constants.SERVER_HOST}:{constants.SECURE_TCP_SERVER_PORT}"
         )
         server.serve_forever()
 
 
 async def start_http_server():
-    config = uvicorn.Config(
-        app, host=constants.SERVER_HOST, port=constants.HTTP_WEB_SERVER_PORT, log_level="info"
-    )
+    config = uvicorn.Config(app, host=constants.SERVER_HOST, port=constants.HTTP_WEB_SERVER_PORT, log_level="info")
     server = uvicorn.Server(config)
     logger.info(f"http webui listening on http://{constants.SERVER_HOST}:{constants.HTTP_WEB_SERVER_PORT}")
     await server.serve()

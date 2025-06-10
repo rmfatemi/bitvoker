@@ -8,13 +8,13 @@ from fastapi.responses import JSONResponse, FileResponse
 from fastapi import APIRouter, HTTPException, Query, Request
 
 from bitvoker.config import Config
-from bitvoker.logger import logger
+from bitvoker.logger import setup_logger
 from bitvoker.constants import REACT_BUILD_DIR
 from bitvoker.database import get_notifications
 from bitvoker.refresher import refresh_components
 
 
-logger = logger(__name__)
+logger = setup_logger(__name__)
 
 
 api_router = APIRouter()
