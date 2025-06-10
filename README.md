@@ -97,7 +97,8 @@ services:
     # ports:
     #   - "8083:8083" # TCP server
     #   - "8084:8084" # TLS server
-    #   - "8085:8085" # Web UI
+    #   - "8085:8085" # Web UI HTTPS
+    #   - "8086:8086" # Web UI HTTP
     volumes:
       - bitvoker_data:/app/data
       - /etc/localtime:/etc/localtime:ro
@@ -171,7 +172,7 @@ You can send messages to **bitvoker**'s endpoint using `netcat` (port `8083`) fo
 
 
 ### Web Interface
-Access the web interface at `https://{server_ip}:8085` to:
+Access the web interface at `https://{server_ip}:8085` (or `8086` for `http`) to:
 - Configure notification destinations
 - Adjust rules and AI settings
 - View notification history

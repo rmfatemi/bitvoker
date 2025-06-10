@@ -2,8 +2,8 @@ import socketserver
 
 from time import strftime, localtime
 
-from bitvoker.logger import setup_logger
 from bitvoker.utils import truncate
+from bitvoker.logger import setup_logger
 from bitvoker.database import insert_notification
 
 
