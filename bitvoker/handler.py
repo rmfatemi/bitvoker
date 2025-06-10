@@ -2,12 +2,12 @@ import socketserver
 
 from time import strftime, localtime
 
+from bitvoker.logger import logger
 from bitvoker.utils import truncate
-from bitvoker.logger import setup_logger
 from bitvoker.database import insert_notification
 
 
-logger = setup_logger("handler")
+logger = logger(__name__)
 
 
 class Handler(socketserver.BaseRequestHandler):
@@ -25,6 +25,7 @@ class Handler(socketserver.BaseRequestHandler):
         except Exception as e:
             logger.exception(f"error reading socket data: {e}")
             return
+
         original_message = data.decode("utf-8")
 
         if not original_message or original_message.strip() == "":
@@ -47,8 +48,8 @@ class Handler(socketserver.BaseRequestHandler):
             if match_result.should_send_ai and match_result.should_send_original:
                 # TODO: maybe let the user decide what it should look like
                 message = (
-                    f"\n************[AI Processed]************\n{match_result.ai_processed}\n**********[Original"
-                    f" Message]**********\n{match_result.original_text}"
+                    f"\n~~~~~~~~~~~~[AI Processed]~~~~~~~~~~~~\n{match_result.ai_processed}\n~~~~~~~~~~[Original"
+                    f" Message]~~~~~~~~~~\n{match_result.original_text}"
                 )
             elif match_result.should_send_ai:
                 message = match_result.ai_processed
@@ -58,7 +59,6 @@ class Handler(socketserver.BaseRequestHandler):
             if message:
                 try:
                     if match_result.destinations:
-                        self.server.match.get_enabled_destinations_by_names(match_result.destinations)
                         self.server.notifier.send_message(
                             message, title=title, destination_names=match_result.destinations
                         )

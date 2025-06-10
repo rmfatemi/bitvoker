@@ -2,10 +2,10 @@ import os
 
 import bitvoker.constants as constants
 
-from bitvoker.logger import setup_logger
+from bitvoker.logger import logger
 
 
-logger = setup_logger("utils")
+logger = logger(__name__)
 
 
 def truncate(text, max_length=80, preserve_newlines=False, suffix="..."):

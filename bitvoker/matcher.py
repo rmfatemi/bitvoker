@@ -3,11 +3,11 @@ import socket
 from typing import Dict, Any, Optional, List
 
 from bitvoker.config import Config
-from bitvoker.logger import setup_logger
+from bitvoker.logger import logger
 from bitvoker.ai import process_with_ai
 
 
-logger = setup_logger("matcher")
+logger = logger(__name__)
 
 
 class MatchResults:

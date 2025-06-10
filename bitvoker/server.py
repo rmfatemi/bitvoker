@@ -7,13 +7,13 @@ import socketserver
 import bitvoker.constants as constants
 
 from bitvoker.api import app
+from bitvoker.logger import logger
 from bitvoker.handler import Handler
-from bitvoker.logger import setup_logger
 from bitvoker.utils import generate_ssl_cert
 from bitvoker.refresher import refresh_components
 
 
-logger = setup_logger("server")
+logger = logger(__name__)
 
 
 def run_plain_tcp_server():

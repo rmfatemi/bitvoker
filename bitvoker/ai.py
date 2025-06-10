@@ -2,11 +2,8 @@ import requests
 
 from meta_ai_api import MetaAI
 
+from bitvoker.logger import logger
 from bitvoker.utils import truncate
-from bitvoker.logger import setup_logger
-
-
-logger = setup_logger("ai")
 
 
 class MetaAIProvider:
@@ -59,7 +56,7 @@ class OllamaProvider:
             model_names = [m.get("name", "") for m in models]
 
             if not any(self.model == name for name in model_names):
-                error_msg = f"model '{self.model}' not found in ollama."
+                error_msg = f"model '{self.model}' not found in ollama"
                 logger.error(error_msg)
                 raise RuntimeError(error_msg)
 
