@@ -6,7 +6,7 @@ from bitvoker.notifier import Notifier
 from bitvoker.logger import setup_logger
 
 
-logger = setup_logger("components")
+logger = setup_logger(__name__)
 
 
 def refresh_components(app: Any, component_types: Optional[list] = None) -> None:

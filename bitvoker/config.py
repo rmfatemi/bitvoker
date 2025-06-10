@@ -7,7 +7,7 @@ from bitvoker.logger import setup_logger
 from bitvoker.constants import CONFIG_FILENAME
 
 
-logger = setup_logger("config")
+logger = setup_logger(__name__)
 
 
 class Config:
@@ -173,7 +173,7 @@ class Config:
                 field_value = msg_config.get(field_name)
                 if not (field_value is None or isinstance(field_value, str)):
                     logger.error(
-                        f"invalid rule '{rule_name_for_log}': {msg_type}.{field_name} must be a string or empty (null)."
+                        f"invalid rule '{rule_name_for_log}': {msg_type}.{field_name} must be a string or empty (null)"
                         f" found type: {type(field_value)}"
                     )
                     return False

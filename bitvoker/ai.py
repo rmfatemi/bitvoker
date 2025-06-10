@@ -4,9 +4,10 @@ from meta_ai_api import MetaAI
 
 from bitvoker.utils import truncate
 from bitvoker.logger import setup_logger
+from bitvoker.constants import MAX_META_PROMPT_LENGTH
 
 
-logger = setup_logger("ai")
+logger = setup_logger(__name__)
 
 
 class MetaAIProvider:
@@ -14,6 +15,12 @@ class MetaAIProvider:
         self.bot = MetaAI()
 
     def process_message(self, prompt, max_retries=3):
+        if len(prompt) > MAX_META_PROMPT_LENGTH:
+            logger.warning(
+                f"meta ai prompt is too long ({len(prompt)} chars), truncating to {MAX_META_PROMPT_LENGTH} characters"
+            )
+            prompt = prompt[:MAX_META_PROMPT_LENGTH]
+
         for retry_count in range(max_retries):
             try:
                 response = self.bot.prompt(prompt)
@@ -59,7 +66,7 @@ class OllamaProvider:
             model_names = [m.get("name", "") for m in models]
 
             if not any(self.model == name for name in model_names):
-                error_msg = f"model '{self.model}' not found in ollama."
+                error_msg = f"model '{self.model}' not found in ollama"
                 logger.error(error_msg)
                 raise RuntimeError(error_msg)
 

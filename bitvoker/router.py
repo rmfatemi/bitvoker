@@ -14,7 +14,8 @@ from bitvoker.database import get_notifications
 from bitvoker.refresher import refresh_components
 
 
-logger = setup_logger("router")
+logger = setup_logger(__name__)
+
 
 api_router = APIRouter()
 

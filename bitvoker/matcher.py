@@ -7,7 +7,7 @@ from bitvoker.logger import setup_logger
 from bitvoker.ai import process_with_ai
 
 
-logger = setup_logger("matcher")
+logger = setup_logger(__name__)
 
 
 class MatchResults:
