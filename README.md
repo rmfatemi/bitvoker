@@ -5,7 +5,7 @@
 </p>
 <br>
 
-## What Does It Do?
+## 🧐 What Does It Do?
 
 <strong>bitvoker</strong> transforms raw text and data into intelligent, actionable alerts. You send it the `log`, `text`, `website`, etc, and then configure it to do what you need. Leveraging regular expressions and AI, the following scenarios represent only a portion of its capabilities:
 
@@ -15,7 +15,7 @@
 
 3. If logs coming from the `db-server-prod-01` include an error where `long_query_threshold` exceeded and the duration is greater than `1000ms`, then use Meta's LLAMA4 model to summarize the `"impact on service in 15 words or less"`, send both the AI-processed summary and the original message, but the original message only if it contains a Client IP starting with `10.0.0..`. Send all notifications to the `DBA` team's `Microsoft Teams channel` and the team's `email alerts inbox`.
 
-## Features
+## ✅ Features
 
 - 📢 **Multi-platform support**: **bitvoker** supports notifications for
   <p>
@@ -42,7 +42,7 @@
 - ⚙️ **Dynamic Configuration**: Update settings and ruels without restarting the server
 - 📊 **Detailed Logging**: Logging system accessible via web interface
 
-## AI Processing
+## 🤖 AI Processing
 
 **bitvoker** offers AI-processed alerts with fully customizable rules and pre-prompts. This feature enables you to refine, summarize, and tailor notifications to your specific requirements by applying detailed matching conditions.
 
@@ -171,7 +171,7 @@ You can send messages to **bitvoker**'s endpoint using `netcat` (port `8083`) fo
 
 
 
-### Web Interface
+## 📺 Web Interface
 Access the web interface at `https://{server_ip}:8085` (or `8086` for `http`) to:
 - Configure notification destinations
 - Adjust rules and AI settings
