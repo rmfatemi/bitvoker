@@ -21,45 +21,21 @@ def temp_config_file():
 def sample_config():
     """Return a sample valid configuration."""
     return {
-        "ai": {
-            "provider": "ollama",
-            "ollama": {
-                "url": "http://localhost:11434",
-                "model": "gemma:2b"
-            }
-        },
+        "ai": {"provider": "ollama", "ollama": {"url": "http://localhost:11434", "model": "gemma:2b"}},
         "rules": [
             {
                 "name": "default-rule",
                 "enabled": True,
                 "preprompt": "Summarize",
-                "match": {
-                    "sources": [],
-                    "og_text_regex": "",
-                    "ai_text_regex": ""
-                },
+                "match": {"sources": [], "og_text_regex": "", "ai_text_regex": ""},
                 "notify": {
                     "destinations": [],
-                    "send_og_text": {
-                        "enabled": True,
-                        "og_text_regex": "",
-                        "ai_text_regex": ""
-                    },
-                    "send_ai_text": {
-                        "enabled": False,
-                        "og_text_regex": "",
-                        "ai_text_regex": ""
-                    }
-                }
+                    "send_og_text": {"enabled": True, "og_text_regex": "", "ai_text_regex": ""},
+                    "send_ai_text": {"enabled": False, "og_text_regex": "", "ai_text_regex": ""},
+                },
             }
         ],
-        "destinations": [
-            {
-                "name": "Test",
-                "url": "apprise://test",
-                "enabled": True
-            }
-        ]
+        "destinations": [{"name": "Test", "url": "apprise://test", "enabled": True}],
     }
 
 
@@ -74,14 +50,14 @@ class TestConfig:
 
     def test_init_with_existing_file(self, temp_config_file, sample_config):
         """Test Config initialization with existing file."""
-        with open(temp_config_file, 'w') as f:
+        with open(temp_config_file, "w") as f:
             yaml.safe_dump(sample_config, f)
         config = Config(temp_config_file)
         assert config.config_data == sample_config
 
     def test_load_config(self, temp_config_file, sample_config):
         """Test loading configuration from file."""
-        with open(temp_config_file, 'w') as f:
+        with open(temp_config_file, "w") as f:
             yaml.safe_dump(sample_config, f)
         config = Config(temp_config_file)
         config.load_config()
@@ -90,7 +66,7 @@ class TestConfig:
     def test_reload_config(self, temp_config_file, sample_config):
         """Test reloading configuration."""
         config = Config(temp_config_file)
-        with open(temp_config_file, 'w') as f:
+        with open(temp_config_file, "w") as f:
             yaml.safe_dump(sample_config, f)
         reloaded = config.reload_config()
         assert reloaded == sample_config
@@ -100,7 +76,7 @@ class TestConfig:
         config = Config(temp_config_file)
         config.config_data = sample_config
         assert config.save() is True
-        with open(temp_config_file, 'r') as f:
+        with open(temp_config_file, "r") as f:
             saved = yaml.safe_load(f)
         assert saved == sample_config
 

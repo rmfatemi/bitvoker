@@ -16,29 +16,15 @@ def mock_config():
             "name": "test-rule",
             "enabled": True,
             "preprompt": "Summarize",
-            "match": {
-                "sources": ["192.168.1.1"],
-                "og_text_regex": "ERROR",
-                "ai_text_regex": ""
-            },
+            "match": {"sources": ["192.168.1.1"], "og_text_regex": "ERROR", "ai_text_regex": ""},
             "notify": {
                 "destinations": ["Test"],
-                "send_og_text": {
-                    "enabled": True,
-                    "og_text_regex": "",
-                    "ai_text_regex": ""
-                },
-                "send_ai_text": {
-                    "enabled": False,
-                    "og_text_regex": "",
-                    "ai_text_regex": ""
-                }
-            }
+                "send_og_text": {"enabled": True, "og_text_regex": "", "ai_text_regex": ""},
+                "send_ai_text": {"enabled": False, "og_text_regex": "", "ai_text_regex": ""},
+            },
         }
     ]
-    config.get_enabled_destinations.return_value = [
-        {"name": "Test", "url": "apprise://test", "enabled": True}
-    ]
+    config.get_enabled_destinations.return_value = [{"name": "Test", "url": "apprise://test", "enabled": True}]
     return config
 
 
@@ -80,7 +66,7 @@ class TestMatch:
         matcher = Match(mock_config)
         assert matcher._is_source_match("192.168.1.2", ["192.168.1.1"]) is False
 
-    @patch('socket.gethostbyname_ex')
+    @patch("socket.gethostbyname_ex")
     def test_is_source_match_hostname_resolution(self, mock_gethostbyname, mock_config):
         """Test source matching with hostname resolution."""
         mock_gethostbyname.return_value = ("test.local", [], ["192.168.1.1"])
@@ -107,32 +93,24 @@ class TestMatch:
                 "name": "generic-rule",
                 "enabled": True,
                 "preprompt": "Summarize",
-                "match": {
-                    "sources": [],
-                    "og_text_regex": "",
-                    "ai_text_regex": ""
-                },
+                "match": {"sources": [], "og_text_regex": "", "ai_text_regex": ""},
                 "notify": {
                     "destinations": [],
                     "send_og_text": {"enabled": True, "og_text_regex": "", "ai_text_regex": ""},
-                    "send_ai_text": {"enabled": False, "og_text_regex": "", "ai_text_regex": ""}
-                }
+                    "send_ai_text": {"enabled": False, "og_text_regex": "", "ai_text_regex": ""},
+                },
             },
             {
                 "name": "specific-rule",
                 "enabled": True,
                 "preprompt": "Summarize",
-                "match": {
-                    "sources": ["192.168.1.1"],
-                    "og_text_regex": "ERROR",
-                    "ai_text_regex": ""
-                },
+                "match": {"sources": ["192.168.1.1"], "og_text_regex": "ERROR", "ai_text_regex": ""},
                 "notify": {
                     "destinations": [],
                     "send_og_text": {"enabled": True, "og_text_regex": "", "ai_text_regex": ""},
-                    "send_ai_text": {"enabled": False, "og_text_regex": "", "ai_text_regex": ""}
-                }
-            }
+                    "send_ai_text": {"enabled": False, "og_text_regex": "", "ai_text_regex": ""},
+                },
+            },
         ]
         matcher = Match(mock_config)
         result = matcher._find_matching_rule("192.168.1.1", "ERROR: Something failed")
@@ -224,7 +202,7 @@ class TestMatch:
         result = matcher.process("192.168.1.2", "INFO: All good")
         assert result is None
 
-    @patch('bitvoker.matcher.process_with_ai')
+    @patch("bitvoker.matcher.process_with_ai")
     def test_process_with_matching_rule(self, mock_ai, mock_config):
         """Test processing with matching rule."""
         mock_ai.return_value = None
@@ -236,7 +214,7 @@ class TestMatch:
         assert result.matched_rule_name == "test-rule"
         assert result.should_send_original is True
 
-    @patch('bitvoker.matcher.process_with_ai')
+    @patch("bitvoker.matcher.process_with_ai")
     def test_process_with_ai_processing(self, mock_ai, mock_config):
         """Test processing with AI enabled."""
         mock_ai.return_value = "AI processed text"
@@ -245,24 +223,12 @@ class TestMatch:
                 "name": "ai-rule",
                 "enabled": True,
                 "preprompt": "Summarize",
-                "match": {
-                    "sources": ["192.168.1.1"],
-                    "og_text_regex": "ERROR",
-                    "ai_text_regex": ""
-                },
+                "match": {"sources": ["192.168.1.1"], "og_text_regex": "ERROR", "ai_text_regex": ""},
                 "notify": {
                     "destinations": ["Test"],
-                    "send_og_text": {
-                        "enabled": True,
-                        "og_text_regex": "",
-                        "ai_text_regex": ""
-                    },
-                    "send_ai_text": {
-                        "enabled": True,
-                        "og_text_regex": "",
-                        "ai_text_regex": ""
-                    }
-                }
+                    "send_og_text": {"enabled": True, "og_text_regex": "", "ai_text_regex": ""},
+                    "send_ai_text": {"enabled": True, "og_text_regex": "", "ai_text_regex": ""},
+                },
             }
         ]
         matcher = Match(mock_config)
@@ -278,24 +244,12 @@ class TestMatch:
                 "name": "no-send-rule",
                 "enabled": True,
                 "preprompt": "Summarize",
-                "match": {
-                    "sources": ["192.168.1.1"],
-                    "og_text_regex": "ERROR",
-                    "ai_text_regex": ""
-                },
+                "match": {"sources": ["192.168.1.1"], "og_text_regex": "ERROR", "ai_text_regex": ""},
                 "notify": {
                     "destinations": ["Test"],
-                    "send_og_text": {
-                        "enabled": False,
-                        "og_text_regex": "",
-                        "ai_text_regex": ""
-                    },
-                    "send_ai_text": {
-                        "enabled": False,
-                        "og_text_regex": "",
-                        "ai_text_regex": ""
-                    }
-                }
+                    "send_og_text": {"enabled": False, "og_text_regex": "", "ai_text_regex": ""},
+                    "send_ai_text": {"enabled": False, "og_text_regex": "", "ai_text_regex": ""},
+                },
             }
         ]
         matcher = Match(mock_config)

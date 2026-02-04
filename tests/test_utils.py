@@ -1,8 +1,5 @@
 """Unit tests for utils.py module."""
 
-import os
-import tempfile
-import pytest
 from bitvoker.utils import truncate
 
 
