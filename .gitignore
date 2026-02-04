@@ -15,6 +15,7 @@ ENV/
 node_modules/
 /build/
 /dist/
+coverage/
 .env.local
 .env.development.local
 .env.test.local
