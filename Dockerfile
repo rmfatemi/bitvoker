@@ -28,7 +28,7 @@ FROM python:3.11-alpine
 
 WORKDIR /app
 
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl su-exec
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
@@ -50,7 +50,5 @@ EXPOSE 8083 8084 8085 8086
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD grep -q ':1F94' /proc/net/tcp || exit 1
-
-USER appuser
 
 CMD ["sh", "/app/entrypoint.sh"]
