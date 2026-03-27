@@ -6,20 +6,29 @@ help: ## show this help message.
 
 .PHONY: install
 install: ## create virtual environment and install all dependencies (Python and npm).
-	@echo "creating virtual environment using pyenv and poetry"
-	@poetry install
-	@poetry run pre-commit install
+	@echo "creating virtual environment"
+	@python -m venv .venv
+	@echo "installing dependencies"
+	@.venv/bin/pip install -r requirements.txt
+	@.venv/bin/pip install pytest pre-commit deptry
+	@.venv/bin/pre-commit install
 	@echo "installing npm dependencies"
 	@cd web && npm install
 
 .PHONY: check
-check: ## run checks: lock file consistency, linting, and obsolete dependency check.
-	@echo "checking Poetry lock file consistency with 'pyproject.toml': Running poetry check --lock"
-	@poetry check --lock
-	@echo "linting code: Running pre-commit"
-	@poetry run pre-commit run -a
-	@echo "checking for obsolete dependencies: Running deptry"
-	@poetry run deptry .
+check: ## run checks: linting and obsolete dependency check.
+	@echo "linting code: running pre-commit"
+	@.venv/bin/pre-commit run -a
+	@echo "checking for obsolete dependencies: running deptry"
+	@.venv/bin/deptry .
+
+.PHONY: run
+run: ## run bitvoker locally.
+	@.venv/bin/python -m bitvoker.server
+
+.PHONY: test
+test: ## run tests.
+	@.venv/bin/pytest tests/ -v
 
 .PHONY: docker-build
 docker-build: ## build the bitvoker Docker image.

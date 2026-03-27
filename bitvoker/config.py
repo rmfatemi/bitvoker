@@ -201,6 +201,11 @@ class Config:
             logger.error("invalid config: ollama section must have url and model fields")
             return False
 
+        message_token = config.get("message_token", "")
+        if not isinstance(message_token, str):
+            logger.error("invalid config: message_token must be a string")
+            return False
+
         rules = config.get("rules", [])
         if not isinstance(rules, list):
             logger.error("invalid config: rules section must be a list")

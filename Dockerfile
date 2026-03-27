@@ -11,22 +11,32 @@ COPY web/src ./src
 
 RUN npm run build
 
+FROM python:3.11-alpine AS builder
+
+RUN apk add --no-cache build-base
+
+WORKDIR /app
+
+COPY requirements.txt ./
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY bitvoker/ bitvoker/
+COPY README.md pyproject.toml ./
+
 FROM python:3.11-alpine
 
 WORKDIR /app
 
-RUN pip install poetry
+RUN apk add --no-cache openssl
 
-COPY pyproject.toml poetry.lock* ./
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-RUN apk update && \
-    apk add --no-cache openssl && \
-    apk add --no-cache --virtual .build-deps gcc build-base && \
-    poetry config virtualenvs.create false && \
-    poetry install --no-interaction --no-ansi --without dev --no-root && \
-    apk del .build-deps
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /app/bitvoker ./bitvoker
+COPY --from=builder /app/README.md .
+COPY --from=builder /app/pyproject.toml .
 
-COPY bitvoker/ bitvoker/
 COPY data/ /app/initial_data/
 COPY entrypoint.sh /app/entrypoint.sh
 
@@ -34,10 +44,13 @@ RUN chmod +x /app/entrypoint.sh
 
 COPY --from=frontend-build /app/web/build /app/web/build
 
+RUN mkdir -p /app/data && chown -R appuser:appgroup /app/data /app/initial_data
+
 EXPOSE 8083 8084 8085 8086
 
-# verify that a socket listening on port 8084 (0x1F94) exists without sending data
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD grep -q ':1F94' /proc/net/tcp || exit 1
+
+USER appuser
 
 CMD ["sh", "/app/entrypoint.sh"]

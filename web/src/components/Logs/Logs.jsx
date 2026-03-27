@@ -46,10 +46,9 @@ function Logs({logs = [], onRefresh}) {
             headerName: 'Timestamp',
             width: 200,
             type: 'dateTime',
-            valueGetter: (params) => {
-                if (typeof params.value === 'string' && params.value) {
-                    const isoString = params.value.replace(' ', 'T');
-                    const date = new Date(isoString);
+            valueGetter: (value) => {
+                if (typeof value === 'string' && value) {
+                    const date = new Date(value.replace(' ', 'T'));
                     return !isNaN(date.getTime()) ? date : null;
                 }
                 return null;

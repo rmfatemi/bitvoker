@@ -1,8 +1,9 @@
 import React, {useState, useEffect, useMemo} from 'react';
 import {
     Box, Typography, Button, CircularProgress,
-    Snackbar, Alert, styled, Paper, Grid
+    Snackbar, Alert, styled, Paper, TextField
 } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import DefaultRule from './DefaultRule';
 import AIProvider from './AIProvider';
 import RuleEditor from './RuleEditor';
@@ -16,16 +17,22 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
     marginBottom: '20px'
 }));
 
-function Settings() {
+function Settings({ token }) {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [configData, setConfigData] = useState(null);
     const [snackbar, setSnackbar] = useState({open: false, message: '', severity: 'success'});
 
+    const authHeaders = () => {
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        return headers;
+    };
+
     const fetchConfig = async () => {
         try {
             setLoading(true);
-            const response = await fetch('/api/config');
+            const response = await fetch('/api/config', { headers: authHeaders() });
             if (!response.ok) {
                 throw new Error(`Server responded with ${response.status}`);
             }
@@ -53,9 +60,7 @@ function Settings() {
         try {
             const response = await fetch('/api/config', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: authHeaders(),
                 body: JSON.stringify(configData),
             });
 
@@ -119,7 +124,7 @@ function Settings() {
     return (
         <Box component="form" onSubmit={handleSubmit}>
             <Grid container spacing={2} sx={{mb: 3}}>
-                <Grid item xs={12} md={8} sx={{display: 'flex', flexDirection: 'column'}}>
+                <Grid size={{xs: 12, md: 8}} sx={{display: 'flex', flexDirection: 'column'}}>
                     <DefaultRule
                         aiEnabled={aiEnabled}
                         includeOriginal={includeOriginal}
@@ -128,7 +133,7 @@ function Settings() {
                         sx={{flexGrow: 1}}
                     />
                 </Grid>
-                <Grid item xs={12} md={4} sx={{display: 'flex', flexDirection: 'column'}}>
+                <Grid size={{xs: 12, md: 4}} sx={{display: 'flex', flexDirection: 'column'}}>
                     <AIProvider
                         aiProvider={aiProvider}
                         ollamaUrl={ollamaUrl}
@@ -138,6 +143,20 @@ function Settings() {
                     />
                 </Grid>
             </Grid>
+
+            <StyledPaper>
+                <Typography variant="h6" component="h2" sx={{mb: 2}}>
+                    Message Authentication
+                </Typography>
+                <TextField
+                    fullWidth
+                    label="message token"
+                    value={configData?.message_token || ''}
+                    onChange={(e) => updateConfig(prev => ({...prev, message_token: e.target.value}))}
+                    helperText="if set, incoming tcp messages must include this token (e.g. TOKEN:secret:message)"
+                    size="small"
+                />
+            </StyledPaper>
 
             <StyledPaper>
                 <Typography variant="h6" component="h2" sx={{mb: 2}}>

@@ -6,7 +6,9 @@ from pathlib import Path
 
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi import APIRouter, HTTPException, Query, Request
+from pydantic import BaseModel
 
+from bitvoker.auth import is_auth_enabled, verify_credentials, create_token, verify_token
 from bitvoker.config import Config
 from bitvoker.logger import setup_logger
 from bitvoker.constants import REACT_BUILD_DIR
@@ -20,13 +22,37 @@ logger = setup_logger(__name__)
 api_router = APIRouter()
 
 
-# ----------------------
-# Config Endpoints
-# ----------------------
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+def _check_auth(request: Request):
+    if not is_auth_enabled():
+        return
+    token = request.headers.get("authorization", "").removeprefix("Bearer ")
+    if not verify_token(token):
+        raise HTTPException(status_code=401, detail="unauthorized")
+
+
+@api_router.get("/api/auth/status")
+async def auth_status():
+    return {"enabled": is_auth_enabled()}
+
+
+@api_router.post("/api/auth/login")
+async def login(data: LoginRequest):
+    if not is_auth_enabled():
+        return {"token": "", "message": "authentication not enabled"}
+    if verify_credentials(data.username, data.password):
+        token = create_token(data.username)
+        return {"token": token}
+    raise HTTPException(status_code=401, detail="invalid credentials")
 
 
 @api_router.post("/api/config")
 async def update_config(request: Request):
+    _check_auth(request)
     try:
         form_data = await request.json()
         config_obj = Config()
@@ -41,7 +67,8 @@ async def update_config(request: Request):
 
 
 @api_router.get("/api/config")
-async def get_config():
+async def get_config(request: Request):
+    _check_auth(request)
     try:
         config_obj = Config()
         config_obj.get_default_rule()
@@ -51,26 +78,18 @@ async def get_config():
         return JSONResponse(content={"error": f"failed to retrieve config: {str(e)}"}, status_code=500)
 
 
-# ----------------------
-# Notifications Endpoints
-# ----------------------
-
-
 @api_router.get("/api/notifications")
 def get_notifications_route(
+    request: Request,
     limit: int = Query(100, le=1000), start_date: Optional[str] = Query(None), end_date: Optional[str] = Query(None)
 ):
+    _check_auth(request)
     try:
         notifs = get_notifications(limit, start_date or "", end_date or "")
         return {"notifications": notifs}
     except Exception as e:
         logger.error(f"error retrieving notifications: {e}")
         return JSONResponse(content={"notifications": [], "error": str(e)}, status_code=500)
-
-
-# ----------------------
-# Logs Endpoints
-# ----------------------
 
 
 class MemoryLogHandler(logging.Handler):
@@ -98,16 +117,12 @@ logging.getLogger().addHandler(memory_log_handler)
 
 
 @api_router.get("/api/logs")
-def get_logs(level: Optional[str] = Query(None)):
+def get_logs(request: Request, level: Optional[str] = Query(None)):
+    _check_auth(request)
     logs = memory_log_handler.get_logs()
     if level and level.upper() != "ALL":
         logs = [log for log in logs if log["level"] == level.upper()]
     return {"logs": logs}
-
-
-# ----------------------
-# Catch-All for React App
-# ----------------------
 
 
 @api_router.get("/")
