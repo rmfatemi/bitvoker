@@ -8,11 +8,11 @@
 
 <strong>bitvoker</strong> turns raw text into targeted, intelligent alerts. Send it logs, text, or any data, and configure rules to control exactly what happens. With regex matching and AI processing, here are some examples:
 
-1. Security logs from `web-gateway-03` contain `Failed login attempt` for user `admin` from an IP outside `192.168.1.0/24` — use a local LLM to identify the attack origin and recommend action, then send only the AI summary to the SOC team's Slack channel.
+1. Security logs from `web-gateway-03` contain `Failed login attempt` for user `admin` from an IP outside `192.168.1.0/24`, use a local LLM to identify the attack origin and recommend action, then send only the AI summary to the SOC team's Slack channel.
 
-2. A scraped product page contains `Sony WH-1000XM5` with a discount over 15% — extract the current price, original price, and buy link using AI, then send the deal to a Telegram chat.
+2. A scraped product page contains `Sony WH-1000XM5` with a discount over 15%, extract the current price, original price, and buy link using AI, then send the deal to a Telegram chat.
 
-3. Database logs from `db-prod-01` show `long_query_threshold` exceeded over `1000ms` — summarize the impact using Meta's LLAMA4, send both the summary and the original log (only if it contains an IP starting with `10.0.0.`) to the DBA team's Microsoft Teams channel and email inbox.
+3. Database logs from `db-prod-01` show `long_query_threshold` exceeded over `1000ms`, summarize the impact using Meta's LLAMA4, send both the summary and the original log (only if it contains an IP starting with `10.0.0.`) to the DBA team's Microsoft Teams channel and email inbox.
 
 ## Features
 
@@ -73,8 +73,9 @@ services:
       - bitvoker_data:/app/data
       - /etc/localtime:/etc/localtime:ro
     environment:
-      - BITVOKER_USERNAME=admin       # optional: set to enable web UI login
-      - BITVOKER_PASSWORD=changeme    # optional: set to enable web UI login
+      # Optional: uncomment to enable web UI login
+      # - BITVOKER_USERNAME=admin
+      # - BITVOKER_PASSWORD=changeme
     restart: unless-stopped
 
 volumes:
@@ -101,11 +102,19 @@ make run
 
 Set `BITVOKER_USERNAME` and `BITVOKER_PASSWORD` environment variables to enable login for the web UI. When not set, the UI is accessible without authentication.
 
-For TCP messages, configure a `message_token` in the settings to require a token prefix on incoming messages:
+For TCP messages, optionally configure a `message_token` in the settings to require authentication:
 
+**Without token authentication** (default, if `message_token` is not set):
 ```
-TOKEN:your_secret:your message here
+echo "your message" | nc {server_ip} 8083
 ```
+
+**With token authentication** (if `message_token` is configured in settings):
+```
+echo "TOKEN:your_secret_token:your message" | nc {server_ip} 8083
+```
+
+Messages without the correct token prefix will be rejected when token authentication is enabled.
 
 ## Usage
 
