@@ -9,6 +9,4 @@ tests/
 node_modules/
 web/build/
 Makefile
-LICENSE
-README.md
-*.md
+RELEASE_NOTES.md
