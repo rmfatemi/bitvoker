@@ -22,6 +22,10 @@ check: ## run checks: linting and obsolete dependency check.
 	@echo "checking for obsolete dependencies: running deptry"
 	@.venv/bin/deptry .
 
+.PHONY: run
+run: ## run bitvoker locally.
+	@.venv/bin/python -m bitvoker.server
+
 .PHONY: test
 test: ## run tests.
 	@.venv/bin/pytest tests/ -v

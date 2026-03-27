@@ -4,23 +4,53 @@
 </p>
 <br>
 
+## What Does It Do?
+
+<strong>bitvoker</strong> turns raw text into targeted, intelligent alerts. Send it logs, text, or any data, and configure rules to control exactly what happens. With regex matching and AI processing, here are some examples:
+
+1. Security logs from `web-gateway-03` contain `Failed login attempt` for user `admin` from an IP outside `192.168.1.0/24` — use a local LLM to identify the attack origin and recommend action, then send only the AI summary to the SOC team's Slack channel.
+
+2. A scraped product page contains `Sony WH-1000XM5` with a discount over 15% — extract the current price, original price, and buy link using AI, then send the deal to a Telegram chat.
+
+3. Database logs from `db-prod-01` show `long_query_threshold` exceeded over `1000ms` — summarize the impact using Meta's LLAMA4, send both the summary and the original log (only if it contains an IP starting with `10.0.0.`) to the DBA team's Microsoft Teams channel and email inbox.
+
 ## Features
 
-- **100+ notification destinations** via Apprise (Slack, Discord, Telegram, Teams, Email, etc.)
-- **AI processing** with customizable pre-prompts using Meta LLAMA4 or self-hosted Ollama
-- **Flexible rule system** with regex matching, source filtering, and per-rule AI and destination control
-- **Web dashboard** for configuration, notification history, and log viewing
-- **Authentication** for the web UI and TCP message token verification
-- **Dynamic configuration** without server restarts
+- **Multi-platform support**: notifications for
+  <p>
+  <span>
+    <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/telegram.svg" width="20">
+    <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/slack.svg" width="20">
+    <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/microsoft-teams.svg" width="20">
+    <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/gmail.svg" width="20">
+    <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/discord.svg" width="20">
+    <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/whatsapp.svg" width="20">
+    <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/gotify.svg" width="20">
+    <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/ntfy.svg" width="20">
+    <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/pushover.svg" width="20">
+    <img src="https://github.com/homarr-labs/dashboard-icons/blob/main/svg/home-assistant.svg" width="20">
+  </span>
+   and many more thanks to <a href="https://github.com/caronc/apprise">Apprise</a> integration.
+</p>
+
+- **AI Processing**: refine messages using customizable pre-prompts with Meta's LLAMA4 or self-hosted Ollama
+- **Flexible Rule System**: regex matching, source filtering, and per-rule AI and destination control
+- **Web Dashboard**: modern interface for configuration, notification history, and log viewing
+- **Authentication**: optional login for the web UI and token verification for TCP messages
+- **Dynamic Configuration**: update settings and rules without restarting the server
+- **Notification History**: browse and filter past notifications with timestamps and source info
 
 ## AI Processing
 
-bitvoker can optionally process messages with AI before delivery. Two providers are supported:
+bitvoker can optionally process messages with AI before delivery:
 
-- **Meta LLAMA4** (default) - free cloud-based processing via [meta.ai](https://www.meta.ai/), subject to rate limits
-- **Ollama** - self-hosted local processing via [ollama.com](https://ollama.com/), recommended for privacy and reliability
+- **Meta LLAMA4** (default): free cloud-based processing via [meta.ai](https://www.meta.ai/), subject to rate limits
+- **Ollama**: self-hosted local processing via [ollama.com](https://ollama.com/), recommended for privacy and reliability
 
-Define pre-prompts in your rules to control how AI processes each message. See the [wiki](https://github.com/rmfatemi/bitvoker/wiki) for rule configuration details.
+Define pre-prompts in your rules to control how AI processes each message. See the [wiki](https://github.com/rmfatemi/bitvoker/wiki) for the full rule reference.
+
+> [!TIP]
+> If you experience rate limits with Meta's service, switch to Ollama or reduce AI queries. A compact model like `gemma3:1b` works well even on limited hardware.
 
 ## Setup
 
@@ -31,19 +61,20 @@ services:
   bitvoker:
     image: ghcr.io/rmfatemi/bitvoker:latest
     container_name: bitvoker
+    # host mode recommended (see wiki for details)
     network_mode: host
     # for bridge mode, comment out the line above and uncomment below
     # ports:
-    #   - "8083:8083"
-    #   - "8084:8084"
-    #   - "8085:8085"
-    #   - "8086:8086"
+    #   - "8083:8083" # TCP server
+    #   - "8084:8084" # TLS server
+    #   - "8085:8085" # Web UI HTTPS
+    #   - "8086:8086" # Web UI HTTP
     volumes:
       - bitvoker_data:/app/data
       - /etc/localtime:/etc/localtime:ro
     environment:
-      - BITVOKER_USERNAME=admin
-      - BITVOKER_PASSWORD=changeme
+      - BITVOKER_USERNAME=admin       # optional: set to enable web UI login
+      - BITVOKER_PASSWORD=changeme    # optional: set to enable web UI login
     restart: unless-stopped
 
 volumes:
@@ -96,6 +127,9 @@ with socket.create_connection(("{server_ip}", 8084)) as sock:
     with context.wrap_socket(sock, server_hostname="{server_ip}") as s:
         s.sendall(b"your notification")
 ```
+
+> [!TIP]
+> If you're not comfortable with YAML and regular expressions, any AI model can help you create your rules — just provide it with the rule reference from the [wiki](https://github.com/rmfatemi/bitvoker/wiki) and describe what you need.
 
 ## Web Interface
 
