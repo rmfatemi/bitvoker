@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import { Container, Box, Tabs, Tab } from '@mui/material';
 import { getAppTheme } from './theme';
@@ -6,10 +6,13 @@ import Header from './components/Header/Header';
 import Dashboard from './components/Dashboard/Dashboard';
 import Settings from './components/Settings/Settings';
 import Logs from './components/Logs/Logs';
+import Login from './components/Login/Login';
 
 function App() {
     const [activeTab, setActiveTab] = useState(localStorage.getItem('activeTab') || 'dashboard');
     const [themeMode, setThemeMode] = useState(localStorage.getItem('theme') || 'dark');
+    const [authRequired, setAuthRequired] = useState(null);
+    const [token, setToken] = useState(localStorage.getItem('token') || '');
 
     const [notifications, setNotifications] = useState([]);
     const [logs, setLogs] = useState([]);
@@ -22,19 +25,42 @@ function App() {
     const theme = getAppTheme(themeMode);
     const API_BASE = '/api';
 
+    const authHeaders = useCallback(() => {
+        if (!token) return {};
+        return { 'Authorization': `Bearer ${token}` };
+    }, [token]);
+
+    useEffect(() => {
+        fetch(`${API_BASE}/auth/status`)
+            .then(res => res.json())
+            .then(data => setAuthRequired(data.enabled))
+            .catch(() => setAuthRequired(false));
+    }, []);
+
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', themeMode);
+
+        if (authRequired && !token) return;
 
         if (activeTab === 'dashboard') {
             fetchNotifications();
         } else if (activeTab === 'logs') {
             fetchLogs();
         }
-    }, [activeTab, themeMode]);
+    }, [activeTab, themeMode, token, authRequired]);
+
+    const handleAuthError = (res) => {
+        if (res.status === 401) {
+            setToken('');
+            localStorage.removeItem('token');
+        }
+        return res;
+    };
 
     const fetchNotifications = () => {
         setIsLoading(prev => ({ ...prev, notifications: true }));
-        fetch(`${API_BASE}/notifications`)
+        fetch(`${API_BASE}/notifications`, { headers: authHeaders() })
+            .then(handleAuthError)
             .then(res => res.json())
             .then(data => {
                 if (data && data.notifications) {
@@ -42,7 +68,7 @@ function App() {
                 }
             })
             .catch(err => {
-                console.error('Error fetching notifications:', err);
+                console.error('error fetching notifications:', err);
             })
             .finally(() => {
                 setIsLoading(prev => ({ ...prev, notifications: false }));
@@ -51,7 +77,8 @@ function App() {
 
     const fetchLogs = () => {
         setIsLoading(prev => ({ ...prev, logs: true }));
-        fetch(`${API_BASE}/logs`)
+        fetch(`${API_BASE}/logs`, { headers: authHeaders() })
+            .then(handleAuthError)
             .then(res => res.json())
             .then(data => {
                 if (data && data.logs) {
@@ -59,11 +86,21 @@ function App() {
                 }
             })
             .catch(err => {
-                console.error('Error fetching logs:', err);
+                console.error('error fetching logs:', err);
             })
             .finally(() => {
                 setIsLoading(prev => ({ ...prev, logs: false }));
             });
+    };
+
+    const handleLogin = (newToken) => {
+        setToken(newToken);
+        localStorage.setItem('token', newToken);
+    };
+
+    const handleLogout = () => {
+        setToken('');
+        localStorage.removeItem('token');
     };
 
     const toggleTheme = () => {
@@ -76,7 +113,6 @@ function App() {
         setActiveTab(newValue);
         localStorage.setItem('activeTab', newValue);
 
-        // Fetch data when switching to a tab
         if (newValue === 'dashboard') {
             fetchNotifications();
         } else if (newValue === 'logs') {
@@ -84,11 +120,26 @@ function App() {
         }
     };
 
+    if (authRequired === null) return null;
+
+    if (authRequired && !token) {
+        return (
+            <ThemeProvider theme={theme}>
+                <CssBaseline />
+                <Login onLogin={handleLogin} />
+            </ThemeProvider>
+        );
+    }
+
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
             <Box className="app-container">
-                <Header toggleTheme={toggleTheme} theme={themeMode} />
+                <Header
+                    toggleTheme={toggleTheme}
+                    theme={themeMode}
+                    onLogout={authRequired ? handleLogout : null}
+                />
 
                 <Container maxWidth={false}>
                     <Tabs
@@ -122,7 +173,7 @@ function App() {
                         )}
 
                         {activeTab === 'settings' && (
-                            <Settings />
+                            <Settings token={token} />
                         )}
 
                         {activeTab === 'logs' && (

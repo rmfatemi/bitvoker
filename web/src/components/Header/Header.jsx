@@ -4,13 +4,15 @@ import {
   Toolbar,
   Typography,
   IconButton,
-  Box
+  Box,
+  Button
 } from '@mui/material';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import LogoutIcon from '@mui/icons-material/Logout';
 import bitvokerLogo from '../../assets/bitvoker.png';
 
-function Header({ toggleTheme, theme }) {
+function Header({ toggleTheme, theme, onLogout }) {
   return (
     <AppBar
       position="static"
@@ -22,7 +24,7 @@ function Header({ toggleTheme, theme }) {
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <img
             src={bitvokerLogo}
-            alt="Bitvoker Logo"
+            alt="bitvoker"
             width="32"
             height="32"
             style={{ marginRight: '10px' }}
@@ -32,14 +34,25 @@ function Header({ toggleTheme, theme }) {
           </Typography>
         </Box>
 
-        <IconButton
-          onClick={toggleTheme}
-          color="inherit"
-          aria-label="Toggle theme"
-          id="themeToggle"
-        >
-          {theme === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
-        </IconButton>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <IconButton
+            onClick={toggleTheme}
+            color="inherit"
+            aria-label="toggle theme"
+          >
+            {theme === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+          </IconButton>
+          {onLogout && (
+            <Button
+              onClick={onLogout}
+              color="inherit"
+              size="small"
+              startIcon={<LogoutIcon />}
+            >
+              logout
+            </Button>
+          )}
+        </Box>
       </Toolbar>
     </AppBar>
   );

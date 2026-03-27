@@ -17,16 +17,22 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
     marginBottom: '20px'
 }));
 
-function Settings() {
+function Settings({ token }) {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [configData, setConfigData] = useState(null);
     const [snackbar, setSnackbar] = useState({open: false, message: '', severity: 'success'});
 
+    const authHeaders = () => {
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        return headers;
+    };
+
     const fetchConfig = async () => {
         try {
             setLoading(true);
-            const response = await fetch('/api/config');
+            const response = await fetch('/api/config', { headers: authHeaders() });
             if (!response.ok) {
                 throw new Error(`Server responded with ${response.status}`);
             }
@@ -54,9 +60,7 @@ function Settings() {
         try {
             const response = await fetch('/api/config', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: authHeaders(),
                 body: JSON.stringify(configData),
             });
 
