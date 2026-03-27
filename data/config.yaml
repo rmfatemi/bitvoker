@@ -4,6 +4,7 @@ ai:
   ollama:
     url: http://{ollama_server_ip}:11434
     model: gemma3:1b
+message_token: ""
 rules:
 - name: default-rule
   enabled: true

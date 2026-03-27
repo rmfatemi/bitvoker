@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useMemo} from 'react';
 import {
     Box, Typography, Button, CircularProgress,
-    Snackbar, Alert, styled, Paper
+    Snackbar, Alert, styled, Paper, TextField
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import DefaultRule from './DefaultRule';
@@ -143,6 +143,20 @@ function Settings({ token }) {
                     />
                 </Grid>
             </Grid>
+
+            <StyledPaper>
+                <Typography variant="h6" component="h2" sx={{mb: 2}}>
+                    Message Authentication
+                </Typography>
+                <TextField
+                    fullWidth
+                    label="message token"
+                    value={configData?.message_token || ''}
+                    onChange={(e) => updateConfig(prev => ({...prev, message_token: e.target.value}))}
+                    helperText="if set, incoming tcp messages must include this token (e.g. TOKEN:secret:message)"
+                    size="small"
+                />
+            </StyledPaper>
 
             <StyledPaper>
                 <Typography variant="h6" component="h2" sx={{mb: 2}}>
