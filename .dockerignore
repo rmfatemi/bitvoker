@@ -1,0 +1,14 @@
+.git
+.gitignore
+.venv
+.pytest_cache
+.pre-commit-config.yaml
+__pycache__
+*.pyc
+tests/
+node_modules/
+web/build/
+Makefile
+LICENSE
+README.md
+*.md
