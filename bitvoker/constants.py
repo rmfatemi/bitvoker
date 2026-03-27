@@ -1,7 +1,7 @@
 from pathlib import Path
 
 
-SERVER_HOST = "0.0.0.0"  # listen on all interfaces
+SERVER_HOST = "0.0.0.0"
 
 HTTP_WEB_SERVER_PORT = 8086
 HTTPS_WEB_SERVER_PORT = 8085
